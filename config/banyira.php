@@ -4,7 +4,7 @@ return [
     /*
     | Branding is configurable: set BANYIRA_BRAND in .env (the working name is temporary).
     */
-    'brand' => env('BANYIRA_BRAND', 'Banyira Micro Finance'),
+    'brand' => env('BANYIRA_BRAND', 'Banyira MicroCredit'),
     'tagline' => env('BANYIRA_TAGLINE', 'Lend to Malawian businesses. Grow with them.'),
     'support_email' => env('BANYIRA_SUPPORT_EMAIL', 'support@example.test'),
 

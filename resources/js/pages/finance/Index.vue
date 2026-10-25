@@ -9,9 +9,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { label, mk } from '@/lib/format';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 
-const props = defineProps<{ trial_balance: { account: string; balance: number }[]; trial_total: number; fees: any[]; payments: any[]; disbursements: any[]; approvals: any[]; fee_settings: Record<string, number> }>();
+const props = defineProps<{ trial_balance: { account: string; balance: number }[]; trial_total: number; fees: any[]; payments: any[]; disbursements: any[]; approvals: any[]; fee_schedule: { name: string; effective_from: string; tax_bp: number; processing_bp: number; tiers: any[] } | null }>();
 const can = usePage().props.can as Record<string, boolean>;
-const fee = useForm({ origination_bp: props.fee_settings['fees.origination_bp'], investor_service_bp: props.fee_settings['fees.investor_service_bp'], processing_bp: props.fee_settings['fees.processing_bp'], tax_bp: props.fee_settings['fees.tax_bp'], reason: '' });
+const blank = () => ({ min: '0', max: '', origination_bp: 0, origination_fixed: '0', investor_bp: 0, investor_fixed: '0' });
+const fee = useForm({ name: '', effective_from: new Date().toISOString().slice(0, 10), tax_bp: props.fee_schedule?.tax_bp ?? 0, processing_bp: props.fee_schedule?.processing_bp ?? 0, reason: '', tiers: [blank()] });
+const addTier = () => fee.tiers.push({ ...blank(), min: fee.tiers.at(-1)?.max ?? '0' });
 const reverse = (id: number) => {
     const reason = prompt('Why should this payment be reversed? (a second person must approve)');
     if (reason) router.post(route('finance.reversal', id), { reason });
@@ -24,7 +26,7 @@ const reverse = (id: number) => {
         <PageHeader title="Finance" description="Reconciliation, fees, disbursements and the ledger. Entries are append-only; corrections are reversals."><Sim /><Button variant="outline" as-child><Link :href="route('finance.ledger')">Full ledger</Link></Button></PageHeader>
 
         <section v-if="disbursements.length" class="mb-8"><h2 class="mb-3 font-semibold">Disbursements awaiting approval</h2>
-            <ul class="divide-y rounded-lg border-2 border-gold/50 bg-card"><li v-for="d in disbursements" :key="d.id" class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm"><div><p class="font-medium">AGR-{{ d.agreement_id }} · {{ d.business }}</p><p class="text-muted-foreground">Gross {{ mk(d.gross) }} − fees {{ mk(d.fees) }} = <strong>{{ mk(d.net) }}</strong> to the business</p></div><Button v-if="can['finance.approve']" size="sm" @click="router.post(route('finance.disbursement', d.id))">Approve (simulated)</Button></li></ul></section>
+            <ul class="divide-y rounded-lg border-2 border-gold/50 bg-card"><li v-for="d in disbursements" :key="d.id" class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm"><div><p class="font-medium">AGR-{{ d.agreement_id }} · {{ d.business }}</p><p class="text-muted-foreground">Gross {{ mk(d.gross) }} − fees {{ mk(d.fees) }} = <strong>{{ mk(d.net) }}</strong> to the business</p></div><div class="text-right"><p class="text-xs" :class="d.ready ? 'text-primary' : 'text-gold'">Campaign {{ d.funded_pct }}% funded · minimum {{ d.min_pct }}%</p><Button v-if="can['finance.approve']" size="sm" class="mt-1" :disabled="!d.ready" @click="router.post(route('finance.disbursement', d.id))">{{ d.ready ? 'Approve (simulated)' : 'Waiting for the campaign' }}</Button></div></li></ul></section>
 
         <div class="grid gap-6 lg:grid-cols-2">
             <section class="rounded-lg border bg-card p-5"><h2 class="font-semibold">Trial balance</h2><p class="text-xs text-muted-foreground">Debits minus credits per account. The total must be zero.</p>
@@ -43,8 +45,24 @@ const reverse = (id: number) => {
                 <ul class="mt-3 divide-y text-sm"><li v-for="r in approvals" :key="r.id" class="py-3"><div class="flex items-center justify-between gap-2"><strong>{{ label(r.type) }}</strong><Status :value="r.status" /></div><p class="text-muted-foreground">{{ r.reason }} · requested by {{ r.by }}</p>
                     <div v-if="r.status === 'pending' && !r.mine && can['finance.approve']" class="mt-2 flex gap-2"><Button size="sm" @click="router.post(route('finance.approval', r.id), { approve: true })">Approve</Button><Button size="sm" variant="outline" @click="router.post(route('finance.approval', r.id), { approve: false })">Reject</Button></div>
                     <Button v-if="r.status === 'approved' && r.type === 'reversal'" size="sm" class="mt-2" @click="router.post(route('finance.execute', r.id))">Execute reversal</Button><p v-if="r.status === 'pending' && r.mine" class="mt-1 text-xs text-muted-foreground">Waiting for someone else to decide.</p></li><li v-if="!approvals.length" class="py-3 text-muted-foreground">None.</li></ul></section>
-            <section v-if="can['finance.approve']" class="rounded-lg border bg-card p-5"><h2 class="font-semibold">Request a fee change</h2><p class="text-xs text-muted-foreground">Rates in basis points (100 = 1%). Needs a second approver. Existing agreements keep the fees they were signed with.</p>
-                <form class="mt-3 space-y-3" @submit.prevent="fee.post(route('finance.fees'))"><div class="grid grid-cols-2 gap-3"><FormField label="Borrower origination" for="f1" :error="fee.errors.origination_bp"><Input id="f1" v-model.number="fee.origination_bp" type="number" /></FormField><FormField label="Investor service" for="f2" :error="fee.errors.investor_service_bp"><Input id="f2" v-model.number="fee.investor_service_bp" type="number" /></FormField><FormField label="Provider processing" for="f3" :error="fee.errors.processing_bp"><Input id="f3" v-model.number="fee.processing_bp" type="number" /></FormField><FormField label="Tax on fees" for="f4" :error="fee.errors.tax_bp"><Input id="f4" v-model.number="fee.tax_bp" type="number" /></FormField></div><FormField label="Reason" for="f5" :error="fee.errors.reason"><Input id="f5" v-model="fee.reason" /></FormField><Button type="submit" :disabled="fee.processing">Request change</Button></form></section>
+            <section class="rounded-lg border bg-card p-5">
+                <h2 class="font-semibold">Fee schedule</h2>
+                <p v-if="!fee_schedule" class="mt-2 rounded-md border border-gold/50 bg-gold/10 p-3 text-sm"><strong>No approved fee schedule.</strong> No fees are being charged. Offers and agreements show zero fees until a schedule is approved.</p>
+                <template v-else>
+                    <p class="mt-1 text-xs text-muted-foreground">{{ fee_schedule.name }} · effective {{ fee_schedule.effective_from }} · provider processing {{ fee_schedule.processing_bp / 100 }}% (borne by the platform) · tax on fees {{ fee_schedule.tax_bp / 100 }}%</p>
+                    <table class="mt-3 w-full text-sm"><thead class="text-left text-xs uppercase text-muted-foreground"><tr><th>Loan amount</th><th>Borrower fee</th><th>Investor fee</th></tr></thead><tbody class="divide-y"><tr v-for="(t, i) in fee_schedule.tiers" :key="i"><td class="py-1.5">{{ mk(t.min) }} – {{ t.max === null ? 'and above' : mk(t.max) }}</td><td>{{ t.origination_bp / 100 }}%<span v-if="t.origination_fixed"> + {{ mk(t.origination_fixed) }}</span></td><td>{{ t.investor_bp / 100 }}%<span v-if="t.investor_fixed"> + {{ mk(t.investor_fixed) }}</span></td></tr></tbody></table>
+                </template>
+                <details v-if="can['finance.approve']" class="mt-4"><summary class="cursor-pointer text-sm font-medium text-primary">Propose a new schedule (needs a second approver)</summary>
+                    <form class="mt-3 space-y-3" @submit.prevent="fee.post(route('finance.fee-schedules'))">
+                        <div class="grid grid-cols-2 gap-3"><FormField label="Name" for="fn" :error="fee.errors.name"><Input id="fn" v-model="fee.name" /></FormField><FormField label="Effective from" for="fe" :error="fee.errors.effective_from"><Input id="fe" v-model="fee.effective_from" type="date" /></FormField><FormField label="Provider processing (bp)" for="f3" :error="fee.errors.processing_bp"><Input id="f3" v-model.number="fee.processing_bp" type="number" /></FormField><FormField label="Tax on fees (bp)" for="f4" :error="fee.errors.tax_bp"><Input id="f4" v-model.number="fee.tax_bp" type="number" /></FormField></div>
+                        <div v-for="(t, i) in fee.tiers" :key="i" class="grid grid-cols-3 gap-2 rounded-md border p-3 text-xs"><FormField label="From (MK)" :for="`tm${i}`"><Input :id="`tm${i}`" v-model="t.min" /></FormField><FormField label="Up to (MK, blank = no limit)" :for="`tx${i}`"><Input :id="`tx${i}`" v-model="t.max" /></FormField><span /><FormField label="Borrower % (bp)" :for="`ob${i}`"><Input :id="`ob${i}`" v-model.number="t.origination_bp" type="number" /></FormField><FormField label="Borrower fixed (MK)" :for="`of${i}`"><Input :id="`of${i}`" v-model="t.origination_fixed" /></FormField><span /><FormField label="Investor % (bp)" :for="`ib${i}`"><Input :id="`ib${i}`" v-model.number="t.investor_bp" type="number" /></FormField><FormField label="Investor fixed (MK)" :for="`if${i}`"><Input :id="`if${i}`" v-model="t.investor_fixed" /></FormField></div>
+                        <p v-if="fee.errors.tiers" class="text-sm text-destructive">{{ fee.errors.tiers }}</p>
+                        <Button type="button" size="sm" variant="outline" @click="addTier">Add tier</Button>
+                        <FormField label="Reason" for="fr" :error="fee.errors.reason"><Input id="fr" v-model="fee.reason" /></FormField>
+                        <Button type="submit" :disabled="fee.processing">Propose schedule</Button>
+                    </form>
+                </details>
+            </section>
         </div>
     </AppLayout>
 </template>

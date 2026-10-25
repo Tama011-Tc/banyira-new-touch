@@ -33,8 +33,9 @@ const fees = l.fees;
                         <div><dt class="text-muted-foreground">How interest is calculated</dt><dd>{{ method(l.interest_method) }}</dd></div>
                         <div><dt class="text-muted-foreground">Term · repayments</dt><dd>Up to {{ l.term_months }} months · {{ l.frequency }}</dd></div>
                         <div><dt class="text-muted-foreground">Your investment</dt><dd>{{ mk(l.min_investment) }} to {{ mk(l.max_investment) }}</dd></div>
-                        <div><dt class="text-muted-foreground">Investor service fee</dt><dd>{{ pct(fees.investor_service_bp) }} of the amount you lend, added to your payment</dd></div>
-                        <div><dt class="text-muted-foreground">Borrower fee</dt><dd>{{ pct(fees.origination_bp) }} of the loan, deducted from what the business receives</dd></div>
+                        <div class="sm:col-span-2"><dt class="text-muted-foreground">Platform fees</dt>
+                            <dd v-if="!fees.approved">No platform fee is currently approved, so none would be charged. Fees are always shown on an offer before anyone accepts it.</dd>
+                            <dd v-else><ul class="mt-1 space-y-0.5"><li v-for="(t, i) in l.fee_tiers" :key="i">Loans {{ mk(t.min) }} – {{ t.max === null ? 'and above' : mk(t.max) }}: borrower {{ pct(t.origination_bp) }}<span v-if="t.origination_fixed"> + {{ mk(t.origination_fixed) }}</span>, investor {{ pct(t.investor_bp) }}<span v-if="t.investor_fixed"> + {{ mk(t.investor_fixed) }}</span> (borrower fee is deducted from what the business receives; investor fee is added to your payment)</li></ul></dd></div>
                         <div class="sm:col-span-2"><dt class="text-muted-foreground">Payment-provider charges</dt><dd>{{ pct(fees.processing_bp) }} per payment, paid by the platform</dd></div>
                     </dl>
                 </section>

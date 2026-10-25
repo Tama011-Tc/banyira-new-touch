@@ -43,7 +43,7 @@ class OfferService
             $offer->versions()->where('status', 'proposed')->update(['status' => 'superseded']);
             $offer->forceFill(['status' => 'open'])->save();
 
-            $fees = FeeService::snapshot();
+            $fees = FeeService::snapshot($terms['principal']);
             $v = OfferVersion::create([
                 'offer_id' => $offer->id, 'version' => $version, 'proposed_by' => $proposer->id, 'principal' => $terms['principal'], 'rate_bp' => $terms['rate_bp'],
                 'term_months' => $terms['term_months'], 'frequency' => $terms['frequency'], 'interest_method' => $terms['interest_method'], 'grace_instalments' => $terms['grace_instalments'] ?? 0,

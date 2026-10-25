@@ -139,7 +139,7 @@ class PaymentService
             $this->ledger->post('payment_attempt', $attempt->id, [[LedgerService::PROVIDER_FEES, 'debit', $processing, 'Processing fee'], [LedgerService::CLEARING, 'credit', $processing]], 'Provider processing fee');
             PlatformFee::create(['agreement_id' => $a->id, 'fee_type' => 'processing', 'payer' => 'platform', 'basis_amount' => $attempt->amount, 'rate_bp' => $a->fees['processing_bp'], 'amount' => $processing, 'net' => $processing, 'status' => 'collected', 'reconciliation_ref' => $attempt->provider_ref]);
         }
-        PlatformFee::create(['agreement_id' => $a->id, 'fee_type' => 'investor_service', 'payer' => 'investor', 'basis_amount' => $a->principal, 'rate_bp' => $a->fees['investor_service_bp'], 'amount' => $f['investor_service'], 'tax' => $f['investor_service_tax'], 'net' => $f['investor_service'], 'status' => 'collected', 'reconciliation_ref' => $attempt->provider_ref]);
+        $f['investor_service'] > 0 && PlatformFee::create(['agreement_id' => $a->id, 'fee_type' => 'investor_service', 'payer' => 'investor', 'basis_amount' => $a->principal, 'rate_bp' => $a->fees['investor_service_bp'], 'amount' => $f['investor_service'], 'tax' => $f['investor_service_tax'], 'net' => $f['investor_service'], 'status' => 'collected', 'reconciliation_ref' => $attempt->provider_ref]);
         InvestmentCommitment::where('agreement_id', $a->id)->update(['status' => 'funded']);
         $a->forceFill(['status' => 'funded', 'funded_at' => now()])->save();
         Disbursement::create(['agreement_id' => $a->id, 'gross' => $a->principal, 'fees' => $f['borrower_total'], 'net' => $f['net_to_business'], 'status' => 'pending_approval', 'created_at' => now()]);
@@ -159,6 +159,10 @@ class PaymentService
                 throw ValidationException::withMessages(['disbursement' => 'This disbursement is not awaiting approval.']);
             }
             $a = LoanAgreement::query()->whereKey($d->agreement_id)->lockForUpdate()->firstOrFail();
+            $campaign = $this->campaignStatus($a->listing);
+            if (! $campaign['ready']) {
+                throw ValidationException::withMessages(['campaign' => "The campaign is {$campaign['funded_pct']}% funded; the business is paid only once it reaches {$campaign['min_pct']}%."]);
+            }
             $f = FeeService::onPrincipal($a->fees, $a->principal);
             $this->ledger->post('disbursement', $d->id, array_values(array_filter([
                 [LedgerService::INVESTOR_FUNDS, 'debit', $a->principal, 'Release to business (simulated)'],
@@ -166,7 +170,7 @@ class PaymentService
                 [LedgerService::FEE_REVENUE, 'credit', $f['origination']],
                 [LedgerService::TAX_PAYABLE, 'credit', $f['origination_tax']],
             ], fn ($l) => $l[2] > 0)), 'Disbursement');
-            PlatformFee::create(['agreement_id' => $a->id, 'fee_type' => 'origination', 'payer' => 'borrower', 'basis_amount' => $a->principal, 'rate_bp' => $a->fees['origination_bp'], 'amount' => $f['origination'], 'tax' => $f['origination_tax'], 'net' => $f['origination'], 'status' => 'collected']);
+            $f['origination'] > 0 && PlatformFee::create(['agreement_id' => $a->id, 'fee_type' => 'origination', 'payer' => 'borrower', 'basis_amount' => $a->principal, 'rate_bp' => $a->fees['origination_bp'], 'amount' => $f['origination'], 'tax' => $f['origination_tax'], 'net' => $f['origination'], 'status' => 'collected']);
             $d->forceFill(['status' => 'simulated', 'approved_by' => $approver->id])->save();
             $a->forceFill(['status' => 'active', 'disbursed_at' => now()])->save();
             $this->audit->record('disbursement.approved', $d, ['agreement' => $a->id, 'net' => $d->net, 'simulated' => true], $approver);
@@ -180,6 +184,16 @@ class PaymentService
     {
         $a = LoanAgreement::query()->whereKey($attempt->agreement_id)->lockForUpdate()->firstOrFail();
         $this->repayments->apply($a, $attempt);
+    }
+
+    /** How much of the target is actually funded, and whether the business may be paid yet. */
+    public function campaignStatus(\App\Models\Listing $listing): array
+    {
+        $funded = (int) LoanAgreement::where('listing_id', $listing->id)->whereNotNull('funded_at')->where('status', '!=', 'cancelled')->sum('principal');
+        $pct = $listing->funding_target > 0 ? (int) floor($funded * 100 / $listing->funding_target) : 0;
+        $min = (int) Settings::get('campaign.min_funded_pct');
+
+        return ['funded_pct' => $pct, 'min_pct' => $min, 'ready' => $pct >= $min];
     }
 
     private function refreshListingProgress(LoanAgreement $a): void

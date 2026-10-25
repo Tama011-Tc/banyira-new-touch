@@ -34,7 +34,7 @@ const isActive = (item: Item) => path.value === item.match || path.value.startsW
     <div class="flex h-full flex-col border-r bg-sidebar text-sidebar-foreground">
         <Link :href="route('dashboard')" class="flex items-center gap-2.5 px-5 py-5" @click="emit('navigate')">
             <Logo :size="26" />
-            <span class="text-base font-semibold tracking-tight text-foreground">Banyira Micro Finance</span>
+            <span class="text-base font-semibold tracking-tight text-foreground">Banyira MicroCredit</span>
         </Link>
 
         <nav aria-label="Main" class="flex-1 overflow-y-auto px-3 pb-4">

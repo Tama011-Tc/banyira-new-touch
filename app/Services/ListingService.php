@@ -97,7 +97,7 @@ class ListingService
             'target' => $l->funding_target, 'committed' => $committed, 'remaining' => max(0, $l->funding_target - $committed), 'percent' => $l->funding_target ? min(100, (int) floor($committed * 100 / $l->funding_target)) : 0,
             'min_investment' => $l->min_investment, 'max_investment' => $l->max_investment, 'rate_bp' => $l->rate_bp, 'max_rate_bp' => $l->max_rate_bp,
             'term_months' => $l->term_months, 'frequency' => $l->frequency, 'interest_method' => $l->interest_method, 'deadline' => $l->deadline->toDateString(), 'status' => $l->status,
-            'fees' => FeeService::snapshot(),
+            'fees' => FeeService::snapshot($l->funding_target), 'fee_tiers' => app(FeeScheduleService::class)->active()?->tiers ?? [],
         ];
     }
 

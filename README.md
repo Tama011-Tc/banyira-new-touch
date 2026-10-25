@@ -1,4 +1,4 @@
-# Banyira Micro Finance
+# Banyira MicroCredit
 
 A database-backed prototype of a **lending marketplace for Malawian SMEs**: businesses apply, credit staff assess, approved businesses are listed, verified investors negotiate versioned offers in protected messaging, and the platform generates loan agreements, repayment schedules, fees and a tamper-evident ledger.
 
@@ -86,7 +86,7 @@ Customers and staff are separate: a role can never be moved from one group to th
 php artisan test
 ```
 
-**139 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**149 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 

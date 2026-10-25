@@ -86,7 +86,7 @@ class AccessControlTest extends TestCase
             ['post', "/finance/disbursements/{$disb->id}/approve", []],
             ['post', "/finance/payments/{$payment->id}/reconcile", []],
             ['post', "/finance/payments/{$payment->id}/reversal", ['reason' => 'Reverse it for me please.']],
-            ['post', '/finance/fees', ['origination_bp' => 0, 'investor_service_bp' => 0, 'processing_bp' => 0, 'tax_bp' => 0, 'reason' => 'Remove all fees quietly.']],
+            ['post', '/finance/fee-schedules', ['name' => 'Free', 'effective_from' => '2030-01-01', 'tax_bp' => 0, 'processing_bp' => 0, 'tiers' => [], 'reason' => 'Remove all fees quietly.']],
             ['post', "/listings/{$listing->id}/review", []],
             ['post', "/listings/{$listing->id}/publish", []],
             ['post', "/moderation/messages/{$msg->id}", ['outcome' => 'release']],

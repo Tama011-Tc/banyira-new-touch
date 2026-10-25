@@ -170,18 +170,21 @@ class PaymentsAndRepaymentsTest extends TestCase
         $this->assertSame(0, LedgerEntry::count());
     }
 
-    public function test_investor_fee_is_disclosed_before_acceptance_and_not_silently_changed_later(): void
+    public function test_fees_disclosed_at_acceptance_are_not_silently_changed_by_a_later_schedule(): void
     {
         $a = $this->agreement(null, null, 100000000);
-        \App\Services\Settings::set('fees.investor_service_bp', 500);      // platform changes fees afterwards...
-        $this->assertSame(101000000, app(PaymentService::class)->fundingAmount($a->fresh()));   // ...the signed agreement still uses 1%
+        $exec = $this->user(Role::Executive);
+        app(\App\Services\FeeScheduleService::class)->publish(['name' => 'Later, dearer', 'effective_from' => now()->toDateString(), 'tax_bp' => 0, 'processing_bp' => 150,
+            'tiers' => [['min' => 0, 'max' => null, 'origination_bp' => 900, 'origination_fixed' => 0, 'investor_bp' => 500, 'investor_fixed' => 0]]], $exec);
+        $this->assertSame(500, FeeService::snapshot(100000000)['investor_service_bp']);                 // new offers get the new schedule
+        $this->assertSame(101000000, app(PaymentService::class)->fundingAmount($a->fresh()));           // the signed agreement still uses 1%
         $this->assertSame(100, $a->fresh()->fees['investor_service_bp']);
     }
 
     // ---------- disbursement ----------
     public function test_disbursement_needs_finance_approval_and_is_posted_once(): void
     {
-        $a = $this->agreement(null, null, 100000000);
+        $a = $this->agreement($this->listing(['amount' => 100000000]), null, 100000000);   // fully funds its campaign
         $this->fund($a);
         $d = Disbursement::where('agreement_id', $a->id)->first();
         $pay = app(PaymentService::class);
@@ -195,7 +198,7 @@ class PaymentsAndRepaymentsTest extends TestCase
         $this->assertSame(98000000, -$this->balance(LedgerService::BUSINESS_DISBURSED));
         $this->assertSame(3000000, -$this->balance(LedgerService::FEE_REVENUE));                      // 1% investor + 2% borrower
         $this->assertSame(0, $this->balance(LedgerService::INVESTOR_FUNDS), 'investor funds fully released');
-        $this->assertSame('funding', $a->application->fresh()->status, 'the campaign is only part-funded, so the application stays in funding');
+        $this->assertSame('repayment_active', $a->application->fresh()->status);
         try {
             $pay->approveDisbursement($d->fresh(), $fin);
             $this->fail('second approval');
@@ -385,20 +388,22 @@ class PaymentsAndRepaymentsTest extends TestCase
         $this->assertSame(1, Repayment::count(), 'the repayment record is kept, marked reversed');
     }
 
-    public function test_fee_changes_need_a_second_approver_and_do_not_touch_existing_agreements(): void
+    public function test_a_fee_schedule_needs_a_second_approver_and_does_not_touch_existing_agreements(): void
     {
         $f1 = $this->user(Role::Finance);
         $f2 = $this->user(Role::Finance);
         $a = $this->agreement();
-        $this->actingAs($f1)->post('/finance/fees', ['origination_bp' => 300, 'investor_service_bp' => 100, 'processing_bp' => 150, 'tax_bp' => 0, 'reason' => 'Annual pricing review approved by the board.'])->assertSessionHasNoErrors();
-        $this->assertSame(200, \App\Services\Settings::get('fees.origination_bp'));                    // not applied yet
-        $req = ApprovalRequest::first();
+        $body = ['name' => 'Spring 2027', 'effective_from' => now()->toDateString(), 'tax_bp' => 0, 'processing_bp' => 150, 'reason' => 'Annual pricing review approved by the board.',
+            'tiers' => [['min' => '0', 'max' => '5000000', 'origination_bp' => 800, 'investor_bp' => 0], ['min' => '5000000', 'max' => '', 'origination_bp' => 400, 'investor_bp' => 100]]];
+        $this->actingAs($f1)->post('/finance/fee-schedules', $body)->assertSessionHasNoErrors();
+        $this->assertSame(200, FeeService::snapshot(100000000)['origination_bp'], 'not in force until approved');
+        $req = ApprovalRequest::where('type', 'fee_schedule')->first();
         $this->actingAs($f1)->post("/finance/approvals/{$req->id}", ['approve' => true])->assertSessionHasErrors('approval');
         $this->actingAs($this->user(Role::ItAdmin))->post("/finance/approvals/{$req->id}", ['approve' => true])->assertForbidden();
         $this->actingAs($f2)->post("/finance/approvals/{$req->id}", ['approve' => true])->assertSessionHasNoErrors();
-        $this->assertSame(300, \App\Services\Settings::get('fees.origination_bp'));
-        $this->assertSame(200, $a->fresh()->fees['origination_bp']);                                     // existing agreement unchanged
-        $this->assertSame(300, FeeService::snapshot()['origination_bp']);                                // new offers show the new fee
+        $this->assertSame(800, FeeService::snapshot(100000000)['origination_bp']);                      // MK 1,000,000 falls in the first tier
+        $this->assertSame(400, FeeService::snapshot(900000000)['origination_bp']);                      // MK 9,000,000 in the second
+        $this->assertSame(200, $a->fresh()->fees['origination_bp']);                                    // existing agreement unchanged
     }
 
     public function test_reconciliation_matches_provider_ledger_and_payment_and_flags_mismatches(): void

@@ -9,10 +9,11 @@ class Settings
 {
     public const DEFAULTS = [
         'operating_mode' => 'simulation',
-        'fees.origination_bp' => 200,          // borrower, % of principal, deducted from the disbursement
-        'fees.investor_service_bp' => 100,     // investor, % of principal, added to the funding payment
-        'fees.processing_bp' => 150,           // charged by the payment provider on each payment; borne by the platform
-        'fees.tax_bp' => 0,                    // tax on platform fees; set per advice (e.g. VAT) before live use
+        // Fees come only from an approved fee schedule (see FeeScheduleService). None is in force by default.
+        'campaign.min_funded_pct' => 100,      // a business is paid only once this share of the target is funded
+        'offers.ttl_days' => 7,                // an unanswered proposal lapses after this many days
+        'investor.max_total_commitment' => null, // per-investor cap across all loans (minor units); null = no cap
+        'sms.confirm_acceptance' => false,     // require a one-time SMS code to accept an offer
         'credit.separate_approver' => 1,       // approver must differ from the analyst
         'credit.executive_threshold' => 1500000000, // MK 15,000,000: larger amounts need an executive
         // Risk bands: highest first. Thresholds and wording are credit POLICY, changed only through a two-person approval.

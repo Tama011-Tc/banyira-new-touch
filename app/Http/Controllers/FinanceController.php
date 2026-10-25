@@ -26,9 +26,9 @@ class FinanceController extends Controller
             'trial_total' => array_sum($tb),
             'fees' => PlatformFee::query()->selectRaw('fee_type, payer, status, COUNT(*) n, SUM(amount) amount, SUM(tax) tax')->groupBy('fee_type', 'payer', 'status')->get(),
             'payments' => PaymentAttempt::with('user:id,name')->latest('id')->limit(25)->get()->map(fn ($p) => ['id' => $p->id, 'purpose' => $p->purpose, 'amount' => $p->amount, 'status' => $p->status, 'ref' => $p->provider_ref, 'who' => $p->user->name, 'simulated' => $p->simulated, 'reconciled' => ReconciliationRecord::where('payment_attempt_id', $p->id)->latest('id')->value('status')]),
-            'disbursements' => Disbursement::with('agreement.business')->where('status', 'pending_approval')->get()->map(fn ($d) => ['id' => $d->id, 'agreement_id' => $d->agreement_id, 'business' => $d->agreement->business->display_name, 'gross' => $d->gross, 'fees' => $d->fees, 'net' => $d->net]),
-            'approvals' => ApprovalRequest::with('requester:id,name')->latest('id')->limit(20)->get()->map(fn ($r) => ['id' => $r->id, 'type' => $r->type, 'reason' => $r->reason, 'payload' => $r->payload, 'status' => $r->status, 'by' => $r->requester->name, 'mine' => $r->requested_by === auth()->id()]),
-            'fee_settings' => ['fees.origination_bp' => Settings::get('fees.origination_bp'), 'fees.investor_service_bp' => Settings::get('fees.investor_service_bp'), 'fees.processing_bp' => Settings::get('fees.processing_bp'), 'fees.tax_bp' => Settings::get('fees.tax_bp')],
+            'disbursements' => Disbursement::with('agreement.business')->where('status', 'pending_approval')->get()->map(fn ($d) => ['id' => $d->id, 'agreement_id' => $d->agreement_id, 'business' => $d->agreement->business->display_name, 'gross' => $d->gross, 'fees' => $d->fees, 'net' => $d->net] + app(PaymentService::class)->campaignStatus($d->agreement->listing)),
+            'approvals' => ApprovalRequest::with('requester:id,name')->latest('id')->limit(20)->get()->map(fn ($r) => ['id' => $r->id, 'type' => $r->type, 'reason' => $r->reason, 'payload' => $r->payload, 'status' => $r->status, 'by' => $r->requester?->name ?? 'System', 'mine' => $r->requested_by === auth()->id()]),
+            'fee_schedule' => ($s = app(\App\Services\FeeScheduleService::class)->active()) ? ['name' => $s->name, 'effective_from' => $s->effective_from->toDateString(), 'tax_bp' => $s->tax_bp, 'processing_bp' => $s->processing_bp, 'tiers' => $s->tiers] : null,
         ]);
     }
 
@@ -54,12 +54,21 @@ class FinanceController extends Controller
         return back()->with($matched ? 'success' : 'error', $matched ? 'Matched: provider, ledger and payment agree.' : 'Mismatch recorded for investigation.');
     }
 
-    public function requestFeeChange(Request $request, ApprovalService $approvals)
+    /** Propose a tiered, dated fee schedule. It takes effect only after a different person approves it. */
+    public function proposeFeeSchedule(Request $request, ApprovalService $approvals, \App\Services\FeeScheduleService $schedules)
     {
-        $d = $request->validate(['origination_bp' => 'required|integer|min:0|max:1000', 'investor_service_bp' => 'required|integer|min:0|max:1000', 'processing_bp' => 'required|integer|min:0|max:500', 'tax_bp' => 'required|integer|min:0|max:3000', 'reason' => 'required|string|max:500']);
-        $approvals->request('fee_change', ['settings' => ['fees.origination_bp' => $d['origination_bp'], 'fees.investor_service_bp' => $d['investor_service_bp'], 'fees.processing_bp' => $d['processing_bp'], 'fees.tax_bp' => $d['tax_bp']]], $d['reason'], $request->user());
+        $d = $request->validate([
+            'name' => 'required|string|max:80', 'effective_from' => 'required|date|after_or_equal:today', 'tax_bp' => 'required|integer|min:0|max:3000', 'processing_bp' => 'required|integer|min:0|max:500', 'reason' => 'required|string|min:10|max:500',
+            'tiers' => 'required|array|min:1|max:8', 'tiers.*.min' => ['required', 'regex:/^\d{1,12}(\.\d{1,2})?$/'], 'tiers.*.max' => ['nullable', 'regex:/^\d{1,12}(\.\d{1,2})?$/'],
+            'tiers.*.origination_bp' => 'required|integer|min:0|max:1500', 'tiers.*.origination_fixed' => ['nullable', 'regex:/^\d{1,10}(\.\d{1,2})?$/'], 'tiers.*.investor_bp' => 'required|integer|min:0|max:1500', 'tiers.*.investor_fixed' => ['nullable', 'regex:/^\d{1,10}(\.\d{1,2})?$/'],
+        ]);
+        $tiers = $schedules->validateTiers(array_map(fn ($t) => [
+            'min' => \App\Support\Money::toMinor($t['min']), 'max' => ($t['max'] ?? '') === '' ? null : \App\Support\Money::toMinor($t['max']),
+            'origination_bp' => (int) $t['origination_bp'], 'origination_fixed' => \App\Support\Money::toMinor($t['origination_fixed'] ?? 0), 'investor_bp' => (int) $t['investor_bp'], 'investor_fixed' => \App\Support\Money::toMinor($t['investor_fixed'] ?? 0),
+        ], $d['tiers']));
+        $approvals->request('fee_schedule', ['name' => $d['name'], 'effective_from' => $d['effective_from'], 'tax_bp' => (int) $d['tax_bp'], 'processing_bp' => (int) $d['processing_bp'], 'tiers' => $tiers], $d['reason'], $request->user());
 
-        return back()->with('success', 'Fee change requested. A different finance, compliance or executive user must approve it. It never affects offers already made.');
+        return back()->with('success', 'Fee schedule proposed. A different finance, compliance or executive user must approve it. Existing offers and agreements keep the fees they were made with.');
     }
 
     public function requestReversal(Request $request, PaymentAttempt $payment, ApprovalService $approvals)

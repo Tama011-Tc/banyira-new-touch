@@ -27,10 +27,17 @@ abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
 
+    /** Most tests assume a flat 2% borrower / 1% investor / 1.5% provider schedule is in force. Set false to test the no-fee default. */
+    protected bool $withFees = true;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutVite();
+        if ($this->withFees) {
+            \App\Models\FeeSchedule::create(['name' => 'Test schedule', 'effective_from' => now()->subDay()->toDateString(), 'tax_bp' => 0, 'processing_bp' => 150,
+                'tiers' => [['min' => 0, 'max' => null, 'origination_bp' => 200, 'origination_fixed' => 0, 'investor_bp' => 100, 'investor_fixed' => 0]]]);
+        }
     }
 
     protected function user(Role $role = Role::Investor, array $attrs = []): User

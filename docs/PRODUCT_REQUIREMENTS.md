@@ -22,10 +22,10 @@ A marketplace where verified investors fund SMEs. A business is assessed by cred
 | 5 | Application lifecycle and documents | ✅ | Document requirements live in config, not editable in-app 🟡 |
 | 6 | Credit framework, evidence, risk bands | ✅ | Bands A+/A/B/C with names, definitions and score thresholds, changed only by a two-person approval; existing assessments keep their band |
 | 7 | Marketplace (search, filters, listing detail, privacy) | ✅ | |
-| 8 | Multi-investor loan parts, offers, versions, limits | 🟡 | Each accepted offer is its own loan agreement with its own rate and schedule (no averaging). Offer expiry/withdrawal, investor exposure limits, campaign-deadline closure ⬜. **Open decision:** what happens when a campaign does not reach its target |
+| 8 | Multi-investor loan parts, offers, versions, limits | 🟡 | Each accepted offer is its own loan agreement with its own rate and schedule (no averaging). Offer expiry/withdrawal, investor exposure limits, campaign-deadline closure ⬜. Campaign minimum and daily closing implemented (decision D1) |
 | 9 | Protected messaging, contact-detail screening, moderation, versioned offers | ✅ | |
 | 10 | Loan engine (flat, reducing, grace), allocation, overdue, default | ✅ | Early repayment, restructuring, recoveries ⬜ |
-| 11 | Configurable fee schedule, **unapproved by default**, 4–15% tiers, effective dates | 🟡 | Flat basis-point fees with two-person change approval today; tiered, dated, approval-gated schedule ⬜ |
+| 11 | Configurable fee schedule, **unapproved by default**, tiers, effective dates | ✅ | Tiered (percentage and fixed), dated, tax, two-person approval; no fee without an approved schedule |
 | 12 | Payments: provider-independent, signed webhooks, idempotency, reconciliation, reversals | ✅ | Sandbox only ⛔ for live |
 | 13 | SMS: provider layer, mock, secure action confirmation | ⬜ | |
 | 14 | Financial-education module | ⬜ | |

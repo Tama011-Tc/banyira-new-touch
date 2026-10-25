@@ -139,7 +139,7 @@ Route::middleware('auth')->group(function () {
         Route::get('ledger', [FinanceController::class, 'ledger'])->name('ledger');
         Route::post('disbursements/{disbursement}/approve', [FinanceController::class, 'approveDisbursement'])->middleware(['can:finance.approve', 'throttle:sensitive'])->name('disbursement');
         Route::post('payments/{payment}/reconcile', [FinanceController::class, 'reconcile'])->middleware('can:finance.reconcile')->name('reconcile');
-        Route::post('fees', [FinanceController::class, 'requestFeeChange'])->middleware('can:finance.approve')->name('fees');
+        Route::post('fee-schedules', [FinanceController::class, 'proposeFeeSchedule'])->middleware('can:finance.approve')->name('fee-schedules');
         Route::post('payments/{payment}/reversal', [FinanceController::class, 'requestReversal'])->middleware('can:finance.approve')->name('reversal');
         Route::post('approvals/{approval}', [FinanceController::class, 'decideApproval'])->middleware('can:finance.approve')->name('approval');
         Route::post('approvals/{approval}/execute', [FinanceController::class, 'executeReversal'])->middleware(['can:finance.approve', 'throttle:sensitive'])->name('execute');

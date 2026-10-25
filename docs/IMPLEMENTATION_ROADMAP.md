@@ -11,7 +11,7 @@ Mapped to the prompt's twelve phases, with what is already done and what each re
 | 5 Marketplace | Listings, filters, privacy | Done |
 | 6 Messaging & negotiation | Screening, appeals, moderation, versioned offers | Done |
 | 7 Loan engine | Calculations, agreements, schedules, loan parts | Done. Increment 7b: offer expiry/withdrawal, exposure limits, campaign closure (needs decision D1) |
-| 8 Payments & fees | Sandbox, ledger, reconciliation | Done. **Increment 8b: tiered, dated, approval-gated fee schedule (decision D2)** |
+| 8 Payments & fees | Sandbox, ledger, reconciliation | Done. Done, including the tiered, dated, approval-gated fee schedule (8b) |
 | 9 Notifications & SMS | In-app done. SMS provider interface, mock gateway, signed single-use action tokens, delivery log | Not started |
 | 10 Reporting | Executive and investor reporting | Done. 10b: fee-schedule and campaign reporting |
 | 11 Testing & security review | 131 tests. MFA for staff, upload scanning, dependency audit | Partial |
@@ -20,4 +20,4 @@ Mapped to the prompt's twelve phases, with what is already done and what each re
 | Gated: live money | Separate approval process | ⛔ |
 
 ## Proposed order
-8b fee schedule (next, needs decision D2) → 7b offer rules → 9 SMS → education → 3b staged onboarding → 11/12 hardening and screenshots.
+7b offer rules (next) → 9 SMS → education → 3b staged onboarding → 11/12 hardening and screenshots.

@@ -32,6 +32,9 @@ class ApprovalService
             throw ValidationException::withMessages(['approval' => 'You cannot approve your own request.']);
         }
         $r->forceFill(['status' => $approve ? 'approved' : 'rejected', 'decided_by' => $approver->id, 'decided_at' => now()])->save();
+        if ($approve && $r->type === 'fee_schedule') {
+            app(FeeScheduleService::class)->publish($r->payload, $approver, $r->requested_by);
+        }
         if ($approve && in_array($r->type, ['fee_change', 'policy_change'], true)) {   // applied only now, with a trail
             foreach ($r->payload['settings'] as $k => $v) {
                 Settings::set($k, $v);

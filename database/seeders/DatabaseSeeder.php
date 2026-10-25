@@ -14,6 +14,7 @@ use App\Models\LoanAgreement;
 use App\Models\RepaymentSchedule;
 use App\Models\User;
 use App\Services\ApplicationWorkflow;
+use App\Services\ApprovalService;
 use App\Services\CreditService;
 use App\Services\ListingService;
 use App\Services\MessagingService;
@@ -40,7 +41,26 @@ class DatabaseSeeder extends Seeder
     {
         ComplianceChecklist::seed();
         $this->staffAndCustomers();
+        $this->feeSchedule();
         $this->pipeline();
+    }
+
+    /**
+     * Fees exist only through an approved schedule, so even the demo goes through the two-person approval.
+     * These tiers are ILLUSTRATIVE (they echo the 4-15% range in the brief) and have not been approved by anyone real.
+     */
+    private function feeSchedule(): void
+    {
+        $approvals = app(ApprovalService::class);
+        $req = $approvals->request('fee_schedule', [
+            'name' => 'Demo schedule (illustrative)', 'effective_from' => now()->subDay()->toDateString(), 'tax_bp' => 0, 'processing_bp' => 150,
+            'tiers' => [
+                ['min' => 0, 'max' => 100000000, 'origination_bp' => 1500, 'origination_fixed' => 0, 'investor_bp' => 0, 'investor_fixed' => 0],
+                ['min' => 100000000, 'max' => 500000000, 'origination_bp' => 1000, 'origination_fixed' => 0, 'investor_bp' => 0, 'investor_fixed' => 0],
+                ['min' => 500000000, 'max' => null, 'origination_bp' => 400, 'origination_fixed' => 0, 'investor_bp' => 0, 'investor_fixed' => 0],
+            ],
+        ], 'Illustrative demo fees, not approved by any regulator or by Banyira management.', $this->u['finance']);
+        $approvals->decide($req, $this->u['compliance'], true);
     }
 
     private function user(string $key, string $name, Role $role): User
