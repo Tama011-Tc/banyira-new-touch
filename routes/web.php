@@ -98,6 +98,8 @@ Route::middleware('auth')->group(function () {
         Route::post('{application}/assess', [CreditController::class, 'assess'])->middleware('can:credit.assess')->name('assess');
         Route::post('{application}/decide', [CreditController::class, 'decide'])->middleware(['can:credit.approve', 'throttle:sensitive'])->name('decide');
     });
+    Route::get('credit-policy', [CreditController::class, 'policy'])->middleware('can:credit.view')->name('credit.policy');
+    Route::post('credit-policy/bands', [CreditController::class, 'requestBands'])->middleware(['can:credit.approve', 'throttle:sensitive'])->name('credit.bands');
     Route::post('agreements/{agreement}/default', [CreditController::class, 'markDefault'])->middleware(['can:credit.approve', 'throttle:sensitive'])->name('agreements.default');
 
     // ---- Listings

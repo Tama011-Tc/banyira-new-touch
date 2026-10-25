@@ -5,12 +5,13 @@ import Pager from '@/components/pw/Pager.vue';
 import SelectField from '@/components/pw/SelectField.vue';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { Store } from 'lucide-vue-next';
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import ListingCard from './ListingCard.vue';
 
 const props = defineProps<{ listings: { data: any[]; links: any[] }; filters: Record<string, string>; sectors: string[]; districts: string[] }>();
+const bands = computed(() => usePage().props.risk_bands as { code: string; name: string }[]);
 const f = reactive({ search: '', sector: '', district: '', risk: '', max_term: '', min_rate: '', min_amount: '', max_amount: '', sort: '', ...props.filters });
 const apply = () => router.get(route('marketplace.index'), Object.fromEntries(Object.entries(f).filter(([, v]) => v !== '')), { preserveState: true, preserveScroll: true });
 </script>
@@ -23,7 +24,7 @@ const apply = () => router.get(route('marketplace.index'), Object.fromEntries(Ob
             <Input v-model="f.search" placeholder="Search" aria-label="Search" />
             <SelectField v-model="f.sector" aria-label="Sector"><option value="">All sectors</option><option v-for="s in sectors" :key="s">{{ s }}</option></SelectField>
             <SelectField v-model="f.district" aria-label="District"><option value="">All districts</option><option v-for="d in districts" :key="d">{{ d }}</option></SelectField>
-            <SelectField v-model="f.risk" aria-label="Risk category"><option value="">Any risk category</option><option value="A">A: lower estimated risk</option><option value="B">B</option><option value="C">C</option><option value="D">D: high estimated risk</option></SelectField>
+            <SelectField v-model="f.risk" aria-label="Risk category"><option value="">Any risk band</option><option v-for="b in bands" :key="b.code" :value="b.code">{{ b.code }}: {{ b.name }}</option></SelectField>
             <Input v-model="f.min_amount" type="number" placeholder="Min amount (MK)" aria-label="Minimum amount" />
             <Input v-model="f.max_amount" type="number" placeholder="Max amount (MK)" aria-label="Maximum amount" />
             <Input v-model="f.max_term" type="number" placeholder="Max term (months)" aria-label="Maximum term" />

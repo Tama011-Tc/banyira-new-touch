@@ -9,4 +9,4 @@
 
 The platform **never** trusts the body or a browser return. It looks the payment up with the provider (`verify`) and checks the amount. Replays and a second event for the same payment change nothing. Initiation requires an idempotency key; reusing it returns the same attempt.
 
-Swapping in a real gateway means implementing the same four operations (create, verify, signature check, settle) behind `PaymentService`, plus the approvals in `docs/compliance.md`.
+Swapping in a real gateway means implementing the same four operations (create, verify, signature check, settle) behind `PaymentService`, plus the approvals in `docs/SECURITY_AND_COMPLIANCE.md`.

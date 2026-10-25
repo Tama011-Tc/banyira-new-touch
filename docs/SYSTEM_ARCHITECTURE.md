@@ -23,3 +23,9 @@ Laravel 12 · Vue 3 + Inertia · Tailwind · MySQL. Domain logic lives in `app/S
 **Money.** Integer tambala everywhere; rates in basis points; `bcmath` for fractions; round half up; no floats.
 
 **Separation of records.** Proposed terms (`offer_versions`) → agreed contract (`loan_agreements`) → investor commitment (`investment_commitments`) → payment attempt (`payment_attempts`, unconfirmed) → confirmed movement (`ledger_entries`, only after verified).
+
+
+## Extension points for planned work
+- `SmsProvider` interface (send, verify delivery) with a `MockSmsProvider`; actions confirmed by single-use, short-lived, user- and action-bound tokens entered in the web app.
+- `FeeSchedule` resolved by amount tier and effective date; `FeeService::snapshot()` becomes schedule-driven and returns zero fees when no approved schedule applies.
+- `RiskBands` read from settings so definitions and thresholds are configurable and versioned.

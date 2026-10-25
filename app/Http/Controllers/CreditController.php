@@ -83,6 +83,27 @@ class CreditController extends Controller
         return to_route('credit.index')->with('success', 'Decision recorded.');
     }
 
+    public function policy(Request $request)
+    {
+        return Inertia::render('credit/Policy', [
+            'bands' => CreditService::bands(), 'weights' => Settings::get('credit.weights'),
+            'pending' => \App\Models\ApprovalRequest::where('type', 'policy_change')->where('status', 'pending')->latest('id')->get()->map(fn ($r) => ['id' => $r->id, 'reason' => $r->reason, 'bands' => $r->payload['settings']['credit.bands'] ?? [], 'mine' => $r->requested_by === $request->user()->id]),
+            'can_request' => $request->user()->role->can('credit.approve'), 'can_decide' => $request->user()->role->can('finance.approve'),
+        ]);
+    }
+
+    public function requestBands(Request $request, \App\Services\ApprovalService $approvals)
+    {
+        $d = $request->validate(['bands' => 'required|array|min:2|max:6', 'bands.*.code' => 'required|string|max:3|distinct', 'bands.*.min' => 'required|integer|min:0|max:100', 'bands.*.name' => 'required|string|max:60', 'bands.*.definition' => 'required|string|max:300', 'reason' => 'required|string|min:10|max:500']);
+        $bands = collect($d['bands'])->map(fn ($b) => ['code' => $b['code'], 'min' => (int) $b['min'], 'name' => $b['name'], 'definition' => $b['definition']])->sortByDesc('min')->values();
+        if ($bands->pluck('min')->duplicates()->isNotEmpty() || $bands->last()['min'] !== 0) {
+            return back()->withErrors(['bands' => 'Thresholds must all differ, and the lowest band must start at 0 so every score has a band.']);
+        }
+        $approvals->request('policy_change', ['settings' => ['credit.bands' => $bands->all()]], $d['reason'], $request->user());
+
+        return back()->with('success', 'Change requested. A different finance, compliance or executive user must approve it. Existing assessments keep the band they were given.');
+    }
+
     public function markDefault(Request $request, LoanAgreement $agreement, RepaymentService $repayments)
     {
         $repayments->markDefault($agreement, $request->user(), (string) $request->input('reason'));

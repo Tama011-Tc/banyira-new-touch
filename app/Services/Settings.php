@@ -15,6 +15,14 @@ class Settings
         'fees.tax_bp' => 0,                    // tax on platform fees; set per advice (e.g. VAT) before live use
         'credit.separate_approver' => 1,       // approver must differ from the analyst
         'credit.executive_threshold' => 1500000000, // MK 15,000,000: larger amounts need an executive
+        // Risk bands: highest first. Thresholds and wording are credit POLICY, changed only through a two-person approval.
+        // Defaults follow the band names in the business-plan brief (A+, A, B, C); confirm against the plan.
+        'credit.bands' => [
+            ['code' => 'A+', 'min' => 85, 'name' => 'Very low estimated risk', 'definition' => 'Strong repayment capacity, long record, complete verified documents.'],
+            ['code' => 'A', 'min' => 70, 'name' => 'Low estimated risk', 'definition' => 'Good repayment capacity and a consistent record with minor gaps.'],
+            ['code' => 'B', 'min' => 55, 'name' => 'Moderate estimated risk', 'definition' => 'Adequate repayment capacity; some weaknesses in record, documents or existing debt.'],
+            ['code' => 'C', 'min' => 0, 'name' => 'Elevated estimated risk', 'definition' => 'Thin repayment capacity or material weaknesses. Listed only if approved with conditions.'],
+        ],
         'credit.weights' => ['dscr' => 40, 'history' => 15, 'documents' => 15, 'debt' => 15, 'sector' => 15],
         'credit.sector_scores' => ['Agriculture' => 60, 'Retail & trade' => 75, 'Manufacturing' => 65, 'Transport & logistics' => 60, 'Services' => 70, 'Construction' => 55, 'Food & hospitality' => 62, 'Technology' => 68, 'Education' => 72, 'Health' => 74],
         'loan.default_days' => 90,

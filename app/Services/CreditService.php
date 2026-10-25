@@ -63,9 +63,25 @@ class CreditService
         return ['score' => $score, 'category' => self::category($score), 'criteria' => $c];
     }
 
+    /** @return list<array{code:string, min:int, name:string, definition:string}> highest threshold first */
+    public static function bands(): array
+    {
+        $bands = Settings::get('credit.bands');
+        usort($bands, fn ($a, $b) => $b['min'] <=> $a['min']);
+
+        return $bands;
+    }
+
     public static function category(int $score): string
     {
-        return $score >= 80 ? 'A' : ($score >= 65 ? 'B' : ($score >= 50 ? 'C' : 'D'));
+        $bands = self::bands();
+        foreach ($bands as $band) {
+            if ($score >= $band['min']) {
+                return $band['code'];
+            }
+        }
+
+        return $bands[array_key_last($bands)]['code'];   // below every threshold: the lowest band
     }
 
     public function startScreening(Application $app, User $analyst): void

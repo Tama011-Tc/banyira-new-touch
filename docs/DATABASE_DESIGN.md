@@ -1,3 +1,13 @@
+# Database design
+
+MySQL 8, integer tambala, foreign keys throughout, unique constraints for idempotency (`payment_attempts.idempotency_key`, `webhook_events(provider,event_id)`, `repayments.payment_attempt_id`, `offer_versions(offer_id,version)`, `loan_agreements.offer_version_id`).
+
+**Record separation.** `offer_versions` (proposed) → `loan_agreements` (agreed, frozen) → `investment_commitments` (pledged/funded) → `payment_attempts` (unconfirmed) → `ledger_entries` (confirmed, append-only). Corrections are reversing entries.
+
+**Tamper resistance.** `audit_logs`, `ledger_entries` and `message_moderation_events` reject UPDATE/DELETE through database triggers; audit rows are also hash-chained. Audit and ledger user columns deliberately have no foreign keys so history outlives accounts.
+
+**Planned additions** (see roadmap): `fee_schedules` and `fee_schedule_tiers`, `risk_bands`, `sms_messages` and `sms_action_tokens`, `education_articles`, `offer_versions.expires_at`.
+
 # Entity-relationship diagram
 
 ```mermaid

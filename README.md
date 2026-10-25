@@ -2,7 +2,7 @@
 
 A database-backed prototype of a **lending marketplace for Malawian SMEs**: businesses apply, credit staff assess, approved businesses are listed, verified investors negotiate versioned offers in protected messaging, and the platform generates loan agreements, repayment schedules, fees and a tamper-evident ledger.
 
-> **This is a simulation.** No real money moves. Payments run through a clearly labelled sandbox provider, every ledger entry is flagged `simulated`, and *live* operation is blocked by design until legal, regulatory and payment-provider approvals are verified (see [docs/compliance.md](docs/compliance.md)). Businesses, investors and figures in the demo are fictional. Returns are never guaranteed and the UI says so.
+> **This is a simulation.** No real money moves. Payments run through a clearly labelled sandbox provider, every ledger entry is flagged `simulated`, and *live* operation is blocked by design until legal, regulatory and payment-provider approvals are verified (see [docs/SECURITY_AND_COMPLIANCE.md](docs/SECURITY_AND_COMPLIANCE.md)). Businesses, investors and figures in the demo are fictional. Returns are never guaranteed and the UI says so.
 
 The brand is configurable (`BANYIRA_BRAND` in `.env`); the name was provisional.
 
@@ -86,12 +86,13 @@ Customers and staff are separate: a role can never be moved from one group to th
 php artisan test
 ```
 
-**131 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**139 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 
-- [Architecture](docs/architecture.md) · [ER diagram](docs/er-diagram.md) · [Workflows](docs/workflows.md) · [Business rules & calculations](docs/business-rules.md)
-- [Payment sandbox & webhook API](docs/payments-sandbox.md) · [Security](docs/security.md) · [Compliance & limitations](docs/compliance.md)
+- [Product requirements & status](docs/PRODUCT_REQUIREMENTS.md) · [System architecture](docs/SYSTEM_ARCHITECTURE.md) · [Database design & ER diagram](docs/DATABASE_DESIGN.md)
+- [Security & compliance](docs/SECURITY_AND_COMPLIANCE.md) · [Implementation roadmap](docs/IMPLEMENTATION_ROADMAP.md) · [Decisions & assumptions](docs/DECISIONS_AND_ASSUMPTIONS.md)
+- [Workflows](docs/workflows.md) · [Business rules & calculations](docs/business-rules.md) · [Payment sandbox & webhook API](docs/payments-sandbox.md)
 
 ## Not built / externally dependent
 

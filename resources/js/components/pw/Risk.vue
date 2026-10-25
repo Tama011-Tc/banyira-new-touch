@@ -1,11 +1,19 @@
 <script setup lang="ts">
-defineProps<{ category: string }>();
-const meaning: Record<string, string> = { A: 'Lower estimated risk', B: 'Moderate estimated risk', C: 'Elevated estimated risk', D: 'High estimated risk' };
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const props = defineProps<{ category: string }>();
+const bands = computed(() => (usePage().props.risk_bands ?? []) as { code: string; name: string; definition: string }[]);
+const band = computed(() => bands.value.find((b) => b.code === props.category));
+const tone = computed(() => {
+    const i = bands.value.findIndex((b) => b.code === props.category);
+    return i <= 0 ? 'bg-primary' : i === 1 ? 'bg-chart-3' : i === 2 ? 'bg-gold' : 'bg-expense';
+});
 </script>
 
 <template>
-    <span class="inline-flex items-center gap-1.5 text-xs font-medium" :title="`${meaning[category]}. A credit assessment is an estimate, not a guarantee of repayment.`">
-        <span class="flex size-5 items-center justify-center rounded text-[11px] font-semibold text-white" :class="{ 'bg-primary': category === 'A', 'bg-chart-3': category === 'B', 'bg-gold': category === 'C', 'bg-expense': category === 'D' }">{{ category }}</span>
-        <span class="text-muted-foreground">{{ meaning[category] }}</span>
+    <span class="inline-flex items-center gap-1.5 text-xs font-medium" :title="`${band?.definition ?? 'Retired risk band.'} A credit assessment is an estimate, not a guarantee of repayment.`">
+        <span class="flex h-5 min-w-5 items-center justify-center rounded px-1 text-[11px] font-semibold text-white" :class="tone">{{ category }}</span>
+        <span class="text-muted-foreground">{{ band?.name ?? 'Earlier scale' }}</span>
     </span>
 </template>
