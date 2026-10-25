@@ -84,6 +84,21 @@ class SmsService
         return (bool) Settings::get('sms.confirm_acceptance') && $this->phoneFor($user) !== null;
     }
 
+    public function hashFor(User $user, string $action, string $type, int $id, string $code): string
+    {
+        return $this->hash($user, $action, $type, $id, $code);
+    }
+
+    public static function sign(string $body): string
+    {
+        return hash_hmac('sha256', $body, config('banyira.sms_webhook_secret') ?: hash('sha256', 'banyira-sms|'.config('app.key')));
+    }
+
+    public static function validSignature(string $body, ?string $signature): bool
+    {
+        return $signature !== null && hash_equals(self::sign($body), $signature);
+    }
+
     private function hash(User $user, string $action, string $type, int $id, string $code): string
     {
         return hash_hmac('sha256', "{$user->id}|{$action}|{$type}|{$id}|{$code}", (string) config('app.key'));

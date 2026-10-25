@@ -176,6 +176,10 @@ class DatabaseSeeder extends Seeder
         Auth::setUser($chikondi->owner);
         $msg->send($c, $chikondi->owner, 'Thank you for your interest. We have 3,500 layers today. Feed is about MK 1.4 million a month; the new house adds roughly 40% output.');
 
+        // An open proposal on the live listing, so the owner's simulated phone shows an offer SMS with reply codes to try.
+        Auth::setUser($this->u['investor']);
+        app(OfferService::class)->propose($c, $this->u['investor'], ['principal' => 150000000, 'rate_bp' => 2000, 'term_months' => 24, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'grace_instalments' => 0]);
+
         Complaint::create(['user_id' => $this->u['investor2']->id, 'category' => 'service', 'subject' => 'Statement format', 'body' => 'Could the downloadable statement include the agreement reference on each row? (Demo complaint.)']);
         Auth::logout();
     }

@@ -54,14 +54,14 @@ class OfferService
                 'business_accepted_at' => $proposer->id === $c->business->owner_id ? now() : null,
             ]);
             $other = $proposer->id === $c->investor_id ? $c->business->owner : $c->investor;
-            $other && app(\App\Services\Sms\SmsService::class)->send($other, 'offer_received', config('banyira.brand').': a new proposal arrived on "'.mb_substr($listing->title, 0, 40).'". Log in to review it.');
+            $this->textCounterparty($proposer, $other, $v, $c);
             $this->audit->record('offer.proposed', $v, ['version' => $version, 'principal' => $terms['principal'], 'rate_bp' => $terms['rate_bp']], $proposer);
 
             return $v;
         });
     }
 
-    public function accept(OfferVersion $v, User $actor, ?string $smsCode = null): ?LoanAgreement
+    public function accept(OfferVersion $v, User $actor, ?string $smsCode = null, bool $viaSms = false): ?LoanAgreement
     {
         // Recorded outside the transaction below, which the error would otherwise roll back.
         if ($v->status === 'proposed' && $v->expires_at && $v->expires_at->isPast()) {
@@ -71,7 +71,7 @@ class OfferService
 
         // Optional step-up: confirm with the one-time code sent to the user's own phone. Never replaces the web acceptance itself.
         $sms = app(\App\Services\Sms\SmsService::class);
-        if ($sms->requiresConfirmation($actor)) {
+        if (! $viaSms && $sms->requiresConfirmation($actor)) {
             $sms->verify($actor, 'accept_offer', 'offer_version', $v->id, $smsCode);
         }
 
@@ -113,6 +113,27 @@ class OfferService
     }
 
     /** The proposer takes back an unanswered proposal. Once both sides accepted, the agreement is binding. */
+    /**
+     * Tell the other party. A business owner is told the amount, rate and period (per the business plan) with a reply code so they can
+     * answer by SMS; an investor just learns that the owner replied. No names, contact details or bank details are ever texted.
+     */
+    private function textCounterparty(User $proposer, ?User $other, OfferVersion $v, $conversation): void
+    {
+        if (! $other) {
+            return;
+        }
+        $brand = config('banyira.brand');
+        $sms = app(\App\Services\Sms\SmsService::class);
+        if ($other->id === $conversation->business->owner_id && $proposer->id === $conversation->investor_id) {
+            $code = app(\App\Services\Sms\SmsInboundService::class)->issueReplyCode($other, $v);
+            $hours = (int) Settings::get('sms.reply_ttl_hours');
+            $sms->send($other, 'offer_received', sprintf('%s: an investor offers %s at %s a year over %d months. Reply Y %s to accept or N %s to decline (valid %dh). Or log in to review.', $brand, Money::format($v->principal), rtrim(rtrim(number_format($v->rate_bp / 100, 2), '0'), '.').'%', $v->term_months, $code, $code, $hours));
+
+            return;
+        }
+        $sms->send($other, 'offer_received', "{$brand}: a new proposal arrived. Log in to review it.");
+    }
+
     public function withdraw(OfferVersion $v, User $actor): void
     {
         $c = $v->offer->conversation;

@@ -24,6 +24,7 @@ Route::get('/', fn () => Inertia::render('Welcome', ['canRegister' => Route::has
 Route::get('/how-it-works', fn () => Inertia::render('Risks'))->name('risks');
 
 // Provider callbacks: authenticated by HMAC signature, never by session.
+Route::post('webhooks/sms/inbound', [\App\Http\Controllers\SmsWebhookController::class, 'inbound'])->middleware('throttle:webhooks')->name('webhooks.sms');
 Route::post('webhooks/payments/sandbox', [WebhookController::class, 'sandbox'])->middleware('throttle:webhooks')->name('webhooks.sandbox');
 
 Route::middleware('auth')->group(function () {
@@ -96,6 +97,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('learn-manage/{article}', [\App\Http\Controllers\EducationController::class, 'destroy'])->name('learn.destroy');
     });
     Route::get('sms-inbox', [\App\Http\Controllers\SmsController::class, 'inbox'])->name('sms.inbox');
+    Route::post('sms-inbox/reply', [\App\Http\Controllers\SmsController::class, 'simulateReply'])->middleware('throttle:sensitive')->name('sms.reply');
     Route::get('sms-log', [\App\Http\Controllers\SmsController::class, 'log'])->middleware('can:sms.view')->name('sms.log');
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');

@@ -206,7 +206,7 @@ class SmsTest extends TestCase
         Settings::set('sms.confirm_acceptance', true);
         [$c, $v] = $this->offerFor($this->phoned(Role::Investor));
         $this->actingAs($this->phoned(Role::Investor, '0777000111'))->post("/messages/{$c->id}/offers/{$v->id}/sms-code")->assertNotFound();
-        $this->assertSame(0, SmsActionToken::count());
+        $this->assertSame(0, SmsActionToken::where('action', 'accept_offer')->count());
     }
 
     // ---- notifications, reminders, views
@@ -215,8 +215,10 @@ class SmsTest extends TestCase
         $inv = $this->phoned(Role::Investor);
         [$c, $v, $owner] = $this->offerFor($inv);
         $texts = SmsMessage::where('user_id', $owner->id)->pluck('body')->implode(' | ');
-        $this->assertStringContainsString('new proposal', $texts);
-        $this->assertStringNotContainsString('1000000', $texts, 'amounts are not texted');
+        $this->assertStringContainsString('an investor offers MK 1,000,000 at 22% a year over 12 months', $texts, 'the plan: amount, rate and period are in the SMS');
+        foreach ([$inv->name, $inv->email, '0999123456', '+265999123456'] as $secret) {
+            $this->assertStringNotContainsString($secret, $texts, 'no names or contact details are texted');
+        }
         $this->actingAs($owner)->post("/messages/{$c->id}/offers/{$v->id}/accept");
         $this->assertSame(1, SmsMessage::where('user_id', $inv->id)->where('kind', 'agreement_created')->count());
     }

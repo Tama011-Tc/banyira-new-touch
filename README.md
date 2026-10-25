@@ -75,6 +75,7 @@ Customers and staff are separate: a role can never be moved from one group to th
 | Offers | Immutable versions with a content hash and a fee snapshot. Terms limited to the approved ceiling. An agreement exists only when both parties accept the same latest version. |
 | Loans | `bcmath` integer maths. Flat and reducing-balance, weekly/monthly, grace period, last instalment absorbs rounding. |
 | Fees | Borrower origination (deducted from disbursement), investor service (added to funding payment), provider processing (borne by the platform), optional tax. Disclosed up front, snapshotted, changes need two people. |
+| SMS | Mock provider. The owner is texted the amount, rate and period of each offer with a reply code and can reply **Y code** / **N code** to accept or decline (up to MK 5,000,000), from their registered number only. Status updates and repayment reminders are texted too. Nothing is actually sent in this build. |
 | Payments | Sandbox provider with signed webhooks, provider-side verification, idempotency keys, duplicate-event protection, reconciliation, failure handling, two-person reversals. |
 | Ledger | Double-entry, append-only (also enforced by database triggers). Corrections are reversing entries. |
 | Audit | Hash-chained, append-only; chain verification shown to staff. |
@@ -86,7 +87,7 @@ Customers and staff are separate: a role can never be moved from one group to th
 php artisan test
 ```
 
-**178 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**207 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 

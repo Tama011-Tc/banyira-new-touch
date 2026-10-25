@@ -19,6 +19,20 @@ class SmsController extends Controller
         ]);
     }
 
+    /**
+     * Demo only: type an SMS reply "from" your own phone. It is signed and delivered exactly like a gateway callback would be, so
+     * the same checks (sender number, code, expiry, single use) apply.
+     */
+    public function simulateReply(Request $request, SmsService $sms, \App\Services\Sms\SmsInboundService $inbound)
+    {
+        $d = $request->validate(['text' => 'required|string|max:60']);
+        $phone = $sms->phoneFor($request->user());
+        abort_unless($phone, 422, 'There is no valid mobile number on your profile.');
+        $outcome = $inbound->handle('sim-'.bin2hex(random_bytes(8)), $phone, $d['text']);
+
+        return back()->with($outcome === 'accepted' || $outcome === 'declined' ? 'success' : 'error', "Simulated reply processed: {$outcome}.");
+    }
+
     /** Staff view of what was sent. One-time codes are masked: staff never see them. */
     public function log(Request $request)
     {

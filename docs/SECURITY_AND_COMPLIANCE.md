@@ -9,6 +9,8 @@
 - Suspended users are signed out on their next request and their sessions are deleted.
 - No secrets in Git; `.env.example` contains none.
 
+**SMS.** Inbound replies are accepted only through a signed gateway callback, only from a business owner's registered number, only with a single-use code issued for one specific open offer, only up to a configurable amount, and with per-number rate limiting. SMS is spoofable and SIM-swap is possible, so these are layered controls, not proof of identity; the investor's side and all platform checks still apply, and large offers need the website.
+
 **Known gaps:** staff MFA is not enforced; no antivirus scan on uploads; no field-level encryption of documents at rest beyond the disk; no dependency/pen-test review yet.
 # Compliance and limitations
 

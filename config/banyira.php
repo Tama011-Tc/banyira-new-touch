@@ -14,6 +14,9 @@ return [
     */
     'live_provider_implemented' => false,
 
+    // Shared secret for the SMS gateway's signed inbound callbacks (derived from APP_KEY when empty).
+    'sms_webhook_secret' => env('SMS_WEBHOOK_SECRET'),
+
     // Shared secret for the sandbox provider's signed webhooks. Derived from APP_KEY unless set explicitly.
     'sandbox_webhook_secret' => env('SANDBOX_WEBHOOK_SECRET'),
 
