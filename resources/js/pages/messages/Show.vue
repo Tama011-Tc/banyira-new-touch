@@ -11,7 +11,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { Flag, ShieldAlert } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-const props = defineProps<{ conversation: { id: number; title: string; listing_id: number; with: string; role: string }; messages: { id: number; mine: boolean; body: string; status: string; at: string; flags: string[] }[]; offer: { versions: Record<string, any>[]; latest_id: number | null; status: string | null; agreement_id: number | null }; limits: Record<string, any>; rules: string }>();
+const props = defineProps<{ conversation: { id: number; title: string; listing_id: number; with: string; role: string }; sms_confirm: boolean; messages: { id: number; mine: boolean; body: string; status: string; at: string; flags: string[] }[]; offer: { versions: Record<string, any>[]; latest_id: number | null; status: string | null; agreement_id: number | null }; limits: Record<string, any>; rules: string }>();
 const msg = useForm({ body: '' });
 const send = () => msg.post(route('conversations.send', props.conversation.id), { preserveScroll: true, onSuccess: () => msg.reset('body') });
 const latest = props.offer.versions.at(-1);
@@ -19,6 +19,10 @@ const proposal = useForm({ principal: ((latest?.principal ?? props.limits.min) /
 const reporting = ref(false);
 const report = useForm({ reason: 'off_platform', detail: '' });
 const appealNote = ref('');
+const code = ref('');
+const codeSent = ref(false);
+const sendCode = (vid: number) => router.post(route('conversations.sms-code', [props.conversation.id, vid]), {}, { preserveScroll: true, onSuccess: () => (codeSent.value = true) });
+const accept = (vid: number) => router.post(route('conversations.accept', [props.conversation.id, vid]), { sms_code: code.value }, { preserveScroll: true });
 const canAct = (v: Record<string, any>) => v.status === 'proposed' && !v.by_me && v.id === props.offer.latest_id;
 </script>
 
@@ -68,7 +72,7 @@ const canAct = (v: Record<string, any>) => v.status === 'proposed' && !v.by_me &
                             <p v-if="v.status === 'proposed' && v.expires_at" class="mt-2 text-xs text-muted-foreground">Open until {{ v.expires_at }}</p>
                             <p class="mt-2 text-xs text-muted-foreground">Accepted by: {{ v.investor_accepted ? 'investor' : '' }}{{ v.investor_accepted && v.business_accepted ? ' and ' : '' }}{{ v.business_accepted ? 'business' : '' }}{{ !v.investor_accepted && !v.business_accepted ? 'nobody yet' : '' }} · #{{ v.hash }}</p>
                             <div v-if="v.status === 'proposed' && v.by_me && v.id === offer.latest_id" class="mt-3"><Button size="sm" variant="outline" @click="router.post(route('conversations.withdraw', [conversation.id, v.id]))">Withdraw my proposal</Button></div>
-                            <div v-if="canAct(v)" class="mt-3 flex gap-2"><Button size="sm" @click="router.post(route('conversations.accept', [conversation.id, v.id]))">Accept these terms</Button><Button size="sm" variant="outline" @click="router.post(route('conversations.decline', [conversation.id, v.id]))">Decline</Button></div>
+                            <div v-if="canAct(v)" class="mt-3 flex gap-2"><template v-if="sms_confirm"><Button v-if="!codeSent" size="sm" @click="sendCode(v.id)">Accept: text me a code</Button><template v-else><Input v-model="code" inputmode="numeric" maxlength="6" placeholder="6-digit code" class="h-8 w-32" aria-label="SMS code" /><Button size="sm" :disabled="code.length !== 6" @click="accept(v.id)">Confirm</Button></template></template><Button v-else size="sm" @click="accept(v.id)">Accept these terms</Button><Button size="sm" variant="outline" @click="router.post(route('conversations.decline', [conversation.id, v.id]))">Decline</Button></div>
                         </li>
                         <li v-if="!offer.versions.length" class="text-sm text-muted-foreground">No proposal yet.</li>
                     </ol>

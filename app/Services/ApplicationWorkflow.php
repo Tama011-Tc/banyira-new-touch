@@ -80,6 +80,9 @@ class ApplicationWorkflow
         }
         $recipients = collect([$b->owner, $app->assisted_by ? User::find($app->assisted_by) : null])->filter()->unique('id');
         \Illuminate\Support\Facades\Notification::send($recipients, new \App\Notifications\ApplicationNotice($messages[$to][0], $messages[$to][1], route('applications.show', $app->id)));
+        if ($b->owner) {
+            app(\App\Services\Sms\SmsService::class)->send($b->owner, 'application_update', config('banyira.brand').': '.$messages[$to][0].'. Open the app for details.');
+        }
     }
 
     public function isApplicant(Application $app, User $user): bool

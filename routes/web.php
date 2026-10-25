@@ -86,6 +86,8 @@ Route::middleware('auth')->group(function () {
         Route::post('activities/{activity}/done', [SalesController::class, 'completeActivity'])->name('activity.done');
         Route::post('applications/{application}/refer', [SalesController::class, 'refer'])->name('refer');
     });
+    Route::get('sms-inbox', [\App\Http\Controllers\SmsController::class, 'inbox'])->name('sms.inbox');
+    Route::get('sms-log', [\App\Http\Controllers\SmsController::class, 'log'])->middleware('can:sms.view')->name('sms.log');
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
 
@@ -120,6 +122,7 @@ Route::middleware('auth')->group(function () {
         Route::post('{conversation}/report', [ConversationController::class, 'report'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('report');
         Route::post('{conversation}/offers', [ConversationController::class, 'propose'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('propose');
         Route::post('{conversation}/offers/{version}/accept', [ConversationController::class, 'accept'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('accept');
+        Route::post('{conversation}/offers/{version}/sms-code', [ConversationController::class, 'smsCode'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('sms-code');
         Route::post('{conversation}/offers/{version}/withdraw', [ConversationController::class, 'withdraw'])->whereNumber('conversation')->name('withdraw');
         Route::post('{conversation}/offers/{version}/decline', [ConversationController::class, 'decline'])->whereNumber('conversation')->name('decline');
     });

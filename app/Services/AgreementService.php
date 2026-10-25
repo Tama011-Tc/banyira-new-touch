@@ -34,6 +34,9 @@ class AgreementService
         if ($app->status === 'published') {
             $this->workflow->transition($app, 'funding', null, 'First agreement signed');
         }
+        foreach ([$c->investor, $c->business->owner] as $party) {
+            $party && app(\App\Services\Sms\SmsService::class)->send($party, 'agreement_created', config('banyira.brand').': both sides accepted the terms. Open the app to see the agreement and repayment schedule.');
+        }
         $this->audit->record('agreement.created', $a, ['principal' => $a->principal, 'simulated' => true], null);
 
         return $a;

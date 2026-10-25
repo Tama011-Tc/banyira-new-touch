@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
         $u = $this->user('investor3', 'Investor Three (unverified demo)', Role::Investor);
         $u->investorProfile->update(['kyc_status' => 'pending', 'risk_acknowledged_at' => null, 'verified_at' => null]);
         $this->user('business', 'Business Owner (demo)', Role::BusinessOwner);
-        Business::create(['owner_id' => $this->u['business']->id, 'name' => 'Lilongwe Print Studio Ltd (demo)', 'display_name' => 'Lilongwe Print Studio', 'sector' => 'Services', 'district' => 'Lilongwe', 'description' => 'A small digital print and signage shop serving schools and local firms. Fictional demo business.', 'years_operating' => 4, 'registration_no' => 'DEMO-REG-0001', 'owner_consent_at' => now(), 'verification_status' => 'verified']);
+        Business::create(['owner_id' => $this->u['business']->id, 'name' => 'Lilongwe Print Studio Ltd (demo)', 'display_name' => 'Lilongwe Print Studio', 'sector' => 'Services', 'district' => 'Lilongwe', 'description' => 'A small digital print and signage shop serving schools and local firms. Fictional demo business.', 'contact_phone' => '0999 111 222', 'years_operating' => 4, 'registration_no' => 'DEMO-REG-0001', 'owner_consent_at' => now(), 'verification_status' => 'verified']);
     }
 
     private function business(string $key, string $name, string $display, string $sector, string $district, int $years, string $desc, ?User $assistedBy = null): Business
@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
         $owner = $this->user($key, "{$display} owner (demo)", Role::BusinessOwner);
         $assistedBy && $owner->forceFill(['invited_by' => $assistedBy->id])->save();
 
-        return Business::create(['owner_id' => $owner->id, 'name' => $name, 'display_name' => $display, 'sector' => $sector, 'district' => $district, 'description' => $desc.' (Fictional demo business.)', 'years_operating' => $years, 'registration_no' => 'DEMO-'.strtoupper(Str::random(6)), 'registered_by_staff_id' => $assistedBy?->id, 'owner_consent_at' => now(), 'verification_status' => 'verified']);
+        return Business::create(['owner_id' => $owner->id, 'name' => $name, 'display_name' => $display, 'sector' => $sector, 'district' => $district, 'description' => $desc.' (Fictional demo business.)', 'contact_phone' => '0888 000 '.str_pad((string) (count($this->u) * 7 % 1000), 3, '0', STR_PAD_LEFT), 'years_operating' => $years, 'registration_no' => 'DEMO-'.strtoupper(Str::random(6)), 'registered_by_staff_id' => $assistedBy?->id, 'owner_consent_at' => now(), 'verification_status' => 'verified']);
     }
 
     private function application(Business $b, array $o): Application

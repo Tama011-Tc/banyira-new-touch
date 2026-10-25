@@ -53,18 +53,26 @@ class OfferService
                 'investor_accepted_at' => $proposer->id === $c->investor_id ? now() : null,
                 'business_accepted_at' => $proposer->id === $c->business->owner_id ? now() : null,
             ]);
+            $other = $proposer->id === $c->investor_id ? $c->business->owner : $c->investor;
+            $other && app(\App\Services\Sms\SmsService::class)->send($other, 'offer_received', config('banyira.brand').': a new proposal arrived on "'.mb_substr($listing->title, 0, 40).'". Log in to review it.');
             $this->audit->record('offer.proposed', $v, ['version' => $version, 'principal' => $terms['principal'], 'rate_bp' => $terms['rate_bp']], $proposer);
 
             return $v;
         });
     }
 
-    public function accept(OfferVersion $v, User $actor): ?LoanAgreement
+    public function accept(OfferVersion $v, User $actor, ?string $smsCode = null): ?LoanAgreement
     {
         // Recorded outside the transaction below, which the error would otherwise roll back.
         if ($v->status === 'proposed' && $v->expires_at && $v->expires_at->isPast()) {
             $v->forceFill(['status' => 'expired'])->save();
             throw ValidationException::withMessages(['offer' => 'This proposal has expired. Ask the other party to send a new one.']);
+        }
+
+        // Optional step-up: confirm with the one-time code sent to the user's own phone. Never replaces the web acceptance itself.
+        $sms = app(\App\Services\Sms\SmsService::class);
+        if ($sms->requiresConfirmation($actor)) {
+            $sms->verify($actor, 'accept_offer', 'offer_version', $v->id, $smsCode);
         }
 
         return DB::transaction(function () use ($v, $actor) {

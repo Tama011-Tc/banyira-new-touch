@@ -48,6 +48,7 @@ enum Role: string
         'agreements.view_any' => ['executive', 'finance', 'compliance', 'it_admin'],
         'complaints.view' => ['support', 'compliance', 'it_admin'],
         'oversight.read_only' => ['it_admin'],
+        'sms.view' => ['it_admin', 'support', 'compliance'],
     ];
 
     public function can(string $ability): bool

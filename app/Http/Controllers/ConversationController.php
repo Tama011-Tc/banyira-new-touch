@@ -47,6 +47,7 @@ class ConversationController extends Controller
                 'versions' => $versions->sortBy('version')->values()->map(fn ($v) => ['id' => $v->id, 'version' => $v->version, 'status' => $v->status, 'principal' => $v->principal, 'rate_bp' => $v->rate_bp, 'term_months' => $v->term_months, 'frequency' => $v->frequency, 'interest_method' => $v->interest_method, 'grace' => $v->grace_instalments, 'fees' => $v->fees, 'by_me' => $v->proposed_by === $me->id, 'expires_at' => $v->expires_at?->format('d M H:i'), 'investor_accepted' => (bool) $v->investor_accepted_at, 'business_accepted' => (bool) $v->business_accepted_at, 'note' => $v->note, 'hash' => substr($v->content_hash, 0, 10)]),
                 'latest_id' => $latest?->id, 'status' => $c->offer?->status, 'agreement_id' => \App\Models\LoanAgreement::where('offer_version_id', $latest?->id)->value('id'),
             ],
+            'sms_confirm' => app(\App\Services\Sms\SmsService::class)->requiresConfirmation($me),
             'limits' => ['min' => $c->listing->min_investment, 'max' => $c->listing->max_investment, 'max_rate_bp' => $c->listing->max_rate_bp, 'term_months' => $c->listing->term_months, 'rate_bp' => $c->listing->rate_bp, 'frequency' => $c->listing->frequency, 'method' => $c->listing->interest_method],
             'rules' => 'Keep the conversation on the platform. Phone numbers, emails, links, social handles and payment instructions are blocked, and requests to move outside the platform are reviewed.',
         ]);
@@ -116,9 +117,19 @@ class ConversationController extends Controller
     {
         $c = $this->mine($request)->findOrFail($conversation);
         abort_unless($version->offer->conversation_id === $c->id, 404);
-        $a = $this->offers->accept($version, $request->user());
+        $a = $this->offers->accept($version, $request->user(), $request->input('sms_code'));
 
         return $a ? to_route('agreements.show', $a)->with('success', 'Both parties accepted. A simulated agreement and repayment schedule have been created.') : back()->with('success', 'Your acceptance is recorded. Waiting for the other party.');
+    }
+
+    /** Sends a one-time code to the user's own phone, to confirm accepting THIS offer version. */
+    public function smsCode(Request $request, int $conversation, \App\Models\OfferVersion $version, \App\Services\Sms\SmsService $sms)
+    {
+        $c = $this->mine($request)->findOrFail($conversation);
+        abort_unless($version->offer->conversation_id === $c->id && $version->status === 'proposed', 404);
+        $sms->issueCode($request->user(), 'accept_offer', 'offer_version', $version->id, 'accept the loan terms');
+
+        return back()->with('success', 'We sent a 6-digit code to your phone. It expires in 10 minutes.');
     }
 
     public function withdraw(Request $request, int $conversation, \App\Models\OfferVersion $version)

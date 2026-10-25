@@ -20,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(AuditLogger::class);
+        $this->app->bind(\App\Services\Sms\SmsProvider::class, \App\Services\Sms\MockSmsProvider::class);   // swap for a real gateway adapter later
     }
 
     public function boot(): void
