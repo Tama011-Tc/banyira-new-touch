@@ -16,7 +16,7 @@ class OfferVersion extends Model
 
     protected function casts(): array
     {
-        return ['fees' => 'array', 'investor_accepted_at' => 'datetime', 'business_accepted_at' => 'datetime'];
+        return ['fees' => 'array', 'investor_accepted_at' => 'datetime', 'business_accepted_at' => 'datetime', 'expires_at' => 'datetime'];
     }
 
     public function offer(): BelongsTo

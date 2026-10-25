@@ -39,6 +39,7 @@ class OfferService
                 throw ValidationException::withMessages(['offer' => 'An agreement already exists for this conversation.']);
             }
             $this->assertCapacity($listing, $terms['principal']);
+            $this->assertExposure($c->investor, $listing, $terms['principal']);
             $version = ($offer->versions()->max('version') ?? 0) + 1;
             $offer->versions()->where('status', 'proposed')->update(['status' => 'superseded']);
             $offer->forceFill(['status' => 'open'])->save();
@@ -48,6 +49,7 @@ class OfferService
                 'offer_id' => $offer->id, 'version' => $version, 'proposed_by' => $proposer->id, 'principal' => $terms['principal'], 'rate_bp' => $terms['rate_bp'],
                 'term_months' => $terms['term_months'], 'frequency' => $terms['frequency'], 'interest_method' => $terms['interest_method'], 'grace_instalments' => $terms['grace_instalments'] ?? 0,
                 'fees' => $fees, 'content_hash' => self::hash($terms, $fees), 'note' => $terms['note'] ?? null,
+                'expires_at' => now()->addDays((int) Settings::get('offers.ttl_days')),
                 'investor_accepted_at' => $proposer->id === $c->investor_id ? now() : null,
                 'business_accepted_at' => $proposer->id === $c->business->owner_id ? now() : null,
             ]);
@@ -59,6 +61,12 @@ class OfferService
 
     public function accept(OfferVersion $v, User $actor): ?LoanAgreement
     {
+        // Recorded outside the transaction below, which the error would otherwise roll back.
+        if ($v->status === 'proposed' && $v->expires_at && $v->expires_at->isPast()) {
+            $v->forceFill(['status' => 'expired'])->save();
+            throw ValidationException::withMessages(['offer' => 'This proposal has expired. Ask the other party to send a new one.']);
+        }
+
         return DB::transaction(function () use ($v, $actor) {
             $v = OfferVersion::query()->whereKey($v->id)->lockForUpdate()->firstOrFail();
             $offer = $v->offer;
@@ -88,11 +96,25 @@ class OfferService
                 return null;
             }
             $this->assertCapacity($listing, $v->principal);
+            $this->assertExposure($c->investor, $listing, $v->principal);
             $v->forceFill(['status' => 'accepted'])->save();
             $offer->forceFill(['status' => 'accepted'])->save();
 
             return $this->agreements->createFromOffer($v);
         });
+    }
+
+    /** The proposer takes back an unanswered proposal. Once both sides accepted, the agreement is binding. */
+    public function withdraw(OfferVersion $v, User $actor): void
+    {
+        $c = $v->offer->conversation;
+        abort_unless($this->messaging->isParticipant($c, $actor) && $v->proposed_by === $actor->id, 403);
+        $v = OfferVersion::query()->whereKey($v->id)->lockForUpdate()->firstOrFail();
+        if ($v->status !== 'proposed') {
+            throw ValidationException::withMessages(['offer' => 'Only an unanswered proposal can be withdrawn.']);
+        }
+        $v->forceFill(['status' => 'withdrawn'])->save();
+        $this->audit->record('offer.withdrawn', $v, [], $actor);
     }
 
     public function decline(OfferVersion $v, User $actor): void
@@ -131,6 +153,20 @@ class OfferService
         }
         // Prove the schedule can be built before anyone signs.
         LoanCalculator::schedule($t['principal'], $t['rate_bp'], $t['term_months'], $t['frequency'], $t['interest_method'], $t['grace_instalments'], now()->toDateString());
+    }
+
+    /** Investor caps: a personal per-listing limit on their profile, and an optional platform-wide total. */
+    private function assertExposure(User $investor, Listing $listing, int $principal): void
+    {
+        $live = LoanAgreement::where('investor_id', $investor->id)->where('status', '!=', 'cancelled');
+        $perListing = $investor->investorProfile?->max_per_listing;
+        if ($perListing !== null && (clone $live)->where('listing_id', $listing->id)->sum('principal') + $principal > $perListing) {
+            throw ValidationException::withMessages(['principal' => 'This would exceed your personal limit of '.Money::format($perListing).' for one business.']);
+        }
+        $total = Settings::get('investor.max_total_commitment');
+        if ($total !== null && (clone $live)->sum('principal') + $principal > $total) {
+            throw ValidationException::withMessages(['principal' => 'This would exceed the platform limit of '.Money::format((int) $total).' in total commitments per investor.']);
+        }
     }
 
     private function assertCapacity(Listing $l, int $principal): void

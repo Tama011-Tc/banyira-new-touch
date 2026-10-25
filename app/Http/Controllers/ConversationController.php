@@ -44,7 +44,7 @@ class ConversationController extends Controller
             'conversation' => ['id' => $c->id, 'title' => $c->listing->title, 'listing_id' => $c->listing_id, 'with' => $isInvestor ? $c->listing->application->business->display_name : $c->investor->name, 'role' => $isInvestor ? 'investor' : 'business'],
             'messages' => $msgs->map(fn ($m) => ['id' => $m->id, 'mine' => $m->sender_id === $me->id, 'body' => $m->sender_id === $me->id || in_array($m->status, ['delivered', 'released']) ? $m->body : '', 'status' => $m->status, 'at' => $m->created_at->format('d M H:i'), 'flags' => $m->sender_id === $me->id ? collect($m->flags)->pluck('rule') : []]),
             'offer' => [
-                'versions' => $versions->sortBy('version')->values()->map(fn ($v) => ['id' => $v->id, 'version' => $v->version, 'status' => $v->status, 'principal' => $v->principal, 'rate_bp' => $v->rate_bp, 'term_months' => $v->term_months, 'frequency' => $v->frequency, 'interest_method' => $v->interest_method, 'grace' => $v->grace_instalments, 'fees' => $v->fees, 'by_me' => $v->proposed_by === $me->id, 'investor_accepted' => (bool) $v->investor_accepted_at, 'business_accepted' => (bool) $v->business_accepted_at, 'note' => $v->note, 'hash' => substr($v->content_hash, 0, 10)]),
+                'versions' => $versions->sortBy('version')->values()->map(fn ($v) => ['id' => $v->id, 'version' => $v->version, 'status' => $v->status, 'principal' => $v->principal, 'rate_bp' => $v->rate_bp, 'term_months' => $v->term_months, 'frequency' => $v->frequency, 'interest_method' => $v->interest_method, 'grace' => $v->grace_instalments, 'fees' => $v->fees, 'by_me' => $v->proposed_by === $me->id, 'expires_at' => $v->expires_at?->format('d M H:i'), 'investor_accepted' => (bool) $v->investor_accepted_at, 'business_accepted' => (bool) $v->business_accepted_at, 'note' => $v->note, 'hash' => substr($v->content_hash, 0, 10)]),
                 'latest_id' => $latest?->id, 'status' => $c->offer?->status, 'agreement_id' => \App\Models\LoanAgreement::where('offer_version_id', $latest?->id)->value('id'),
             ],
             'limits' => ['min' => $c->listing->min_investment, 'max' => $c->listing->max_investment, 'max_rate_bp' => $c->listing->max_rate_bp, 'term_months' => $c->listing->term_months, 'rate_bp' => $c->listing->rate_bp, 'frequency' => $c->listing->frequency, 'method' => $c->listing->interest_method],
@@ -119,6 +119,15 @@ class ConversationController extends Controller
         $a = $this->offers->accept($version, $request->user());
 
         return $a ? to_route('agreements.show', $a)->with('success', 'Both parties accepted. A simulated agreement and repayment schedule have been created.') : back()->with('success', 'Your acceptance is recorded. Waiting for the other party.');
+    }
+
+    public function withdraw(Request $request, int $conversation, \App\Models\OfferVersion $version)
+    {
+        $c = $this->mine($request)->findOrFail($conversation);
+        abort_unless($version->offer->conversation_id === $c->id, 404);
+        $this->offers->withdraw($version, $request->user());
+
+        return back()->with('success', 'Proposal withdrawn.');
     }
 
     public function decline(Request $request, int $conversation, \App\Models\OfferVersion $version)

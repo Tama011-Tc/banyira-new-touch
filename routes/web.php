@@ -120,6 +120,7 @@ Route::middleware('auth')->group(function () {
         Route::post('{conversation}/report', [ConversationController::class, 'report'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('report');
         Route::post('{conversation}/offers', [ConversationController::class, 'propose'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('propose');
         Route::post('{conversation}/offers/{version}/accept', [ConversationController::class, 'accept'])->whereNumber('conversation')->middleware('throttle:sensitive')->name('accept');
+        Route::post('{conversation}/offers/{version}/withdraw', [ConversationController::class, 'withdraw'])->whereNumber('conversation')->name('withdraw');
         Route::post('{conversation}/offers/{version}/decline', [ConversationController::class, 'decline'])->whereNumber('conversation')->name('decline');
     });
     Route::post('message-items/{message}/appeal', [ConversationController::class, 'appeal'])->middleware('throttle:sensitive')->name('messages.appeal');
