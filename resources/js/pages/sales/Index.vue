@@ -1,29 +1,64 @@
 <script setup lang="ts">
+import FormField from '@/components/pw/FormField.vue';
+import InviteLink from '@/components/pw/InviteLink.vue';
 import PageHeader from '@/components/pw/PageHeader.vue';
 import Status from '@/components/pw/Status.vue';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { mk } from '@/lib/format';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { date } from '@/lib/format';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 
-defineProps<{ businesses: { id: number; display_name: string; sector: string; district: string; claimed: boolean; applications: number }[]; applications: { id: number; business: string; status: string; amount: number }[] }>();
+defineProps<{ leads: { id: number; owner: string; email: string; business: string | null; sector: string | null; district: string | null; applications: number; status: string; signed_in: boolean; next_follow_up: string | null }[]; follow_ups: { id: number; lead_id: number; lead: string; kind: string; body: string; due_on: string; overdue: boolean }[] }>();
+const invite = useForm({ owner_name: '', owner_email: '' });
 </script>
 
 <template>
-    <Head title="Sales workspace" />
+    <Head title="My leads" />
     <AppLayout>
-        <PageHeader title="Sales workspace" description="Help businesses apply. You can register a business with the owner's consent and guide the application, but you cannot assess, approve or promise funding.">
+        <PageHeader title="My leads" description="Businesses you brought in. You can prepare and upload an application for them, and they can sign in to follow progress. You cannot assess, approve or promise funding.">
             <Button as-child><Link :href="route('sales.create')">Register a business</Link></Button>
         </PageHeader>
-        <div class="grid gap-6 lg:grid-cols-2">
-            <section>
-                <h2 class="mb-3 font-semibold">Businesses you registered</h2>
-                <ul class="divide-y rounded-lg border bg-card"><li v-for="b in businesses" :key="b.id" class="flex items-center justify-between gap-3 p-4 text-sm"><div><p class="font-medium">{{ b.display_name }}</p><p class="text-muted-foreground">{{ b.sector }} · {{ b.district }} · {{ b.applications }} application(s)</p></div><Button size="sm" variant="outline" as-child><Link :href="route('applications.create', { business: b.id })">New application</Link></Button></li><li v-if="!businesses.length" class="p-6 text-center text-sm text-muted-foreground">None yet.</li></ul>
+        <InviteLink />
+
+        <div class="grid gap-6 lg:grid-cols-3">
+            <section class="lg:col-span-2">
+                <h2 class="mb-3 font-semibold">Leads</h2>
+                <div class="overflow-x-auto rounded-lg border bg-card">
+                    <table class="w-full min-w-[40rem] text-sm"><caption class="sr-only">Your leads</caption>
+                        <thead class="bg-muted/60 text-left text-xs uppercase tracking-wide text-muted-foreground"><tr><th scope="col" class="px-3 py-2">Owner / business</th><th scope="col" class="px-3 py-2">Progress</th><th scope="col" class="px-3 py-2">Owner access</th><th scope="col" class="px-3 py-2">Next follow-up</th><th /></tr></thead>
+                        <tbody class="divide-y">
+                            <tr v-for="l in leads" :key="l.id">
+                                <td class="px-3 py-3"><p class="font-medium">{{ l.business ?? l.owner }}</p><p class="text-xs text-muted-foreground">{{ l.business ? l.owner + ' · ' : '' }}{{ l.email }}</p></td>
+                                <td class="px-3 py-3"><Status :value="l.status.replace(' ', '_')" /></td>
+                                <td class="px-3 py-3 text-xs">{{ l.signed_in ? 'Signed in' : 'Not signed in yet' }}</td>
+                                <td class="px-3 py-3 text-xs">{{ l.next_follow_up ? date(l.next_follow_up) : '-' }}</td>
+                                <td class="px-3 py-3 text-right"><Button size="sm" variant="outline" as-child><Link :href="route('sales.lead', l.id)">Open</Link></Button></td>
+                            </tr>
+                            <tr v-if="!leads.length"><td colspan="5" class="px-3 py-8 text-center text-muted-foreground">No leads yet. Register a business or send an invitation.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
-            <section>
-                <h2 class="mb-3 font-semibold">Application progress</h2>
-                <ul class="divide-y rounded-lg border bg-card"><li v-for="a in applications" :key="a.id" class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm"><div><p class="font-medium">{{ a.business }}</p><p class="text-muted-foreground">{{ mk(a.amount) }}</p></div><div class="flex items-center gap-2"><Status :value="a.status" /><Link :href="route('applications.show', a.id)" class="text-primary hover:underline">Open</Link><Button v-if="a.status === 'submitted'" size="sm" variant="outline" @click="router.post(route('sales.refer', a.id))">Refer to credit</Button></div></li><li v-if="!applications.length" class="p-6 text-center text-sm text-muted-foreground">None yet.</li></ul>
-            </section>
+
+            <aside class="space-y-6">
+                <section class="rounded-lg border bg-card p-5">
+                    <h2 class="font-semibold">Invite an owner</h2>
+                    <p class="text-xs text-muted-foreground">They complete their own application. You can follow it and help.</p>
+                    <form class="mt-3 space-y-3" @submit.prevent="invite.post(route('sales.invite'), { onSuccess: () => invite.reset() })">
+                        <FormField label="Owner's name" for="in" :error="invite.errors.owner_name"><Input id="in" v-model="invite.owner_name" required /></FormField>
+                        <FormField label="Owner's email" for="ie" :error="invite.errors.owner_email"><Input id="ie" v-model="invite.owner_email" type="email" required /></FormField>
+                        <Button type="submit" class="w-full" :disabled="invite.processing">Create invitation</Button>
+                    </form>
+                </section>
+                <section class="rounded-lg border bg-card p-5">
+                    <h2 class="font-semibold">Follow-ups due</h2>
+                    <ul class="mt-3 space-y-3 text-sm">
+                        <li v-for="f in follow_ups" :key="f.id" class="flex items-start justify-between gap-2"><div><Link :href="route('sales.lead', f.lead_id)" class="font-medium hover:underline">{{ f.lead }}</Link><p class="text-xs text-muted-foreground">{{ f.body }}</p><p class="text-xs" :class="f.overdue ? 'font-medium text-expense' : 'text-muted-foreground'">{{ f.overdue ? 'Overdue · ' : '' }}{{ date(f.due_on) }}</p></div><button class="text-xs text-primary hover:underline" @click="router.post(route('sales.activity.done', f.id), {}, { preserveScroll: true })">Done</button></li>
+                        <li v-if="!follow_ups.length" class="text-muted-foreground">Nothing due.</li>
+                    </ul>
+                </section>
+            </aside>
         </div>
     </AppLayout>
 </template>

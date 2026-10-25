@@ -25,6 +25,7 @@ function send() {
     <AppLayout>
         <PageHeader :title="`Application #${a.id}`" :description="`${a.business} · ${mk(a.amount)} over ${a.term_months} months`"><Status :value="a.status" /></PageHeader>
 
+        <p v-if="a.assisted_by_name" class="mb-4 rounded-lg border bg-card p-3 text-sm">This application was prepared with help from <strong>{{ a.assisted_by_name }}</strong> at your request. Please check every detail is correct; you can edit a draft until it is submitted.</p>
         <div v-if="a.info_request" class="mb-6 rounded-lg border border-gold/50 bg-gold/10 p-4 text-sm"><p class="font-medium">Credit staff asked for more information</p><p class="mt-1">{{ a.info_request }}</p></div>
         <div v-if="a.decision" class="mb-6 rounded-lg border bg-card p-4 text-sm"><p class="font-medium">Decision: {{ label(a.decision.decision) }}</p><p class="mt-1 text-muted-foreground">{{ a.decision.reason }}</p><p v-if="a.decision.conditions" class="mt-1"><strong>Conditions:</strong> {{ a.decision.conditions }}</p></div>
 

@@ -78,8 +78,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('index');
         Route::get('register', [SalesController::class, 'create'])->name('create');
         Route::post('register', [SalesController::class, 'store'])->middleware('throttle:sensitive')->name('store');
+        Route::post('invite', [SalesController::class, 'inviteOnly'])->middleware('throttle:sensitive')->name('invite');
+        Route::get('leads/{lead}', [SalesController::class, 'show'])->whereNumber('lead')->name('lead');
+        Route::post('leads/{lead}/invite', [SalesController::class, 'reinvite'])->whereNumber('lead')->middleware('throttle:sensitive')->name('reinvite');
+        Route::post('leads/{lead}/business', [SalesController::class, 'addBusiness'])->whereNumber('lead')->middleware('throttle:sensitive')->name('lead.business');
+        Route::post('leads/{lead}/activities', [SalesController::class, 'activity'])->whereNumber('lead')->name('activity');
+        Route::post('activities/{activity}/done', [SalesController::class, 'completeActivity'])->name('activity.done');
         Route::post('applications/{application}/refer', [SalesController::class, 'refer'])->name('refer');
     });
+    Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
 
     // ---- Credit
     Route::middleware('can:credit.view')->prefix('credit')->name('credit.')->group(function () {

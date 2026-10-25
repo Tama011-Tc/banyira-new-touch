@@ -260,7 +260,7 @@ class ApplicationAndCreditTest extends TestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'business.registered_by_staff', 'actor_id' => $sales->id]);
         // the rep sees only their own registrations
         $other = $this->business();
-        $this->actingAs($sales)->get('/sales')->assertInertia(fn ($p) => $p->has('businesses', 1));
+        $this->actingAs($sales)->get('/sales')->assertInertia(fn ($p) => $p->has('leads', 1));
         $app = $this->application($b, ['assisted_by' => $sales->id]);
         $this->actingAs($sales)->get("/applications/{$app->id}")->assertOk();
         $this->actingAs($this->user(Role::Sales))->get("/applications/{$app->id}")->assertNotFound();

@@ -18,11 +18,12 @@ class CreditController extends Controller
     public function index(Request $request)
     {
         $statuses = ['submitted', 'screening', 'assessment', 'info_requested'];
-        $q = Application::with('business')->whereIn('status', $request->status ? [$request->status] : array_merge($statuses, ['approved', 'rejected']))->latest('submitted_at');
+        $q = Application::with('business')->whereIn('status', $request->status ? [$request->status] : array_merge($statuses, ['approved', 'rejected']))->when($request->boolean('mine'), fn ($q) => $q->where('assigned_to', $request->user()->id))->latest('submitted_at');
+        $names = \App\Models\User::whereIn('id', Application::whereNotNull('assigned_to')->pluck('assigned_to'))->pluck('name', 'id');
 
         return Inertia::render('credit/Index', [
-            'applications' => $q->paginate(15)->withQueryString()->through(fn ($a) => ['id' => $a->id, 'business' => $a->business->display_name, 'sector' => $a->business->sector, 'status' => $a->status, 'amount' => $a->amount, 'term_months' => $a->term_months, 'submitted_at' => $a->submitted_at?->toDateString(), 'referred' => (bool) $a->referred_by]),
-            'filters' => $request->only('status'),
+            'applications' => $q->paginate(15)->withQueryString()->through(fn ($a) => ['id' => $a->id, 'business' => $a->business->display_name, 'sector' => $a->business->sector, 'status' => $a->status, 'amount' => $a->amount, 'term_months' => $a->term_months, 'submitted_at' => $a->submitted_at?->toDateString(), 'referred' => (bool) $a->referred_by, 'assigned' => $a->assigned_to ? ($names[$a->assigned_to] ?? '?') : null, 'mine' => $a->assigned_to === $request->user()->id]),
+            'filters' => $request->only('status', 'mine'), 'new_count' => Application::where('status', 'submitted')->count(),
         ]);
     }
 

@@ -71,6 +71,8 @@ class CreditService
     public function startScreening(Application $app, User $analyst): void
     {
         $this->workflow->transition($app, 'screening', $analyst);
+        $app->forceFill(['assigned_to' => $app->assigned_to ?? $analyst->id])->save();
+        $this->audit->record('credit.case_taken', $app, [], $analyst);
     }
 
     public function beginAssessment(Application $app, User $analyst): void

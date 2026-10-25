@@ -14,9 +14,9 @@ class HandleInertiaRequests extends Middleware
     /** role => [title, route name, icon]. Server-side authorisation still protects every route. */
     private const NAV = [
         'investor' => [['Marketplace', 'marketplace.index', 'store'], ['Watchlist', 'watchlist.index', 'bookmark'], ['Portfolio', 'portfolio.index', 'pie'], ['Messages', 'conversations.index', 'message'], ['Profile & verification', 'investor.profile', 'shield']],
-        'business_owner' => [['Overview', 'dashboard', 'home'], ['My business', 'business.edit', 'building'], ['Applications', 'applications.index', 'file'], ['Messages', 'conversations.index', 'message'], ['Loans', 'agreements.index', 'wallet']],
-        'sales' => [['Workspace', 'sales.index', 'home'], ['Register a business', 'sales.create', 'plus']],
-        'credit_analyst' => [['Review queue', 'credit.index', 'inbox']],
+        'business_owner' => [['Overview', 'dashboard', 'home'], ['Notifications', 'notifications.index', 'inbox'], ['My business', 'business.edit', 'building'], ['Applications', 'applications.index', 'file'], ['Messages', 'conversations.index', 'message'], ['Loans', 'agreements.index', 'wallet']],
+        'sales' => [['My leads', 'sales.index', 'home'], ['Register a business', 'sales.create', 'plus'], ['Notifications', 'notifications.index', 'inbox']],
+        'credit_analyst' => [['Review queue', 'credit.index', 'inbox'], ['Notifications', 'notifications.index', 'file']],
         'credit_approver' => [['Decisions', 'credit.index', 'inbox'], ['Listings', 'listings.index', 'list'], ['Loans', 'agreements.index', 'wallet']],
         'executive' => [['Overview', 'executive.index', 'chart'], ['Decisions', 'credit.index', 'inbox'], ['Listings', 'listings.index', 'list'], ['Loans', 'agreements.index', 'wallet'], ['Finance', 'finance.index', 'coins'], ['Compliance', 'compliance.index', 'shield'], ['Audit log', 'audit.index', 'scroll']],
         'finance' => [['Finance', 'finance.index', 'coins'], ['Loans', 'agreements.index', 'wallet'], ['Audit log', 'audit.index', 'scroll']],
@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
             'mode' => ['operating' => Platform::mode(), 'simulation' => Platform::isSimulation()],
             'flash' => ['success' => fn () => $request->session()->get('success'), 'error' => fn () => $request->session()->get('error')],
             'temp_credential' => fn () => $request->session()->get('temp_credential'),
+            'invite_link' => fn () => $request->session()->get('invite_link'),
             'unread' => fn () => $user ? $user->unreadNotifications()->count() : 0,
         ];
     }

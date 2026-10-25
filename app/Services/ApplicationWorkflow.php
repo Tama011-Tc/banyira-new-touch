@@ -52,8 +52,34 @@ class ApplicationWorkflow
         }
         $app->forceFill(['status' => $to])->save();
         app(AuditLogger::class)->record('application.status', $app, ['from' => $from, 'to' => $to, 'reason' => $reason] + $meta, $actor);
+        $this->notify($app, $to);
 
         return $app;
+    }
+
+    /** New work goes to the credit analysts; progress goes to the applicant and the rep who helped them. */
+    private function notify(Application $app, string $to): void
+    {
+        $b = $app->business;
+        $amount = \App\Support\Money::format($app->amount);
+        if ($to === 'submitted') {
+            $analysts = User::query()->where('role', 'credit_analyst')->where('status', 'active')->get();
+            \Illuminate\Support\Facades\Notification::send($analysts, new \App\Notifications\ApplicationNotice("New application: {$b->display_name}", "{$amount} over {$app->term_months} months is waiting for credit review.", route('credit.show', $app->id), 'credit'));
+
+            return;
+        }
+        $messages = [
+            'info_requested' => ['More information needed', 'Credit staff asked for more detail on your application.'],
+            'approved' => ['Application approved', 'Your application passed credit review. The team is preparing your listing.'],
+            'rejected' => ['Application not approved', 'Your application was not approved. Open it to see the reason.'],
+            'published' => ['Your listing is live', 'Verified investors can now see your opportunity.'],
+            'funded' => ['Funding target reached', 'Your listing is fully funded.'],
+        ];
+        if (! isset($messages[$to])) {
+            return;
+        }
+        $recipients = collect([$b->owner, $app->assisted_by ? User::find($app->assisted_by) : null])->filter()->unique('id');
+        \Illuminate\Support\Facades\Notification::send($recipients, new \App\Notifications\ApplicationNotice($messages[$to][0], $messages[$to][1], route('applications.show', $app->id)));
     }
 
     public function isApplicant(Application $app, User $user): bool

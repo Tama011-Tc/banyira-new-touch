@@ -72,6 +72,7 @@ class DatabaseSeeder extends Seeder
     private function business(string $key, string $name, string $display, string $sector, string $district, int $years, string $desc, ?User $assistedBy = null): Business
     {
         $owner = $this->user($key, "{$display} owner (demo)", Role::BusinessOwner);
+        $assistedBy && $owner->forceFill(['invited_by' => $assistedBy->id])->save();
 
         return Business::create(['owner_id' => $owner->id, 'name' => $name, 'display_name' => $display, 'sector' => $sector, 'district' => $district, 'description' => $desc.' (Fictional demo business.)', 'years_operating' => $years, 'registration_no' => 'DEMO-'.strtoupper(Str::random(6)), 'registered_by_staff_id' => $assistedBy?->id, 'owner_consent_at' => now(), 'verification_status' => 'verified']);
     }
@@ -100,6 +101,13 @@ class DatabaseSeeder extends Seeder
         $a = $this->application($kasungu, ['amount' => $mk(6000000), 'purpose' => 'Buy a second-hand light truck to double weekly produce deliveries to Lilongwe.', 'term_months' => 18, 'proposed_rate_bp' => 2400, 'monthly_revenue' => $mk(3200000), 'monthly_expenses' => $mk(2300000), 'existing_debt' => $mk(1500000), 'assisted_by' => $this->u['sales']->id, 'referred_by' => $this->u['sales']->id]);
         Auth::setUser($this->u['sales']);
         $wf->submit($a, $this->u['sales']);
+
+        // An invited-only lead and some follow-ups for the sales demo.
+        $lead = new User(['name' => 'Grace Phiri (lead)', 'email' => 'lead@banyira.test', 'password' => 'password']);
+        $lead->forceFill(['role' => Role::BusinessOwner, 'status' => 'active', 'email_verified_at' => now(), 'invited_by' => $this->u['sales']->id])->save();
+        foreach ([['onboarding_session', 'Walk Grace through the document checklist', 2], ['follow_up', 'Call Kasungu Haulage about missing bank statements', -1]] as [$kind, $body, $days]) {
+            \App\Models\SalesActivity::create(['lead_id' => $kind === 'follow_up' ? $this->u['b_kasungu']->id ?? $lead->id : $lead->id, 'staff_id' => $this->u['sales']->id, 'kind' => $kind, 'body' => $body, 'due_on' => now()->addDays($days)->toDateString()]);
+        }
 
         // In credit assessment with a recorded assessment, waiting for an approver.
         $dedza = $this->business('b_dedza', 'Dedza Dairy Cooperative (demo)', 'Dedza Dairy Co-op', 'Agriculture', 'Dedza', 8, 'Milk collection and chilling for smallholder farmers.');

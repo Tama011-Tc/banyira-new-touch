@@ -91,7 +91,7 @@ class ApplicationController extends Controller
             'application' => [
                 'id' => $a->id, 'status' => $a->status, 'amount' => $a->amount, 'purpose' => $a->purpose, 'term_months' => $a->term_months, 'frequency' => $a->frequency, 'interest_method' => $a->interest_method,
                 'rate_bp' => $a->proposed_rate_bp, 'monthly_revenue' => $a->monthly_revenue, 'monthly_expenses' => $a->monthly_expenses, 'existing_debt' => $a->existing_debt, 'repayment_plan' => $a->repayment_plan,
-                'info_request' => $a->info_request, 'business' => $a->business->display_name, 'editable' => in_array($a->status, ['draft', 'info_requested']),
+                'info_request' => $a->info_request, 'assisted_by_name' => $a->assisted_by ? \App\Models\User::whereKey($a->assisted_by)->value('name') : null, 'business' => $a->business->display_name, 'editable' => in_array($a->status, ['draft', 'info_requested']),
                 'documents' => $a->documents->map(fn ($d) => ['id' => $d->id, 'type' => $d->type, 'name' => $d->original_name, 'size' => $d->size]),
                 'decision' => $a->decisions->last() ? $a->decisions->last()->only('decision', 'reason', 'conditions') : null,
                 'history' => \App\Models\AuditLog::where('action', 'application.status')->where('subject_type', 'Application')->where('subject_id', $a->id)->orderBy('id')->get()->map(fn ($l) => ['at' => $l->created_at->toDateTimeString(), 'to' => $l->meta['to'] ?? null, 'reason' => $l->meta['reason'] ?? null]),

@@ -26,7 +26,7 @@ Redis is optional (queues/cache use the database driver by default). Nothing her
 | Role | Login | What to try |
 |---|---|---|
 | Business owner | `business@banyira.test` | Add an application, upload documents, submit |
-| Sales rep | `sales@banyira.test` | Register a business with consent; refer an application |
+| Sales rep | `sales@banyira.test` | See leads, register or invite a business owner, upload documents on their behalf, log follow-ups |
 | Credit analyst | `analyst@banyira.test` | Screen, calculate score, record assessment |
 | Credit approver | `approver@banyira.test` | Approve/reject; prepare a listing |
 | Executive | `executive@banyira.test` | Review a listing, publish; dashboards |
@@ -66,6 +66,8 @@ Customers and staff are separate: a role can never be moved from one group to th
 | Area | Notes |
 |---|---|
 | Roles | Investor, business owner, sales, credit analyst, credit approver, executive, finance, compliance, IT admin, support. Least-privilege Gates; server-side on every route. |
+| Sales window | A rep sees only their own leads. They register a business with the owner's recorded consent (or just invite an owner), prepare the application and upload documents on the owner's behalf, log calls, meetings and follow-ups, and refer a complete application to credit. The owner gets a single-use link (3 days) to choose their **own** password, then signs in to follow progress. The rep never knows that password and cannot assess, approve or promise funding. |
+| Credit specialist | Submitting an application notifies every active analyst. The analyst who starts screening owns the case (shown in the queue, with a *My cases* filter). Applicants and the rep who helped are notified when more information is needed, and on approval, rejection, publication and funding. |
 | Application lifecycle | Draft → submitted → screening → assessment → (info requested) → approved/rejected → listing prepared → published → funding → funded → repayment active → completed / overdue / restructured / defaulted. Plus withdrawn, expired, suspended, cancelled. Explicit state machine; every change audited. |
 | Credit | Configurable, explained score (repayment capacity, history, documents, debt, sector) → *suggests* A–D. Analysts may adjust ±15 with written reasons. A **different** approver decides; large amounts need an executive. No protected characteristics exist in the data model. |
 | Listings | Prepared → independently reviewed → published. Text is screened for contact details. Public view exposes only approved, non-confidential fields. |
@@ -84,7 +86,7 @@ Customers and staff are separate: a role can never be moved from one group to th
 php artisan test
 ```
 
-**119 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**131 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 
