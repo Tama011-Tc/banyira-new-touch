@@ -72,16 +72,29 @@ class CreditService
         return $bands;
     }
 
+    /** The band for a score, or "NR" (not rated) below the lowest threshold: such a business cannot be listed. */
     public static function category(int $score): string
     {
-        $bands = self::bands();
-        foreach ($bands as $band) {
+        foreach (self::bands() as $band) {
             if ($score >= $band['min']) {
                 return $band['code'];
             }
         }
 
-        return $bands[array_key_last($bands)]['code'];   // below every threshold: the lowest band
+        return 'NR';
+    }
+
+    /** The plan's usual criteria. Missing one is not an automatic rejection: an approver may approve with a written exception. */
+    public function eligibility(Application $app): array
+    {
+        $minYears = (int) Settings::get('eligibility.min_trading_years');
+        $minRecords = (int) Settings::get('eligibility.min_records_months');
+        $checks = [
+            ['key' => 'trading', 'label' => "At least {$minYears} year(s) of trading", 'actual' => $app->business->years_operating.' year(s)', 'met' => $app->business->years_operating >= $minYears],
+            ['key' => 'records', 'label' => "At least {$minRecords} months of financial records", 'actual' => $app->records_months.' month(s)', 'met' => $app->records_months >= $minRecords],
+        ];
+
+        return ['checks' => $checks, 'met' => collect($checks)->every('met')];
     }
 
     public function startScreening(Application $app, User $analyst): void
@@ -136,7 +149,7 @@ class CreditService
         });
     }
 
-    public function decide(Application $app, User $approver, string $decision, string $reason, ?string $conditions = null, ?int $approvedAmount = null, ?int $maxRateBp = null): CreditDecision
+    public function decide(Application $app, User $approver, string $decision, string $reason, ?string $conditions = null, ?int $approvedAmount = null, ?int $maxRateBp = null, ?string $exceptionReason = null): CreditDecision
     {
         abort_unless($approver->role->can('credit.approve'), 403);
         if (! in_array($decision, ['approved', 'rejected'], true)) {
@@ -156,6 +169,13 @@ class CreditService
             throw ValidationException::withMessages(['decision' => 'The approver must be a different person from the analyst.']);
         }
         if ($decision === 'approved') {
+            if ($assessment->risk_category === 'NR') {
+                throw ValidationException::withMessages(['decision' => 'The score is below the lowest risk band, so this business cannot be listed. Reject it or ask for more information.']);
+            }
+            $eligibility = $this->eligibility($app);
+            if (! $eligibility['met'] && mb_strlen(trim((string) $exceptionReason)) < 20) {
+                throw ValidationException::withMessages(['eligibility' => 'The business does not meet the usual criteria ('.collect($eligibility['checks'])->reject->met->pluck('label')->implode('; ').'). To approve anyway, record a written exception of at least 20 characters.']);
+            }
             $amount = $approvedAmount ?? $app->amount;
             if ($amount <= 0 || $amount > $app->amount) {
                 throw ValidationException::withMessages(['approved_amount' => 'The approved amount cannot exceed the amount requested.']);
@@ -169,10 +189,11 @@ class CreditService
             }
         }
 
-        return DB::transaction(function () use ($app, $approver, $decision, $reason, $conditions, $approvedAmount, $maxRateBp) {
+        return DB::transaction(function () use ($app, $approver, $decision, $reason, $conditions, $approvedAmount, $maxRateBp, $exceptionReason) {
             $d = CreditDecision::create([
                 'application_id' => $app->id, 'decided_by' => $approver->id, 'decision' => $decision, 'reason' => $reason, 'conditions' => $conditions,
                 'approved_amount' => $decision === 'approved' ? ($approvedAmount ?? $app->amount) : null, 'max_rate_bp' => $decision === 'approved' ? $maxRateBp : null,
+                'exception_reason' => $decision === 'approved' && ! $this->eligibility($app)['met'] ? trim((string) $exceptionReason) : null,
             ]);
             $this->workflow->transition($app, $decision === 'approved' ? 'approved' : 'rejected', $approver, $reason);
 

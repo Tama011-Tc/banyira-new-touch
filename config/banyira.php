@@ -24,6 +24,6 @@ return [
         'mimes' => ['pdf', 'jpg', 'jpeg', 'png'],
     ],
 
-    'sectors' => ['Agriculture', 'Retail & trade', 'Manufacturing', 'Transport & logistics', 'Services', 'Construction', 'Food & hospitality', 'Technology', 'Education', 'Health'],
+    'sectors' => ['Agriculture', 'Retail & trade', 'Manufacturing', 'Transport & logistics', 'Services', 'Construction', 'Food & hospitality', 'Technology', 'Education', 'Health', 'Mining', 'Tourism'],
     'districts' => ['Blantyre', 'Lilongwe', 'Mzuzu', 'Zomba', 'Mangochi', 'Salima', 'Kasungu', 'Mchinji', 'Dedza', 'Ntcheu', 'Machinga', 'Balaka', 'Thyolo', 'Mulanje', 'Chikwawa', 'Karonga', 'Rumphi', 'Nkhata Bay', 'Nkhotakota', 'Dowa'],
 ];

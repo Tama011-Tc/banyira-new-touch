@@ -68,7 +68,7 @@ class SalesAndCaseFlowTest extends TestCase
         $sales = $this->user(Role::Sales);
         $b = $this->register($sales);
         $s = $this->actingAs($sales);
-        $s->post('/applications', ['business_id' => $b->id, 'amount' => '30000', 'purpose' => str_repeat('Buy stock for the trading season. ', 2), 'term_months' => 12, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'proposed_rate' => 24, 'monthly_revenue' => '2000', 'monthly_expenses' => '1200', 'existing_debt' => '0'])->assertSessionHasNoErrors();
+        $s->post('/applications', ['business_id' => $b->id, 'amount' => '30000', 'purpose' => str_repeat('Buy stock for the trading season. ', 2), 'term_months' => 12, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'proposed_rate' => 24, 'monthly_revenue' => '2000', 'monthly_expenses' => '1200', 'existing_debt' => '0', 'records_months' => 12])->assertSessionHasNoErrors();
         $app = Application::first();
         $this->assertSame($sales->id, $app->assisted_by);
         foreach (config('banyira.documents.required') as $t) {

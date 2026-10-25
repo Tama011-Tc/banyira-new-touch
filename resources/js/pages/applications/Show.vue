@@ -13,7 +13,7 @@ import { CircleAlert, CircleCheck } from 'lucide-vue-next';
 const props = defineProps<{ application: Record<string, any>; problems: string[]; doc_types: { required: string[]; optional: string[] }; limits: { max_term: number; max_rate: number } }>();
 const a = props.application;
 const upload = useForm<{ type: string; file: File | null }>({ type: props.doc_types.required[0], file: null });
-const edit = useForm({ amount: (a.amount / 100).toFixed(2), purpose: a.purpose, term_months: a.term_months, frequency: a.frequency, interest_method: a.interest_method, proposed_rate: a.rate_bp / 100, monthly_revenue: (a.monthly_revenue / 100).toFixed(2), monthly_expenses: (a.monthly_expenses / 100).toFixed(2), existing_debt: (a.existing_debt / 100).toFixed(2), repayment_plan: a.repayment_plan ?? '' });
+const edit = useForm({ amount: (a.amount / 100).toFixed(2), purpose: a.purpose, term_months: a.term_months, frequency: a.frequency, interest_method: a.interest_method, proposed_rate: a.rate_bp / 100, monthly_revenue: (a.monthly_revenue / 100).toFixed(2), monthly_expenses: (a.monthly_expenses / 100).toFixed(2), existing_debt: (a.existing_debt / 100).toFixed(2), records_months: a.records_months, repayment_plan: a.repayment_plan ?? '' });
 const have = (t: string) => a.documents.some((d: { type: string }) => d.type === t);
 function send() {
     upload.post(route('applications.documents.store', a.id), { forceFormData: true, onSuccess: () => upload.reset('file') });
@@ -49,6 +49,7 @@ function send() {
                             <FormField label="Monthly revenue (MK)" for="rev" :error="edit.errors.monthly_revenue"><Input id="rev" v-model="edit.monthly_revenue" /></FormField>
                             <FormField label="Monthly expenses (MK)" for="exp" :error="edit.errors.monthly_expenses"><Input id="exp" v-model="edit.monthly_expenses" /></FormField>
                             <FormField label="Existing debt (MK)" for="debt" :error="edit.errors.existing_debt"><Input id="debt" v-model="edit.existing_debt" /></FormField>
+                            <FormField label="Months of records" for="recm" :error="edit.errors.records_months"><Input id="recm" v-model.number="edit.records_months" type="number" min="0" /></FormField>
                             <FormField label="Interest method" for="m" :error="edit.errors.interest_method"><SelectField id="m" v-model="edit.interest_method"><option value="reducing">Reducing balance</option><option value="flat">Flat rate</option></SelectField></FormField>
                         </div>
                         <FormField label="Use of funds" for="purpose" :error="edit.errors.purpose"><textarea id="purpose" v-model="edit.purpose" rows="3" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormField>

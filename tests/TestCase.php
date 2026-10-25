@@ -59,7 +59,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function application(Business $b, array $attrs = [], bool $docs = true): Application
     {
-        $a = Application::create($attrs + ['business_id' => $b->id, 'status' => 'draft', 'amount' => 600000000, 'purpose' => 'Buy equipment to grow monthly output and revenue for the business.', 'term_months' => 12, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'proposed_rate_bp' => 2400, 'monthly_revenue' => 400000000, 'monthly_expenses' => 250000000, 'existing_debt' => 0]);
+        $a = Application::create($attrs + ['business_id' => $b->id, 'status' => 'draft', 'amount' => 600000000, 'purpose' => 'Buy equipment to grow monthly output and revenue for the business.', 'term_months' => 12, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'proposed_rate_bp' => 2400, 'monthly_revenue' => 400000000, 'monthly_expenses' => 250000000, 'existing_debt' => 0, 'records_months' => 12]);
         if ($docs) {
             foreach (config('banyira.documents.required') as $t) {
                 ApplicationDocument::create(['application_id' => $a->id, 'uploaded_by' => $b->owner_id, 'type' => $t, 'original_name' => "$t.pdf", 'path' => "documents/{$a->id}/$t.pdf", 'mime' => 'application/pdf', 'size' => 10, 'sha256' => hash('sha256', $t)]);

@@ -175,10 +175,10 @@ class PaymentsAndRepaymentsTest extends TestCase
         $a = $this->agreement(null, null, 100000000);
         $exec = $this->user(Role::Executive);
         app(\App\Services\FeeScheduleService::class)->publish(['name' => 'Later, dearer', 'effective_from' => now()->toDateString(), 'tax_bp' => 0, 'processing_bp' => 150,
-            'tiers' => [['min' => 0, 'max' => null, 'origination_bp' => 900, 'origination_fixed' => 0, 'investor_bp' => 500, 'investor_fixed' => 0]]], $exec);
-        $this->assertSame(500, FeeService::snapshot(100000000)['investor_service_bp']);                 // new offers get the new schedule
-        $this->assertSame(101000000, app(PaymentService::class)->fundingAmount($a->fresh()));           // the signed agreement still uses 1%
-        $this->assertSame(100, $a->fresh()->fees['investor_service_bp']);
+            'tiers' => [['min' => 0, 'max' => null, 'origination_bp' => 900, 'origination_fixed' => 0, 'investor_bp' => 0, 'investor_fixed' => 0]]], $exec);
+        $this->assertSame(900, FeeService::snapshot(100000000)['origination_bp']);                      // new offers get the new schedule
+        $this->assertSame(101000000, app(PaymentService::class)->fundingAmount($a->fresh()));           // the signed agreement keeps its disclosed fees
+        $this->assertSame([200, 100], [$a->fresh()->fees['origination_bp'], $a->fresh()->fees['investor_service_bp']]);
     }
 
     // ---------- disbursement ----------
@@ -394,7 +394,7 @@ class PaymentsAndRepaymentsTest extends TestCase
         $f2 = $this->user(Role::Finance);
         $a = $this->agreement();
         $body = ['name' => 'Spring 2027', 'effective_from' => now()->toDateString(), 'tax_bp' => 0, 'processing_bp' => 150, 'reason' => 'Annual pricing review approved by the board.',
-            'tiers' => [['min' => '0', 'max' => '5000000', 'origination_bp' => 800, 'investor_bp' => 0], ['min' => '5000000', 'max' => '', 'origination_bp' => 400, 'investor_bp' => 100]]];
+            'tiers' => [['min' => '0', 'max' => '5000000', 'origination_bp' => 800, 'investor_bp' => 0], ['min' => '5000000', 'max' => '', 'origination_bp' => 400, 'investor_bp' => 0]]];
         $this->actingAs($f1)->post('/finance/fee-schedules', $body)->assertSessionHasNoErrors();
         $this->assertSame(200, FeeService::snapshot(100000000)['origination_bp'], 'not in force until approved');
         $req = ApprovalRequest::where('type', 'fee_schedule')->first();

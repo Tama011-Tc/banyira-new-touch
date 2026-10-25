@@ -51,7 +51,7 @@ class ApplicationController extends Controller
             'term_months' => ['required', 'integer', 'min:1', 'max:'.Settings::get('loan.max_term_months')], 'frequency' => ['required', Rule::in(['monthly', 'weekly'])],
             'interest_method' => ['required', Rule::in(['flat', 'reducing'])], 'proposed_rate' => ['required', 'numeric', 'min:0', 'max:'.(Settings::get('loan.max_rate_bp') / 100)],
             'monthly_revenue' => ['required', Money::DECIMAL_RULE], 'monthly_expenses' => ['required', Money::DECIMAL_RULE], 'existing_debt' => ['required', Money::DECIMAL_RULE],
-            'repayment_plan' => 'nullable|string|max:2000',
+            'repayment_plan' => 'nullable|string|max:2000', 'records_months' => 'required|integer|min:0|max:600',
         ];
     }
 
@@ -60,7 +60,7 @@ class ApplicationController extends Controller
         return [
             'amount' => Money::toMinor($d['amount']), 'purpose' => $d['purpose'], 'term_months' => (int) $d['term_months'], 'frequency' => $d['frequency'], 'interest_method' => $d['interest_method'],
             'proposed_rate_bp' => (int) round($d['proposed_rate'] * 100), 'monthly_revenue' => Money::toMinor($d['monthly_revenue']), 'monthly_expenses' => Money::toMinor($d['monthly_expenses']),
-            'existing_debt' => Money::toMinor($d['existing_debt']), 'repayment_plan' => $d['repayment_plan'] ?? null,
+            'existing_debt' => Money::toMinor($d['existing_debt']), 'repayment_plan' => $d['repayment_plan'] ?? null, 'records_months' => (int) $d['records_months'],
         ];
     }
 
@@ -90,7 +90,7 @@ class ApplicationController extends Controller
         return Inertia::render('applications/Show', [
             'application' => [
                 'id' => $a->id, 'status' => $a->status, 'amount' => $a->amount, 'purpose' => $a->purpose, 'term_months' => $a->term_months, 'frequency' => $a->frequency, 'interest_method' => $a->interest_method,
-                'rate_bp' => $a->proposed_rate_bp, 'monthly_revenue' => $a->monthly_revenue, 'monthly_expenses' => $a->monthly_expenses, 'existing_debt' => $a->existing_debt, 'repayment_plan' => $a->repayment_plan,
+                'rate_bp' => $a->proposed_rate_bp, 'monthly_revenue' => $a->monthly_revenue, 'monthly_expenses' => $a->monthly_expenses, 'existing_debt' => $a->existing_debt, 'records_months' => $a->records_months, 'repayment_plan' => $a->repayment_plan,
                 'info_request' => $a->info_request, 'assisted_by_name' => $a->assisted_by ? \App\Models\User::whereKey($a->assisted_by)->value('name') : null, 'business' => $a->business->display_name, 'editable' => in_array($a->status, ['draft', 'info_requested']),
                 'documents' => $a->documents->map(fn ($d) => ['id' => $d->id, 'type' => $d->type, 'name' => $d->original_name, 'size' => $d->size]),
                 'decision' => $a->decisions->last() ? $a->decisions->last()->only('decision', 'reason', 'conditions') : null,

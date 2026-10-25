@@ -38,13 +38,13 @@ class CreditController extends Controller
         return Inertia::render('credit/Show', [
             'application' => [
                 'id' => $a->id, 'status' => $a->status, 'amount' => $a->amount, 'purpose' => $a->purpose, 'term_months' => $a->term_months, 'frequency' => $a->frequency, 'interest_method' => $a->interest_method, 'rate_bp' => $a->proposed_rate_bp,
-                'monthly_revenue' => $a->monthly_revenue, 'monthly_expenses' => $a->monthly_expenses, 'existing_debt' => $a->existing_debt, 'repayment_plan' => $a->repayment_plan, 'info_request' => $a->info_request,
+                'monthly_revenue' => $a->monthly_revenue, 'monthly_expenses' => $a->monthly_expenses, 'existing_debt' => $a->existing_debt, 'records_months' => $a->records_months, 'repayment_plan' => $a->repayment_plan, 'info_request' => $a->info_request,
                 'business' => ['name' => $a->business->name, 'display_name' => $a->business->display_name, 'sector' => $a->business->sector, 'district' => $a->business->district, 'years' => $a->business->years_operating, 'description' => $a->business->description, 'registration_no' => $u->role->can('documents.view_any') ? $a->business->registration_no : null, 'assisted' => (bool) $a->business->registered_by_staff_id],
                 'documents' => $a->documents->map(fn ($d) => ['id' => $d->id, 'type' => $d->type, 'name' => $d->original_name, 'size' => $d->size, 'sha256' => substr($d->sha256, 0, 12)]),
                 'assessments' => $a->assessments->map(fn ($x) => ['id' => $x->id, 'analyst' => $x->analyst->name, 'score' => $x->score, 'category' => $x->risk_category, 'recommendation' => $x->recommendation, 'notes' => $x->notes, 'criteria' => $x->criteria, 'at' => $x->created_at->toDateTimeString()]),
-                'decisions' => $a->decisions->map(fn ($x) => ['by' => $x->decider->name, 'decision' => $x->decision, 'reason' => $x->reason, 'conditions' => $x->conditions, 'approved_amount' => $x->approved_amount, 'max_rate_bp' => $x->max_rate_bp, 'at' => $x->created_at->toDateTimeString()]),
+                'decisions' => $a->decisions->map(fn ($x) => ['exception' => $x->exception_reason, 'by' => $x->decider->name, 'decision' => $x->decision, 'reason' => $x->reason, 'conditions' => $x->conditions, 'approved_amount' => $x->approved_amount, 'max_rate_bp' => $x->max_rate_bp, 'at' => $x->created_at->toDateTimeString()]),
             ],
-            'suggested' => $suggest,
+            'suggested' => $suggest, 'eligibility' => $this->credit->eligibility($a),
             'read_only' => $readOnly, 'can_open_documents' => $u->role->can('documents.view_any'),
             'is_analyst' => $u->role->can('credit.assess'), 'is_approver' => $u->role->can('credit.approve'),
             'executive_threshold' => Settings::get('credit.executive_threshold'), 'max_rate_bp' => Settings::get('loan.max_rate_bp'),
@@ -77,8 +77,8 @@ class CreditController extends Controller
 
     public function decide(Request $request, Application $application)
     {
-        $d = $request->validate(['decision' => 'required|in:approved,rejected', 'reason' => 'required|string|max:4000', 'conditions' => 'nullable|string|max:2000', 'approved_amount' => 'nullable|regex:/^\d{1,12}(\.\d{1,2})?$/', 'max_rate' => 'nullable|numeric|min:0|max:100']);
-        $this->credit->decide($application, $request->user(), $d['decision'], $d['reason'], $d['conditions'] ?? null, isset($d['approved_amount']) ? \App\Support\Money::toMinor($d['approved_amount']) : null, isset($d['max_rate']) ? (int) round($d['max_rate'] * 100) : null);
+        $d = $request->validate(['decision' => 'required|in:approved,rejected', 'exception_reason' => 'nullable|string|max:2000', 'reason' => 'required|string|max:4000', 'conditions' => 'nullable|string|max:2000', 'approved_amount' => 'nullable|regex:/^\d{1,12}(\.\d{1,2})?$/', 'max_rate' => 'nullable|numeric|min:0|max:100']);
+        $this->credit->decide($application, $request->user(), $d['decision'], $d['reason'], $d['conditions'] ?? null, isset($d['approved_amount']) ? \App\Support\Money::toMinor($d['approved_amount']) : null, isset($d['max_rate']) ? (int) round($d['max_rate'] * 100) : null, $d['exception_reason'] ?? null);
 
         return to_route('credit.index')->with('success', 'Decision recorded.');
     }
@@ -96,8 +96,8 @@ class CreditController extends Controller
     {
         $d = $request->validate(['bands' => 'required|array|min:2|max:6', 'bands.*.code' => 'required|string|max:3|distinct', 'bands.*.min' => 'required|integer|min:0|max:100', 'bands.*.name' => 'required|string|max:60', 'bands.*.definition' => 'required|string|max:300', 'reason' => 'required|string|min:10|max:500']);
         $bands = collect($d['bands'])->map(fn ($b) => ['code' => $b['code'], 'min' => (int) $b['min'], 'name' => $b['name'], 'definition' => $b['definition']])->sortByDesc('min')->values();
-        if ($bands->pluck('min')->duplicates()->isNotEmpty() || $bands->last()['min'] !== 0) {
-            return back()->withErrors(['bands' => 'Thresholds must all differ, and the lowest band must start at 0 so every score has a band.']);
+        if ($bands->pluck('min')->duplicates()->isNotEmpty()) {
+            return back()->withErrors(['bands' => 'Every band needs a different starting score.']);
         }
         $approvals->request('policy_change', ['settings' => ['credit.bands' => $bands->all()]], $d['reason'], $request->user());
 

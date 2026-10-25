@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 const props = defineProps<{ application: Record<string, any> | null; business_id: number; limits: { max_term: number; max_rate: number } }>();
-const form = useForm({ business_id: props.business_id, amount: '', purpose: '', term_months: 12, frequency: 'monthly', interest_method: 'reducing', proposed_rate: 24, monthly_revenue: '', monthly_expenses: '', existing_debt: '0', repayment_plan: '' });
+const form = useForm({ business_id: props.business_id, amount: '', purpose: '', term_months: 12, frequency: 'monthly', interest_method: 'reducing', proposed_rate: 24, monthly_revenue: '', monthly_expenses: '', existing_debt: '0', records_months: 6, repayment_plan: '' });
 </script>
 
 <template>
@@ -29,10 +29,11 @@ const form = useForm({ business_id: props.business_id, amount: '', purpose: '', 
             </section>
             <section class="space-y-5 rounded-lg border bg-card p-5">
                 <h2 class="font-semibold">Your finances</h2>
-                <div class="grid gap-5 sm:grid-cols-3">
+                <div class="grid gap-5 sm:grid-cols-2">
                     <FormField label="Monthly revenue (MK)" for="rev" :error="form.errors.monthly_revenue"><Input id="rev" v-model="form.monthly_revenue" inputmode="decimal" required /></FormField>
                     <FormField label="Monthly expenses (MK)" for="exp" :error="form.errors.monthly_expenses"><Input id="exp" v-model="form.monthly_expenses" inputmode="decimal" required /></FormField>
                     <FormField label="Existing debt (MK)" for="debt" :error="form.errors.existing_debt"><Input id="debt" v-model="form.existing_debt" inputmode="decimal" required /></FormField>
+                    <FormField label="Months of financial records you have" for="rec" :error="form.errors.records_months" hint="We usually look for at least 6 months."><Input id="rec" v-model.number="form.records_months" type="number" min="0" max="600" required /></FormField>
                 </div>
                 <FormField label="How will you repay?" for="plan" :error="form.errors.repayment_plan" hint="Optional: sources of repayment, seasonality, contracts."><textarea id="plan" v-model="form.repayment_plan" rows="3" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormField>
             </section>

@@ -24,16 +24,17 @@ class RiskBandsTest extends TestCase
     public function test_default_bands_are_a_plus_a_b_c_and_map_scores_at_the_boundaries(): void
     {
         $this->assertSame(['A+', 'A', 'B', 'C'], array_column(CreditService::bands(), 'code'));
-        foreach ([[100, 'A+'], [85, 'A+'], [84, 'A'], [70, 'A'], [69, 'B'], [55, 'B'], [54, 'C'], [0, 'C']] as [$score, $band]) {
+        foreach ([[100, 'A+'], [85, 'A+'], [84, 'A'], [70, 'A'], [69, 'B'], [55, 'B'], [54, 'C'], [40, 'C'], [39, 'NR'], [0, 'NR']] as [$score, $band]) {
             $this->assertSame($band, CreditService::category($score), "score $score");
         }
     }
 
-    public function test_every_score_always_has_a_band_even_with_odd_configuration(): void
+    public function test_scores_below_the_lowest_band_are_not_rated_and_so_not_listable(): void
     {
         Settings::set('credit.bands', [['code' => 'X', 'min' => 40, 'name' => 'x', 'definition' => 'x'], ['code' => 'Y', 'min' => 10, 'name' => 'y', 'definition' => 'y']]);
         $this->assertSame('X', CreditService::category(80));
-        $this->assertSame('Y', CreditService::category(0));      // below the lowest threshold falls to the lowest band
+        $this->assertSame('Y', CreditService::category(10));
+        $this->assertSame('NR', CreditService::category(9));
     }
 
     public function test_bands_are_changed_only_through_a_two_person_approval(): void
@@ -63,8 +64,6 @@ class RiskBandsTest extends TestCase
     {
         $a = $this->actingAs($this->user(Role::CreditApprover));
         $a->post('/credit-policy/bands', ['bands' => array_slice($this->bands(), 0, 1), 'reason' => 'Only one band is not enough.'])->assertSessionHasErrors('bands');
-        $noZero = $this->bands(); $noZero[3]['min'] = 10;
-        $a->post('/credit-policy/bands', ['bands' => $noZero, 'reason' => 'Lowest band does not reach zero.'])->assertSessionHasErrors('bands');
         $dupMin = $this->bands(); $dupMin[1]['min'] = 90;
         $a->post('/credit-policy/bands', ['bands' => $dupMin, 'reason' => 'Two bands start at the same score.'])->assertSessionHasErrors('bands');
         $dupCode = $this->bands(); $dupCode[1]['code'] = 'A+';

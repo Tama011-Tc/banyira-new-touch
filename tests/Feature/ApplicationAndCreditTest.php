@@ -33,7 +33,7 @@ class ApplicationAndCreditTest extends TestCase
     {
         $b = $this->business();
         $this->actingAs($b->owner)->post('/applications', ['business_id' => $b->id])->assertSessionHasErrors(['amount', 'purpose', 'term_months', 'proposed_rate']);
-        $this->actingAs($b->owner)->post('/applications', ['business_id' => $b->id, 'amount' => '60000.00', 'purpose' => str_repeat('Buy stock. ', 4), 'term_months' => 12, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'proposed_rate' => 24, 'monthly_revenue' => '4000000', 'monthly_expenses' => '2500000', 'existing_debt' => '0'])->assertSessionHasNoErrors();
+        $this->actingAs($b->owner)->post('/applications', ['business_id' => $b->id, 'amount' => '60000.00', 'purpose' => str_repeat('Buy stock. ', 4), 'term_months' => 12, 'frequency' => 'monthly', 'interest_method' => 'reducing', 'proposed_rate' => 24, 'monthly_revenue' => '4000000', 'monthly_expenses' => '2500000', 'existing_debt' => '0', 'records_months' => 12])->assertSessionHasNoErrors();
         $this->assertSame(6000000, Application::first()->amount);
         $other = $this->business();
         $this->actingAs($b->owner)->post('/applications', ['business_id' => $other->id] + ['amount' => '1', 'purpose' => str_repeat('x', 30), 'term_months' => 6, 'frequency' => 'monthly', 'interest_method' => 'flat', 'proposed_rate' => 10, 'monthly_revenue' => '1', 'monthly_expenses' => '1', 'existing_debt' => '0'])->assertNotFound();

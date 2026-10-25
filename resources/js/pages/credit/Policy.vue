@@ -18,7 +18,7 @@ const add = () => form.bands.push({ code: '', min: 0, name: '', definition: '' }
         <section class="mb-8 rounded-lg border bg-card p-5">
             <h2 class="font-semibold">Current bands</h2>
             <table class="mt-3 w-full text-sm"><thead class="text-left text-xs uppercase text-muted-foreground"><tr><th class="py-1">Band</th><th>From score</th><th>Meaning</th></tr></thead><tbody class="divide-y"><tr v-for="b in bands" :key="b.code"><td class="py-2 font-semibold">{{ b.code }}</td><td>{{ b.min }}</td><td><strong>{{ b.name }}.</strong> <span class="text-muted-foreground">{{ b.definition }}</span></td></tr></tbody></table>
-            <p class="mt-3 text-xs text-muted-foreground">Score weights: {{ Object.entries(weights).map(([k, v]) => `${k} ${v}%`).join(' · ') }}. A band is an estimate of risk, never a guarantee of repayment.</p>
+            <p class="mt-3 text-xs text-muted-foreground">Score weights: {{ Object.entries(weights).map(([k, v]) => `${k} ${v}%`).join(' · ') }}. Scores below the lowest band are not eligible for listing. A band is an estimate of risk, never a guarantee of repayment.</p>
         </section>
         <section v-if="pending.length" class="mb-8"><h2 class="mb-3 font-semibold">Waiting for approval</h2>
             <ul class="divide-y rounded-lg border-2 border-gold/50 bg-card"><li v-for="r in pending" :key="r.id" class="p-4 text-sm"><p>{{ r.reason }}</p><p class="mt-1 text-xs text-muted-foreground">{{ r.bands.map((b: any) => `${b.code} ≥ ${b.min}`).join(' · ') }}</p>

@@ -66,6 +66,7 @@ class FinanceController extends Controller
             'min' => \App\Support\Money::toMinor($t['min']), 'max' => ($t['max'] ?? '') === '' ? null : \App\Support\Money::toMinor($t['max']),
             'origination_bp' => (int) $t['origination_bp'], 'origination_fixed' => \App\Support\Money::toMinor($t['origination_fixed'] ?? 0), 'investor_bp' => (int) $t['investor_bp'], 'investor_fixed' => \App\Support\Money::toMinor($t['investor_fixed'] ?? 0),
         ], $d['tiers']));
+        $schedules->validatePolicy($tiers);
         $approvals->request('fee_schedule', ['name' => $d['name'], 'effective_from' => $d['effective_from'], 'tax_bp' => (int) $d['tax_bp'], 'processing_bp' => (int) $d['processing_bp'], 'tiers' => $tiers], $d['reason'], $request->user());
 
         return back()->with('success', 'Fee schedule proposed. A different finance, compliance or executive user must approve it. Existing offers and agreements keep the fees they were made with.');

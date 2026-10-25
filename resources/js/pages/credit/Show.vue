@@ -10,10 +10,10 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { label, method, mk, pct } from '@/lib/format';
 import { Head, router, useForm } from '@inertiajs/vue3';
 
-const props = defineProps<{ application: Record<string, any>; suggested: { score: number; category: string; criteria: Record<string, any> } | null; is_analyst: boolean; is_approver: boolean; read_only: boolean; can_open_documents: boolean; executive_threshold: number; max_rate_bp: number; transitions: string[] }>();
+const props = defineProps<{ application: Record<string, any>; suggested: { score: number; category: string; criteria: Record<string, any> } | null; is_analyst: boolean; is_approver: boolean; read_only: boolean; can_open_documents: boolean; eligibility: { checks: { key: string; label: string; actual: string; met: boolean }[]; met: boolean }; executive_threshold: number; max_rate_bp: number; transitions: string[] }>();
 const a = props.application;
 const assess = useForm({ score: props.suggested?.score ?? 50, notes: '', recommendation: 'approve' });
-const decide = useForm({ decision: 'approved', reason: '', conditions: '', approved_amount: (a.amount / 100).toFixed(2), max_rate: Math.min(props.max_rate_bp / 100, a.rate_bp / 100 + 3) });
+const decide = useForm({ decision: 'approved', reason: '', conditions: '', exception_reason: '', approved_amount: (a.amount / 100).toFixed(2), max_rate: Math.min(props.max_rate_bp / 100, a.rate_bp / 100 + 3) });
 const info = useForm({ request: '' });
 const surplus = a.monthly_revenue - a.monthly_expenses;
 </script>
@@ -40,6 +40,12 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
                 </section>
 
                 <section class="rounded-lg border bg-card p-5">
+                    <div class="flex items-center justify-between"><h2 class="font-semibold">Usual eligibility criteria</h2><Status :value="eligibility.met ? 'verified' : 'pending'" /></div>
+                    <ul class="mt-3 space-y-1.5 text-sm"><li v-for="c in eligibility.checks" :key="c.key" class="flex justify-between gap-3"><span>{{ c.met ? '✓' : '✗' }} {{ c.label }}</span><span :class="c.met ? 'text-muted-foreground' : 'font-medium text-expense'">{{ c.actual }}</span></li></ul>
+                    <p v-if="!eligibility.met" class="mt-2 text-xs text-muted-foreground">Approving a business that misses these needs a written exception from the approver.</p>
+                </section>
+
+                <section class="rounded-lg border bg-card p-5">
                     <h2 class="font-semibold">Documents</h2>
                     <ul class="mt-3 divide-y rounded-md border text-sm"><li v-for="d in a.documents" :key="d.id" class="flex justify-between gap-3 p-3"><span>{{ label(d.type) }} · {{ d.name }} <span class="text-xs text-muted-foreground">sha256 {{ d.sha256 }}…</span></span><a v-if="can_open_documents" :href="route('documents.download', d.id)" class="text-primary hover:underline">Open (logged)</a><span v-else class="text-xs text-muted-foreground">restricted</span></li><li v-if="!a.documents.length" class="p-3 text-muted-foreground">No documents.</li></ul>
                 </section>
@@ -55,7 +61,7 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
                     <p class="mt-1 text-muted-foreground">Score {{ x.score }} (calculated {{ x.criteria.calculated_score }}) · recommends <strong>{{ x.recommendation }}</strong> · {{ x.at }}</p><p class="mt-2">{{ x.notes }}</p>
                 </section>
                 <section v-for="(d, i) in a.decisions" :key="i" class="rounded-lg border bg-card p-5 text-sm">
-                    <h2 class="font-semibold">Decision: {{ label(d.decision) }} by {{ d.by }}</h2><p class="mt-1 text-muted-foreground">{{ d.at }}<template v-if="d.approved_amount"> · {{ mk(d.approved_amount) }} · rate ceiling {{ pct(d.max_rate_bp) }}</template></p><p class="mt-2">{{ d.reason }}</p><p v-if="d.conditions" class="mt-1"><strong>Conditions:</strong> {{ d.conditions }}</p>
+                    <h2 class="font-semibold">Decision: {{ label(d.decision) }} by {{ d.by }}</h2><p class="mt-1 text-muted-foreground">{{ d.at }}<template v-if="d.approved_amount"> · {{ mk(d.approved_amount) }} · rate ceiling {{ pct(d.max_rate_bp) }}</template></p><p class="mt-2">{{ d.reason }}</p><p v-if="d.conditions" class="mt-1"><strong>Conditions:</strong> {{ d.conditions }}</p><p v-if="d.exception" class="mt-1 text-gold"><strong>Approved as an exception:</strong> {{ d.exception }}</p>
                 </section>
             </div>
 
@@ -87,8 +93,9 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
                             <FormField label="Interest-rate ceiling for negotiation (% a year)" for="mr" :error="decide.errors.max_rate"><Input id="mr" v-model.number="decide.max_rate" type="number" step="0.01" /></FormField>
                             <FormField label="Conditions" for="cond" :error="decide.errors.conditions"><textarea id="cond" v-model="decide.conditions" rows="2" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormField>
                         </template>
+                        <FormField v-if="decide.decision === 'approved' && !eligibility.met" label="Exception reason (required: usual criteria not met)" for="exc" :error="decide.errors.eligibility"><textarea id="exc" v-model="decide.exception_reason" rows="2" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormField>
                         <FormField label="Reason (required)" for="reason" :error="decide.errors.reason"><textarea id="reason" v-model="decide.reason" rows="3" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></FormField>
-                        <p v-if="Object.keys(decide.errors).length && !decide.errors.reason && !decide.errors.approved_amount && !decide.errors.max_rate && !decide.errors.decision" class="text-sm text-destructive">Please check the form.</p>
+                        <p v-if="decide.errors.decision" class="text-sm text-destructive">{{ decide.errors.decision }}</p>
                         <Button type="submit" class="w-full" :disabled="decide.processing">Record decision</Button>
                     </form>
                 </section>

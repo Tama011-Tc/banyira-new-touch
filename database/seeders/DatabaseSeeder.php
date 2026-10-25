@@ -100,7 +100,7 @@ class DatabaseSeeder extends Seeder
 
     private function application(Business $b, array $o): Application
     {
-        $a = Application::create($o + ['business_id' => $b->id, 'status' => 'draft', 'frequency' => 'monthly', 'interest_method' => 'reducing', 'existing_debt' => 0]);
+        $a = Application::create($o + ['business_id' => $b->id, 'status' => 'draft', 'frequency' => 'monthly', 'interest_method' => 'reducing', 'existing_debt' => 0, 'records_months' => 12]);
         foreach (['business_registration', 'owner_id', 'bank_statements'] as $t) {
             $path = "documents/{$a->id}/demo-{$t}.txt";
             Storage::disk('local')->put($path, "DEMO DOCUMENT ({$t}). Fictional; not a real record.");
@@ -162,7 +162,7 @@ class DatabaseSeeder extends Seeder
 
         // A finished, rejected application and a conversation in progress on the open listing.
         $rej = $this->business('b_rejected', 'Quick Cash Kiosk (demo)', 'Quick Cash Kiosk', 'Retail & trade', 'Blantyre', 0, 'A new kiosk with no trading history yet.');
-        $a = $this->application($rej, ['amount' => $mk(8000000), 'purpose' => 'Start-up stock for a new kiosk with no existing sales or records.', 'term_months' => 12, 'proposed_rate_bp' => 2000, 'monthly_revenue' => $mk(400000), 'monthly_expenses' => $mk(380000), 'existing_debt' => $mk(900000)]);
+        $a = $this->application($rej, ['amount' => $mk(8000000), 'purpose' => 'Start-up stock for a new kiosk with no existing sales or records.', 'term_months' => 12, 'proposed_rate_bp' => 2000, 'monthly_revenue' => $mk(400000), 'monthly_expenses' => $mk(380000), 'existing_debt' => $mk(900000), 'records_months' => 3]);
         Auth::setUser($rej->owner);
         $wf->submit($a, $rej->owner);
         $this->assess($a, 'No trading history; the projected surplus does not cover the instalment.', 'reject');
