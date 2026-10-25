@@ -49,6 +49,7 @@ enum Role: string
         'complaints.view' => ['support', 'compliance', 'it_admin'],
         'oversight.read_only' => ['it_admin'],
         'sms.view' => ['it_admin', 'support', 'compliance'],
+        'education.manage' => ['it_admin', 'support'],   // content only: no access to credit, loans or money
     ];
 
     public function can(string $ability): bool

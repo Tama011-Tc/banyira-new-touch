@@ -86,7 +86,7 @@ Customers and staff are separate: a role can never be moved from one group to th
 php artisan test
 ```
 
-**172 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**178 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 
@@ -100,8 +100,8 @@ php artisan test
 - **Staff MFA (TOTP)** — a marker column exists; enrolment and enforcement are not implemented.
 - **Emailed invitations** — temporary passwords are handed over by the admin; no invite email is sent.
 - **KYC document capture / sanctions screening / credit-bureau lookups** — manual review UI only; no vendor integrations.
-- **Chichewa translations** — the locale column and structure exist; strings are English only.
-- **Email/SMS notifications** — in-app records only; templates not built.
+- **Chichewa translations** — language switch and fallback exist; the interface and lessons are English only until a translator supplies text.
+- **Real SMS and email delivery** — a mock SMS gateway and in-app notices exist; a real SMS adapter and mail settings are needed.
 - **Restructuring workflow and recovery tracking** after default — states exist; no UI.
 - **Screenshots** — not generated in this build.
 - Redis queues and a scheduler for overdue sweeps (`refreshStatus` runs on payment events; add a nightly command before production).

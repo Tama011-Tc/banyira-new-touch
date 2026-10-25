@@ -21,14 +21,14 @@ class PagesRenderTest extends TestCase
 
         $screens = [
             'investor@banyira.test' => ['/marketplace', "/marketplace/{$listing->id}", '/watchlist', '/portfolio', '/investor/profile', '/sms-inbox', '/messages', "/messages/{$conversation->id}", '/agreements', "/agreements/{$agreement->id}", '/complaints', '/how-it-works'],
-            'business@banyira.test' => ['/dashboard', '/business', '/applications', '/applications/create', '/messages', '/agreements', '/notifications', '/sms-inbox'],
+            'business@banyira.test' => ['/dashboard', '/business', '/applications', '/applications/create', '/messages', '/agreements', '/notifications', '/sms-inbox', '/learn', '/learn/simple-bookkeeping'],
             'sales@banyira.test' => ['/sales', '/sales/register', '/applications', '/notifications', '/sales/leads/'.User::where('email', 'lead@banyira.test')->value('id'), '/sales/register?lead='.User::where('email', 'lead@banyira.test')->value('id')],
             'analyst@banyira.test' => ['/credit', '/credit-policy', '/credit?mine=1', "/credit/{$app->id}", '/notifications'],
             'approver@banyira.test' => ['/credit', '/credit-policy', "/credit/{$app->id}", '/listings', "/listings/prepare/{$approved->id}", '/agreements'],
             'executive@banyira.test' => ['/executive', '/credit', '/listings', '/agreements', '/finance', '/finance/ledger', '/compliance', '/audit'],
             'finance@banyira.test' => ['/finance', '/finance/ledger', '/agreements', "/agreements/{$agreement->id}", '/audit'],
             'compliance@banyira.test' => ['/compliance', '/moderation', '/finance', '/audit'],
-            'admin@banyira.test' => ['/admin/users', '/admin/settings', '/admin/health', '/audit', '/executive', '/credit', "/credit/{$app->id}", '/listings', '/agreements', "/agreements/{$agreement->id}", '/finance', '/finance/ledger', '/moderation', '/complaints', '/marketplace', '/sms-log'],
+            'admin@banyira.test' => ['/admin/users', '/admin/settings', '/admin/health', '/audit', '/executive', '/credit', "/credit/{$app->id}", '/listings', '/agreements', "/agreements/{$agreement->id}", '/finance', '/finance/ledger', '/moderation', '/complaints', '/marketplace', '/sms-log', '/learn-manage', '/learn'],
             'support@banyira.test' => ['/moderation', '/complaints'],
         ];
         foreach ($screens as $email => $urls) {

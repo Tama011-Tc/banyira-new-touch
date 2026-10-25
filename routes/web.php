@@ -86,6 +86,15 @@ Route::middleware('auth')->group(function () {
         Route::post('activities/{activity}/done', [SalesController::class, 'completeActivity'])->name('activity.done');
         Route::post('applications/{application}/refer', [SalesController::class, 'refer'])->name('refer');
     });
+    Route::get('learn', [\App\Http\Controllers\EducationController::class, 'index'])->name('learn.index');
+    Route::get('learn/{slug}', [\App\Http\Controllers\EducationController::class, 'show'])->where('slug', '^(?!manage$)[a-z0-9\-]+$')->name('learn.show');
+    Route::post('locale', [\App\Http\Controllers\EducationController::class, 'locale'])->name('locale');
+    Route::middleware('can:education.manage')->group(function () {
+        Route::get('learn-manage', [\App\Http\Controllers\EducationController::class, 'manage'])->name('learn.manage');
+        Route::post('learn-manage', [\App\Http\Controllers\EducationController::class, 'store'])->name('learn.store');
+        Route::put('learn-manage/{article}', [\App\Http\Controllers\EducationController::class, 'update'])->name('learn.update');
+        Route::delete('learn-manage/{article}', [\App\Http\Controllers\EducationController::class, 'destroy'])->name('learn.destroy');
+    });
     Route::get('sms-inbox', [\App\Http\Controllers\SmsController::class, 'inbox'])->name('sms.inbox');
     Route::get('sms-log', [\App\Http\Controllers\SmsController::class, 'log'])->middleware('can:sms.view')->name('sms.log');
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');

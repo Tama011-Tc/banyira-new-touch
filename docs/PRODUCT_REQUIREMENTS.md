@@ -22,13 +22,13 @@ A marketplace where verified investors fund SMEs. A business is assessed by cred
 | 5 | Application lifecycle and documents | ✅ | Document requirements live in config, not editable in-app 🟡 |
 | 6 | Credit framework, evidence, risk bands | ✅ | Bands A+/A/B/C with names, definitions and score thresholds, changed only by a two-person approval; existing assessments keep their band |
 | 7 | Marketplace (search, filters, listing detail, privacy) | ✅ | |
-| 8 | Multi-investor loan parts, offers, versions, limits | 🟡 | Each accepted offer is its own loan agreement with its own rate and schedule (no averaging). Offer expiry/withdrawal, investor exposure limits, campaign-deadline closure ⬜. Campaign minimum and daily closing implemented (decision D1) |
+| 8 | Multi-investor loan parts, offers, versions, limits | 🟡 | Each accepted offer is its own loan agreement with its own rate and schedule (no averaging). Offer expiry (7 days), withdrawal of unanswered proposals, per-listing and platform-wide investor caps, campaign minimum and daily closing implemented |
 | 9 | Protected messaging, contact-detail screening, moderation, versioned offers | ✅ | |
 | 10 | Loan engine (flat, reducing, grace), allocation, overdue, default | ✅ | Early repayment, restructuring, recoveries ⬜ |
 | 11 | Configurable fee schedule, **unapproved by default**, tiers, effective dates | ✅ | Tiered (percentage and fixed), dated, tax, two-person approval; no fee without an approved schedule |
 | 12 | Payments: provider-independent, signed webhooks, idempotency, reconciliation, reversals | ✅ | Sandbox only ⛔ for live |
-| 13 | SMS: provider layer, mock, secure action confirmation | ⬜ | |
-| 14 | Financial-education module | ⬜ | |
+| 13 | SMS: provider layer, mock, secure action confirmation | ✅ | Mock provider behind an interface; status, offer and reminder messages; single-use 10-minute codes bound to user, action and record, hashed, rate-limited, with attempt lockout; optional step-up when accepting an offer; replies never authorise anything |
+| 14 | Financial-education module | ✅ | Eight starter lessons, admin/support-managed, English now, Chichewa fields ready (translations not shipped) |
 | 15 | Database, ledger, audit | ✅ | Append-only ledger and audit enforced by triggers |
 | 16 | Security | 🟡 | Staff MFA ⬜; antivirus on uploads ⬜ |
 | 17 | Compliance checklist and restricted demo mode | 🟡 | Checklist exists; responsible person, due dates, outstanding actions ⬜ |
