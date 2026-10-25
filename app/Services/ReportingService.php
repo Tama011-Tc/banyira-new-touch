@@ -36,6 +36,7 @@ class ReportingService
                 'funded' => (int) LoanAgreement::query()->whereNotIn('status', ['pending_funding', 'cancelled'])->sum('principal'),
                 'disbursed' => (int) Disbursement::query()->where('status', 'simulated')->sum('gross'),
             ],
+            'target' => ['smes_financed' => (int) LoanAgreement::query()->whereNotNull('funded_at')->where('status', '!=', 'cancelled')->distinct('business_id')->count('business_id'), 'goal' => (int) Settings::get('targets.smes_financed')],
             'people' => ['investors' => (int) LoanAgreement::query()->distinct('investor_id')->count('investor_id'), 'businesses' => (int) LoanAgreement::query()->distinct('business_id')->count('business_id')],
             'repayment' => [
                 'scheduled_due' => $scheduledDue, 'paid' => $paidOnDue, 'rate' => $scheduledDue > 0 ? round($paidOnDue * 100 / $scheduledDue, 1) : null,

@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::get('portfolio/statement', [InvestorController::class, 'statement'])->name('portfolio.statement');
         Route::get('investor/profile', [InvestorController::class, 'profile'])->name('investor.profile');
         Route::post('investor/kyc', [InvestorController::class, 'submitKyc'])->middleware('throttle:sensitive')->name('investor.kyc');
+        Route::put('investor/payout', [InvestorController::class, 'savePayout'])->middleware('throttle:6,1')->name('investor.payout');
         Route::post('investor/risk', [InvestorController::class, 'acknowledgeRisk'])->name('investor.risk');
     });
 
@@ -153,6 +154,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [FinanceController::class, 'index'])->name('index');
         Route::get('ledger', [FinanceController::class, 'ledger'])->name('ledger');
         Route::post('disbursements/{disbursement}/approve', [FinanceController::class, 'approveDisbursement'])->middleware(['can:finance.approve', 'throttle:sensitive'])->name('disbursement');
+        Route::post('payouts/{payout}/release', [FinanceController::class, 'releasePayout'])->middleware(['can:finance.approve', 'throttle:sensitive'])->name('payout');
         Route::post('payments/{payment}/reconcile', [FinanceController::class, 'reconcile'])->middleware('can:finance.reconcile')->name('reconcile');
         Route::post('fee-schedules', [FinanceController::class, 'proposeFeeSchedule'])->middleware('can:finance.approve')->name('fee-schedules');
         Route::post('payments/{payment}/reversal', [FinanceController::class, 'requestReversal'])->middleware('can:finance.approve')->name('reversal');

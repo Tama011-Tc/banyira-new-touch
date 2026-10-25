@@ -64,6 +64,9 @@ class RepaymentService
             $this->ledger->post('payment_attempt', $attempt->id, [[LedgerService::PROVIDER_FEES, 'debit', $processing], [LedgerService::CLEARING, 'credit', $processing]], 'Provider processing fee');
             PlatformFee::create(['agreement_id' => $a->id, 'fee_type' => 'processing', 'payer' => 'platform', 'basis_amount' => $attempt->amount, 'rate_bp' => $a->fees['processing_bp'], 'amount' => $processing, 'net' => $processing, 'status' => 'collected', 'reconciliation_ref' => $attempt->provider_ref]);
         }
+        if ($applied > 0) {   // the investor is owed everything applied to the loan; the platform's fee came from the business
+            \App\Models\Payout::create(['agreement_id' => $a->id, 'investor_id' => $a->investor_id, 'repayment_id' => $r->id, 'amount' => $applied, 'created_at' => now()]);
+        }
         $this->audit->record('repayment.applied', $r, ['agreement' => $a->id, 'interest' => $appliedInterest, 'principal' => $appliedPrincipal, 'unapplied' => $newUnapplied, 'simulated' => true], null);
         $this->refreshStatus($a);
 
@@ -73,6 +76,11 @@ class RepaymentService
     /** Undo a repayment's effect on the schedule. The Repayment row stays, marked reversed. */
     public function reverse(Repayment $r): void
     {
+        $payout = \App\Models\Payout::where('repayment_id', $r->id)->first();
+        if ($payout && $payout->status === 'released') {
+            throw \Illuminate\Validation\ValidationException::withMessages(['payment' => 'This repayment has already been paid out to the investor. Recover it through a separate finance process.']);
+        }
+        $payout?->forceFill(['status' => 'cancelled'])->save();
         foreach ($r->allocations as $al) {
             $row = RepaymentSchedule::query()->whereKey($al->schedule_id)->lockForUpdate()->first();
             $row->interest_paid -= $al->interest;

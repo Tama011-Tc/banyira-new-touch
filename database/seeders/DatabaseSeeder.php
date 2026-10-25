@@ -69,7 +69,7 @@ class DatabaseSeeder extends Seeder
         $u = new User(['name' => $name, 'email' => "{$key}@banyira.test", 'password' => 'password']);
         $u->forceFill(['role' => $role, 'status' => 'active', 'email_verified_at' => now()])->save();
         if ($role === Role::Investor) {
-            InvestorProfile::create(['user_id' => $u->id, 'kyc_status' => 'verified', 'national_id' => 'DEMO-'.strtoupper(Str::random(6)), 'district' => 'Lilongwe', 'phone' => '+265 999 000 000', 'risk_acknowledged_at' => now(), 'verified_at' => now()]);
+            InvestorProfile::create(['user_id' => $u->id, 'kyc_status' => 'verified', 'national_id' => 'DEMO-'.strtoupper(Str::random(6)), 'district' => 'Lilongwe', 'phone' => '+265 999 000 000', 'risk_acknowledged_at' => now(), 'verified_at' => now(), 'payout_bank' => 'National Bank of Malawi (demo)', 'payout_account_name' => $name, 'payout_account_number' => '0000'.random_int(100000, 999999)]);
         }
 
         return $this->u[$key] = $u;

@@ -16,7 +16,18 @@ class InvestorProfile extends Model
 
     protected function casts(): array
     {
-        return ['national_id' => 'encrypted', 'risk_acknowledged_at' => 'datetime', 'verified_at' => 'datetime'];
+        return ['national_id' => 'encrypted', 'payout_account_number' => 'encrypted', 'payout_details_changed_at' => 'datetime', 'risk_acknowledged_at' => 'datetime', 'verified_at' => 'datetime'];
+    }
+
+    public function hasPayoutDetails(): bool
+    {
+        return $this->payout_bank && $this->payout_account_name && $this->payout_account_number;
+    }
+
+    /** "••••5678": the full number is never sent to a browser, not even to finance. */
+    public function maskedAccount(): ?string
+    {
+        return $this->payout_account_number ? '••••'.substr($this->payout_account_number, -4) : null;
     }
 
     public function user(): BelongsTo

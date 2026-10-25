@@ -20,6 +20,7 @@ const max = (rows: { total: number }[]) => Math.max(1, ...rows.map((x) => x.tota
             <div class="rounded-lg border bg-card p-4"><p class="text-xs text-muted-foreground">Campaigns active · completed</p><p class="text-2xl font-semibold">{{ r.campaigns.active }} · {{ r.campaigns.completed }}</p></div>
             <div class="rounded-lg border bg-card p-4"><p class="text-xs text-muted-foreground">Investors · businesses</p><p class="text-2xl font-semibold">{{ r.people.investors }} · {{ r.people.businesses }}</p></div>
         </div>
+        <p class="mt-4 rounded-lg border bg-card p-4 text-sm">Businesses financed against the plan's medium-term goal: <strong>{{ r.target.smes_financed }} of {{ r.target.goal.toLocaleString() }}</strong></p>
         <h2 class="mb-3 mt-8 font-semibold">Funding</h2>
         <div class="grid grid-cols-2 gap-4 lg:grid-cols-4"><div v-for="(v, k) in { Requested: r.money.requested, Committed: r.money.committed, Funded: r.money.funded, Disbursed: r.money.disbursed }" :key="k" class="rounded-lg border bg-card p-4"><p class="text-xs text-muted-foreground">{{ k }}</p><p class="tabular text-lg font-semibold">{{ mk(v) }}</p></div></div>
         <div class="mt-8 grid gap-6 lg:grid-cols-2">

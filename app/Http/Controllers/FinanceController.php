@@ -28,8 +28,16 @@ class FinanceController extends Controller
             'payments' => PaymentAttempt::with('user:id,name')->latest('id')->limit(25)->get()->map(fn ($p) => ['id' => $p->id, 'purpose' => $p->purpose, 'amount' => $p->amount, 'status' => $p->status, 'ref' => $p->provider_ref, 'who' => $p->user->name, 'simulated' => $p->simulated, 'reconciled' => ReconciliationRecord::where('payment_attempt_id', $p->id)->latest('id')->value('status')]),
             'disbursements' => Disbursement::with('agreement.business')->where('status', 'pending_approval')->get()->map(fn ($d) => ['id' => $d->id, 'agreement_id' => $d->agreement_id, 'business' => $d->agreement->business->display_name, 'gross' => $d->gross, 'fees' => $d->fees, 'net' => $d->net] + app(PaymentService::class)->campaignStatus($d->agreement->listing)),
             'approvals' => ApprovalRequest::with('requester:id,name')->latest('id')->limit(20)->get()->map(fn ($r) => ['id' => $r->id, 'type' => $r->type, 'reason' => $r->reason, 'payload' => $r->payload, 'status' => $r->status, 'by' => $r->requester?->name ?? 'System', 'mine' => $r->requested_by === auth()->id()]),
+            'payouts' => \App\Models\Payout::with('investor.investorProfile')->where('status', 'pending')->orderBy('id')->limit(50)->get()->map(fn ($x) => ['id' => $x->id, 'agreement_id' => $x->agreement_id, 'investor' => $x->investor->name, 'amount' => $x->amount, 'bank' => $x->investor->investorProfile->payout_bank, 'account' => $x->investor->investorProfile->maskedAccount(), 'ready' => (bool) $x->investor->investorProfile->hasPayoutDetails(), 'details_recent' => (bool) $x->investor->investorProfile->payout_details_changed_at?->gt(now()->subDays(3))]),
             'fee_schedule' => ($s = app(\App\Services\FeeScheduleService::class)->active()) ? ['name' => $s->name, 'effective_from' => $s->effective_from->toDateString(), 'tax_bp' => $s->tax_bp, 'processing_bp' => $s->processing_bp, 'tiers' => $s->tiers] : null,
         ]);
+    }
+
+    public function releasePayout(Request $request, \App\Models\Payout $payout, \App\Services\PayoutService $payouts)
+    {
+        $payouts->release($payout, $request->user());
+
+        return back()->with('success', 'Payout released (simulated).');
     }
 
     public function approveDisbursement(Request $request, Disbursement $disbursement, PaymentService $payments)

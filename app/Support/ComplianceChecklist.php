@@ -8,6 +8,7 @@ use App\Models\ComplianceCheck;
 final class ComplianceChecklist
 {
     public const ITEMS = [
+        'mfi_licence' => ['Licensing as a non-deposit-taking microfinance institution', 'The business plan describes a non-deposit-taking micro-credit firm "based on the Microfinance Act 2010" that is not yet chartered. Counsel and the regulator must confirm the correct licence, registration and legal form (company, subsidiaries) before any lending.'],
         'legal_opinion' => ['Legal opinion on the lending marketplace model', 'Written opinion from qualified Malawian counsel on whether and how a peer-to-peer lending / investment intermediary may operate, and under which licence.'],
         'regulator_engagement' => ['Regulator engagement (Reserve Bank of Malawi and other competent authorities)', 'Confirmation of licensing or exemption, and any conditions, from the relevant regulators.'],
         'payment_provider' => ['Authorised payment provider and settlement arrangement', 'Signed agreement with a licensed provider, including how investor funds, repayments and fees are held and settled. A payment gateway alone does not authorise lending.'],

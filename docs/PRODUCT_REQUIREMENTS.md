@@ -26,6 +26,7 @@ A marketplace where verified investors fund SMEs. A business is assessed by cred
 | 9 | Protected messaging, contact-detail screening, moderation, versioned offers | ✅ | |
 | 10 | Loan engine (flat, reducing, grace), allocation, overdue, default | ✅ | Early repayment, restructuring, recoveries ⬜ |
 | 11 | Fee schedule: unapproved by default, tiered, dated, two-person approval | ✅ | Plan policy enforced: business pays 4–15%; no investor fee, no fixed or other fees |
+| 4.1b | Investor payouts to the investor's own bank account (plan) | ✅ | Encrypted details with password confirmation and audit; one payout per repayment; finance releases (simulated); investor sees paid-out vs awaiting |
 | 12 | Payments: provider-independent, signed webhooks, idempotency, reconciliation, reversals | ✅ | Sandbox only ⛔ for live |
 | 13 | SMS: provider layer, mock, secure action confirmation, owner accept/decline by reply (plan) | ✅ | Offer SMS shows amount, rate and period with reply codes; signed inbound callback; reply accepted only from the owner's registered number with the matching single-use code, for one specific open offer; rate-limited; MK 5m SMS limit |
 | 14 | Financial-education module | ✅ | Eight starter lessons, admin/support-managed, English now, Chichewa fields ready (translations not shipped) |

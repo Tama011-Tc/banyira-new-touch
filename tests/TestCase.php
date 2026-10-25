@@ -44,7 +44,7 @@ abstract class TestCase extends BaseTestCase
     {
         $u = User::factory()->role($role)->create($attrs)->fresh();
         if ($role === Role::Investor) {
-            $u->investorProfile->update(['kyc_status' => 'verified', 'risk_acknowledged_at' => now(), 'national_id' => 'TEST-123456']);
+            $u->investorProfile->update(['kyc_status' => 'verified', 'risk_acknowledged_at' => now(), 'national_id' => 'TEST-123456', 'payout_bank' => 'Test Bank', 'payout_account_name' => $u->name, 'payout_account_number' => '1002003004']);
         }
 
         return $u->fresh();

@@ -38,6 +38,9 @@ class PaymentService
         }
         if ($purpose === 'funding') {
             abort_unless($a->investor_id === $user->id, 403);
+            if (! $user->investorProfile?->hasPayoutDetails()) {
+                throw ValidationException::withMessages(['payout' => 'Add your bank details first. Repayments are paid to the account you give us.']);
+            }
             if ($a->status !== 'pending_funding') {
                 throw ValidationException::withMessages(['payment' => 'This agreement is not awaiting funding.']);
             }

@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { label, mk } from '@/lib/format';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 
-const props = defineProps<{ trial_balance: { account: string; balance: number }[]; trial_total: number; fees: any[]; payments: any[]; disbursements: any[]; approvals: any[]; fee_schedule: { name: string; effective_from: string; tax_bp: number; processing_bp: number; tiers: any[] } | null }>();
+const props = defineProps<{ payouts: { id: number; agreement_id: number; investor: string; amount: number; bank: string | null; account: string | null; ready: boolean; details_recent: boolean }[]; trial_balance: { account: string; balance: number }[]; trial_total: number; fees: any[]; payments: any[]; disbursements: any[]; approvals: any[]; fee_schedule: { name: string; effective_from: string; tax_bp: number; processing_bp: number; tiers: any[] } | null }>();
 const can = usePage().props.can as Record<string, boolean>;
 const blank = () => ({ min: '0', max: '', origination_bp: 0, origination_fixed: '0', investor_bp: 0, investor_fixed: '0' });
 const fee = useForm({ name: '', effective_from: new Date().toISOString().slice(0, 10), tax_bp: props.fee_schedule?.tax_bp ?? 0, processing_bp: props.fee_schedule?.processing_bp ?? 0, reason: '', tiers: [blank()] });
@@ -27,6 +27,9 @@ const reverse = (id: number) => {
 
         <section v-if="disbursements.length" class="mb-8"><h2 class="mb-3 font-semibold">Disbursements awaiting approval</h2>
             <ul class="divide-y rounded-lg border-2 border-gold/50 bg-card"><li v-for="d in disbursements" :key="d.id" class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm"><div><p class="font-medium">AGR-{{ d.agreement_id }} · {{ d.business }}</p><p class="text-muted-foreground">Gross {{ mk(d.gross) }} − fees {{ mk(d.fees) }} = <strong>{{ mk(d.net) }}</strong> to the business</p></div><div class="text-right"><p class="text-xs" :class="d.ready ? 'text-primary' : 'text-gold'">Campaign {{ d.funded_pct }}% funded · minimum {{ d.min_pct }}%</p><Button v-if="can['finance.approve']" size="sm" class="mt-1" :disabled="!d.ready" @click="router.post(route('finance.disbursement', d.id))">{{ d.ready ? 'Approve (simulated)' : 'Waiting for the campaign' }}</Button></div></li></ul></section>
+
+        <section v-if="payouts.length" class="mb-8"><h2 class="mb-3 font-semibold">Payouts to investors awaiting release</h2>
+            <ul class="divide-y rounded-lg border bg-card"><li v-for="x in payouts" :key="x.id" class="flex flex-wrap items-center justify-between gap-3 p-4 text-sm"><div><p class="font-medium">{{ x.investor }} · AGR-{{ x.agreement_id }}</p><p class="text-muted-foreground">{{ mk(x.amount) }} to {{ x.bank ?? 'no bank on file' }} {{ x.account }}</p><p v-if="x.details_recent" class="text-xs text-gold">Bank details changed in the last 3 days: confirm with the investor before releasing.</p></div><Button v-if="can['finance.approve']" size="sm" :disabled="!x.ready" @click="router.post(route('finance.payout', x.id))">Release (simulated)</Button></li></ul></section>
 
         <div class="grid gap-6 lg:grid-cols-2">
             <section class="rounded-lg border bg-card p-5"><h2 class="font-semibold">Trial balance</h2><p class="text-xs text-muted-foreground">Debits minus credits per account. The total must be zero.</p>

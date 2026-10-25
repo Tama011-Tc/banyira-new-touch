@@ -13,7 +13,7 @@ import { PieChart } from 'lucide-vue-next';
 defineProps<{ summary: Record<string, any>; investments: { id: number; business: string; principal: number; rate_bp: number; term_months: number; status: string; risk: string; total_payable: number }[] }>();
 const tiles = (s: Record<string, any>) => [
     ['Committed', s.committed], ['Deployed (funded)', s.deployed], ['Principal outstanding', s.principal_outstanding], ['Principal repaid', s.principal_received],
-    ['Interest received', s.interest_received], ['Fees paid', s.fees_paid], ['Net realised return', s.net_realised], ['Overdue exposure', s.overdue_exposure],
+    ['Interest received', s.interest_received], ['Paid out to your bank', s.paid_out], ['Awaiting payout', s.awaiting_payout], ['Fees paid', s.fees_paid], ['Net realised return', s.net_realised], ['Overdue exposure', s.overdue_exposure],
 ];
 </script>
 
