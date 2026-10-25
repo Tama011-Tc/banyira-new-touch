@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('password/change', [\App\Http\Controllers\Auth\ForcedPasswordController::class, 'show'])->name('password.change');
     Route::put('password/change', [\App\Http\Controllers\Auth\ForcedPasswordController::class, 'update'])->middleware('throttle:6,1')->name('password.change.update');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
-    Route::get('complaints', [ComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('complaints', [ComplaintController::class, 'index'])->name('complaints.index');   // everyone sees their own; complaints.view sees all
     Route::post('complaints', [ComplaintController::class, 'store'])->middleware('throttle:10,1')->name('complaints.store');
     Route::put('complaints/{complaint}', [ComplaintController::class, 'update'])->middleware('can:complaints.handle')->name('complaints.update');
 
@@ -93,8 +93,8 @@ Route::middleware('auth')->group(function () {
     Route::post('agreements/{agreement}/default', [CreditController::class, 'markDefault'])->middleware(['can:credit.approve', 'throttle:sensitive'])->name('agreements.default');
 
     // ---- Listings
+    Route::get('listings', [ListingAdminController::class, 'index'])->middleware('can:listing.view')->name('listings.index');
     Route::middleware('can:listing.manage')->prefix('listings')->name('listings.')->group(function () {
-        Route::get('/', [ListingAdminController::class, 'index'])->name('index');
         Route::get('prepare/{application}', [ListingAdminController::class, 'prepare'])->name('prepare');
         Route::post('prepare/{application}', [ListingAdminController::class, 'store'])->name('store');
         Route::post('{listing}/review', [ListingAdminController::class, 'review'])->name('review');
@@ -143,8 +143,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // ---- Moderation & administration
+    Route::get('moderation', [ModerationController::class, 'index'])->middleware('can:moderation.view')->name('moderation.index');
     Route::middleware('can:moderation.review')->prefix('moderation')->name('moderation.')->group(function () {
-        Route::get('/', [ModerationController::class, 'index'])->name('index');
         Route::post('messages/{message}', [ModerationController::class, 'resolve'])->name('resolve');
         Route::post('reports/{report}', [ModerationController::class, 'handleReport'])->name('report');
     });

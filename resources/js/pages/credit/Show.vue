@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { label, method, mk, pct } from '@/lib/format';
 import { Head, router, useForm } from '@inertiajs/vue3';
 
-const props = defineProps<{ application: Record<string, any>; suggested: { score: number; category: string; criteria: Record<string, any> } | null; is_analyst: boolean; is_approver: boolean; executive_threshold: number; max_rate_bp: number; transitions: string[] }>();
+const props = defineProps<{ application: Record<string, any>; suggested: { score: number; category: string; criteria: Record<string, any> } | null; is_analyst: boolean; is_approver: boolean; read_only: boolean; can_open_documents: boolean; executive_threshold: number; max_rate_bp: number; transitions: string[] }>();
 const a = props.application;
 const assess = useForm({ score: props.suggested?.score ?? 50, notes: '', recommendation: 'approve' });
 const decide = useForm({ decision: 'approved', reason: '', conditions: '', approved_amount: (a.amount / 100).toFixed(2), max_rate: Math.min(props.max_rate_bp / 100, a.rate_bp / 100 + 3) });
@@ -21,6 +21,7 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
 <template>
     <Head :title="`Review #${a.id}`" />
     <AppLayout>
+        <p v-if="read_only" class="mb-4 rounded-lg border border-gold/50 bg-gold/10 p-3 text-sm">Read-only oversight. Your view of this application is logged. Documents and registration numbers are restricted to credit and compliance staff.</p>
         <PageHeader :title="a.business.display_name" :description="`${mk(a.amount)} over ${a.term_months} months at ${pct(a.rate_bp)} (${method(a.interest_method).toLowerCase()})`"><Status :value="a.status" /></PageHeader>
 
         <div class="grid gap-6 lg:grid-cols-3">
@@ -28,7 +29,7 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
                 <section class="rounded-lg border bg-card p-5">
                     <h2 class="font-semibold">Business and request</h2>
                     <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-                        <div><dt class="text-muted-foreground">Legal name</dt><dd>{{ a.business.name }}</dd></div><div><dt class="text-muted-foreground">Registration no.</dt><dd>{{ a.business.registration_no ?? 'not provided' }}</dd></div>
+                        <div><dt class="text-muted-foreground">Legal name</dt><dd>{{ a.business.name }}</dd></div><div><dt class="text-muted-foreground">Registration no.</dt><dd>{{ a.business.registration_no ?? (read_only ? 'restricted' : 'not provided') }}</dd></div>
                         <div><dt class="text-muted-foreground">Sector · district</dt><dd>{{ a.business.sector }} · {{ a.business.district }}</dd></div><div><dt class="text-muted-foreground">Years operating</dt><dd>{{ a.business.years }}</dd></div>
                         <div><dt class="text-muted-foreground">Monthly revenue</dt><dd>{{ mk(a.monthly_revenue) }}</dd></div><div><dt class="text-muted-foreground">Monthly expenses</dt><dd>{{ mk(a.monthly_expenses) }} (surplus {{ mk(surplus) }})</dd></div>
                         <div><dt class="text-muted-foreground">Existing debt</dt><dd>{{ mk(a.existing_debt) }}</dd></div><div><dt class="text-muted-foreground">Registered by sales</dt><dd>{{ a.business.assisted ? 'Yes (assisted)' : 'No' }}</dd></div>
@@ -40,7 +41,7 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
 
                 <section class="rounded-lg border bg-card p-5">
                     <h2 class="font-semibold">Documents</h2>
-                    <ul class="mt-3 divide-y rounded-md border text-sm"><li v-for="d in a.documents" :key="d.id" class="flex justify-between gap-3 p-3"><span>{{ label(d.type) }} · {{ d.name }} <span class="text-xs text-muted-foreground">sha256 {{ d.sha256 }}…</span></span><a :href="route('documents.download', d.id)" class="text-primary hover:underline">Open (logged)</a></li><li v-if="!a.documents.length" class="p-3 text-muted-foreground">No documents.</li></ul>
+                    <ul class="mt-3 divide-y rounded-md border text-sm"><li v-for="d in a.documents" :key="d.id" class="flex justify-between gap-3 p-3"><span>{{ label(d.type) }} · {{ d.name }} <span class="text-xs text-muted-foreground">sha256 {{ d.sha256 }}…</span></span><a v-if="can_open_documents" :href="route('documents.download', d.id)" class="text-primary hover:underline">Open (logged)</a><span v-else class="text-xs text-muted-foreground">restricted</span></li><li v-if="!a.documents.length" class="p-3 text-muted-foreground">No documents.</li></ul>
                 </section>
 
                 <section v-if="suggested" class="rounded-lg border bg-card p-5">

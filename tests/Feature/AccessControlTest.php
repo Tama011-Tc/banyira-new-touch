@@ -41,15 +41,15 @@ class AccessControlTest extends TestCase
     public function test_each_workspace_is_closed_to_the_wrong_roles(): void
     {
         $matrix = [
-            '/marketplace' => [Role::Investor, [Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance, Role::ItAdmin, Role::Support]],
-            '/credit' => [Role::CreditAnalyst, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::ItAdmin, Role::Finance, Role::Support]],
+            '/marketplace' => [Role::Investor, [Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance, Role::Support]],
+            '/credit' => [Role::CreditAnalyst, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::Finance, Role::Support]],
             '/sales' => [Role::Sales, [Role::Investor, Role::BusinessOwner, Role::CreditAnalyst, Role::Executive, Role::ItAdmin]],
-            '/finance' => [Role::Finance, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::CreditApprover, Role::ItAdmin, Role::Support]],
-            '/executive' => [Role::Executive, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditApprover, Role::Finance, Role::ItAdmin]],
+            '/finance' => [Role::Finance, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::CreditApprover, Role::Support]],
+            '/executive' => [Role::Executive, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditApprover, Role::Finance]],
             '/compliance' => [Role::Compliance, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance, Role::ItAdmin]],
             '/admin/users' => [Role::ItAdmin, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditApprover, Role::Executive, Role::Finance, Role::Compliance, Role::Support]],
-            '/moderation' => [Role::Support, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance, Role::ItAdmin]],
-            '/listings' => [Role::CreditApprover, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance, Role::ItAdmin]],
+            '/moderation' => [Role::Support, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance]],
+            '/listings' => [Role::CreditApprover, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::Finance]],
             '/audit' => [Role::ItAdmin, [Role::Investor, Role::BusinessOwner, Role::Sales, Role::CreditAnalyst, Role::CreditApprover, Role::Support]],
         ];
         foreach ($matrix as $url => [$allowed, $denied]) {
@@ -60,18 +60,64 @@ class AccessControlTest extends TestCase
         }
     }
 
-    public function test_it_admin_has_no_route_to_money_or_credit_data(): void
+    public function test_it_admin_can_see_operations_but_cannot_change_any_of_them(): void
     {
-        $admin = $this->actingAs($this->user(Role::ItAdmin));
-        foreach (['/credit', '/finance', '/finance/ledger', '/listings', '/executive', '/marketplace'] as $url) {
-            $admin->get($url)->assertForbidden();
+        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+        $admin = User::where('email', 'admin@banyira.test')->first();
+        $loan = \App\Models\LoanAgreement::first();
+        $app = \App\Models\Application::where('status', 'assessment')->first();
+        $disb = \App\Models\Disbursement::first();
+        $payment = \App\Models\PaymentAttempt::first();
+        $listing = \App\Models\Listing::first();
+        $msg = \App\Models\Message::first();
+        $doc = \App\Models\ApplicationDocument::first();
+
+        // READ everything operational
+        foreach (['/executive', '/credit', "/credit/{$app->id}", '/listings', '/agreements', "/agreements/{$loan->id}", '/finance', '/finance/ledger', '/moderation', '/complaints', '/audit', '/admin/users', '/admin/health'] as $url) {
+            $this->actingAs($admin)->get($url)->assertOk("admin should be able to read $url");
         }
-        // and no way to touch a decision, a payment or a disbursement
-        $loan = $this->activeLoan();
-        $admin->post("/agreements/{$loan->id}/default", ['reason' => 'because'])->assertForbidden();
-        $admin->post('/finance/fees', [])->assertForbidden();
+        // ...but WRITE nothing
+        $writes = [
+            ['post', "/credit/{$app->id}/decide", ['decision' => 'approved', 'reason' => 'Approving as admin to push it through.']],
+            ['post', "/credit/{$app->id}/assess", ['score' => 90, 'notes' => 'x', 'recommendation' => 'approve']],
+            ['post', "/credit/{$app->id}/advance", ['to' => 'assessment']],
+            ['post', "/credit/{$app->id}/info", ['request' => 'Please send everything again.']],
+            ['post', "/agreements/{$loan->id}/default", ['reason' => 'Forcing a default to damage a borrower.']],
+            ['post', "/finance/disbursements/{$disb->id}/approve", []],
+            ['post', "/finance/payments/{$payment->id}/reconcile", []],
+            ['post', "/finance/payments/{$payment->id}/reversal", ['reason' => 'Reverse it for me please.']],
+            ['post', '/finance/fees', ['origination_bp' => 0, 'investor_service_bp' => 0, 'processing_bp' => 0, 'tax_bp' => 0, 'reason' => 'Remove all fees quietly.']],
+            ['post', "/listings/{$listing->id}/review", []],
+            ['post', "/listings/{$listing->id}/publish", []],
+            ['post', "/moderation/messages/{$msg->id}", ['outcome' => 'release']],
+            ['post', '/compliance/live', []],
+            ['post', "/agreements/{$loan->id}/pay", ['purpose' => 'repayment', 'amount' => '1', 'idempotency_key' => 'k']],
+        ];
+        foreach ($writes as [$verb, $url, $body]) {
+            $res = $this->actingAs($admin)->{$verb}($url, $body);
+            $this->assertContains($res->getStatusCode(), [403, 404], "admin must not be able to $verb $url (got {$res->getStatusCode()})");
+        }
+        // confidential material stays closed: documents, private conversations
+        $this->actingAs($admin)->get("/documents/{$doc->id}")->assertNotFound();
+        $this->actingAs($admin)->get("/messages/".\App\Models\Conversation::first()->id)->assertNotFound();
         $this->assertFalse(Role::ItAdmin->can('credit.approve'));
         $this->assertFalse(Role::ItAdmin->can('finance.approve'));
+        $this->assertFalse(Role::ItAdmin->can('documents.view_any'));
+        $this->assertSame('assessment', $app->fresh()->status);
+    }
+
+    public function test_admin_oversight_hides_confidential_fields_and_is_itself_audited(): void
+    {
+        $listing = $this->listing();
+        $app = $listing->application;
+        $app->business->update(['registration_no' => 'SECRET-REG-77']);
+        $admin = $this->user(Role::ItAdmin);
+        $res = $this->actingAs($admin)->get("/credit/{$app->id}")->assertOk();
+        $res->assertInertia(fn ($p) => $p->where('application.business.registration_no', null)->where('read_only', true)->where('can_open_documents', false));
+        $this->assertStringNotContainsString('SECRET-REG-77', $res->getContent());
+        $this->assertDatabaseHas('audit_logs', ['action' => 'oversight.viewed', 'actor_id' => $admin->id, 'subject_id' => $app->id]);
+        // credit staff still see it
+        $this->actingAs($this->user(Role::CreditAnalyst))->get("/credit/{$app->id}")->assertInertia(fn ($p) => $p->where('application.business.registration_no', 'SECRET-REG-77')->where('read_only', false));
     }
 
     public function test_sales_cannot_decide_assess_or_approve(): void

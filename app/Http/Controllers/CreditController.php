@@ -30,18 +30,21 @@ class CreditController extends Controller
     {
         $a = $application->load('business.owner', 'documents', 'assessments.analyst', 'decisions.decider');
         $u = $request->user();
+        $readOnly = $u->role->can('oversight.read_only');
+        $readOnly && app(\App\Services\AuditLogger::class)->record('oversight.viewed', $application, ['page' => 'credit']);
         $suggest = in_array($a->status, ['assessment', 'screening', 'submitted']) ? $this->credit->suggest($a) : null;
 
         return Inertia::render('credit/Show', [
             'application' => [
                 'id' => $a->id, 'status' => $a->status, 'amount' => $a->amount, 'purpose' => $a->purpose, 'term_months' => $a->term_months, 'frequency' => $a->frequency, 'interest_method' => $a->interest_method, 'rate_bp' => $a->proposed_rate_bp,
                 'monthly_revenue' => $a->monthly_revenue, 'monthly_expenses' => $a->monthly_expenses, 'existing_debt' => $a->existing_debt, 'repayment_plan' => $a->repayment_plan, 'info_request' => $a->info_request,
-                'business' => ['name' => $a->business->name, 'display_name' => $a->business->display_name, 'sector' => $a->business->sector, 'district' => $a->business->district, 'years' => $a->business->years_operating, 'description' => $a->business->description, 'registration_no' => $a->business->registration_no, 'assisted' => (bool) $a->business->registered_by_staff_id],
+                'business' => ['name' => $a->business->name, 'display_name' => $a->business->display_name, 'sector' => $a->business->sector, 'district' => $a->business->district, 'years' => $a->business->years_operating, 'description' => $a->business->description, 'registration_no' => $u->role->can('documents.view_any') ? $a->business->registration_no : null, 'assisted' => (bool) $a->business->registered_by_staff_id],
                 'documents' => $a->documents->map(fn ($d) => ['id' => $d->id, 'type' => $d->type, 'name' => $d->original_name, 'size' => $d->size, 'sha256' => substr($d->sha256, 0, 12)]),
                 'assessments' => $a->assessments->map(fn ($x) => ['id' => $x->id, 'analyst' => $x->analyst->name, 'score' => $x->score, 'category' => $x->risk_category, 'recommendation' => $x->recommendation, 'notes' => $x->notes, 'criteria' => $x->criteria, 'at' => $x->created_at->toDateTimeString()]),
                 'decisions' => $a->decisions->map(fn ($x) => ['by' => $x->decider->name, 'decision' => $x->decision, 'reason' => $x->reason, 'conditions' => $x->conditions, 'approved_amount' => $x->approved_amount, 'max_rate_bp' => $x->max_rate_bp, 'at' => $x->created_at->toDateTimeString()]),
             ],
             'suggested' => $suggest,
+            'read_only' => $readOnly, 'can_open_documents' => $u->role->can('documents.view_any'),
             'is_analyst' => $u->role->can('credit.assess'), 'is_approver' => $u->role->can('credit.approve'),
             'executive_threshold' => Settings::get('credit.executive_threshold'), 'max_rate_bp' => Settings::get('loan.max_rate_bp'),
             'transitions' => collect(['screening', 'assessment'])->filter(fn ($s) => app(ApplicationWorkflow::class)->canTransition($a, $s))->values(),

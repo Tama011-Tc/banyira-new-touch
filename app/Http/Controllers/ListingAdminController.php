@@ -16,6 +16,7 @@ class ListingAdminController extends Controller
     public function index()
     {
         return Inertia::render('listings/Index', [
+            'can_manage' => auth()->user()->role->can('listing.manage'),
             'approved' => Application::with('business')->where('status', 'approved')->latest('id')->get()->map(fn ($a) => ['id' => $a->id, 'business' => $a->business->display_name, 'amount' => $a->amount, 'sector' => $a->business->sector]),
             'listings' => Listing::with('application.business')->latest('id')->get()->map(fn ($l) => ['id' => $l->id, 'title' => $l->title, 'business' => $l->application->business->display_name, 'status' => $l->status, 'target' => $l->funding_target, 'committed' => $this->listings->committed($l), 'risk' => $l->risk_category, 'deadline' => $l->deadline->toDateString()]),
         ]);

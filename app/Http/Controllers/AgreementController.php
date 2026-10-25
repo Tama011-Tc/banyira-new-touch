@@ -38,6 +38,7 @@ class AgreementController extends Controller
     {
         $a = $this->visible($request)->with(['business', 'investor', 'schedule', 'disbursement', 'repayments', 'listing'])->findOrFail($agreement);
         $u = $request->user();
+        $u->role->can('oversight.read_only') && app(\App\Services\AuditLogger::class)->record('oversight.viewed', $a, ['page' => 'agreement']);
         $isInvestor = $a->investor_id === $u->id;
         $isBorrower = $a->business->owner_id === $u->id;
         $f = \App\Services\FeeService::onPrincipal($a->fees, $a->principal);

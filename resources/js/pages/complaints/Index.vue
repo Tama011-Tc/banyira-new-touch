@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 
-defineProps<{ staff: boolean; complaints: { id: number; category: string; subject: string; body: string; status: string; resolution: string | null; who: string; at: string }[] }>();
+defineProps<{ staff: boolean; view_all: boolean; complaints: { id: number; category: string; subject: string; body: string; status: string; resolution: string | null; who: string; at: string }[] }>();
 const form = useForm({ category: 'service', subject: '', body: '' });
 </script>
 
@@ -17,7 +17,7 @@ const form = useForm({ category: 'service', subject: '', body: '' });
     <AppLayout>
         <PageHeader title="Help and complaints" description="Tell us if something went wrong. Every complaint gets a reference and a recorded outcome." />
         <div class="grid gap-6 lg:grid-cols-5">
-            <section class="lg:col-span-3"><h2 class="mb-3 font-semibold">{{ staff ? 'All complaints' : 'Your complaints' }}</h2>
+            <section class="lg:col-span-3"><h2 class="mb-3 font-semibold">{{ view_all ? 'All complaints' : 'Your complaints' }}</h2>
                 <ul class="divide-y rounded-lg border bg-card"><li v-for="c in complaints" :key="c.id" class="p-4 text-sm"><div class="flex items-center justify-between gap-2"><p class="font-medium">C-{{ String(c.id).padStart(5, '0') }} · {{ c.subject }}</p><Status :value="c.status" /></div><p class="text-xs text-muted-foreground">{{ c.category }} · {{ c.who }} · {{ c.at }}</p><p class="mt-2">{{ c.body }}</p><p v-if="c.resolution" class="mt-2 rounded-md bg-muted p-2"><strong>Outcome:</strong> {{ c.resolution }}</p>
                     <div v-if="staff && !['resolved', 'closed'].includes(c.status)" class="mt-3 flex gap-2"><Button size="sm" variant="outline" @click="router.put(route('complaints.update', c.id), { status: 'investigating' })">Investigating</Button><Button size="sm" @click="router.put(route('complaints.update', c.id), { status: 'resolved', resolution: prompt('Outcome for the complainant?') ?? '' })">Resolve</Button></div></li><li v-if="!complaints.length" class="p-6 text-center text-muted-foreground">No complaints.</li></ul></section>
             <section class="lg:col-span-2"><h2 class="mb-3 font-semibold">Make a complaint</h2>

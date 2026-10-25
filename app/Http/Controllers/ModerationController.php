@@ -14,6 +14,7 @@ class ModerationController extends Controller
     public function index()
     {
         return Inertia::render('moderation/Index', [
+            'can_review' => auth()->user()->role->can('moderation.review'),
             'held' => Message::with('sender:id,name', 'conversation.listing')->whereIn('status', ['pending_review', 'blocked'])->latest('id')->limit(50)->get()->map(fn ($m) => ['id' => $m->id, 'status' => $m->status, 'body' => $m->body, 'sender' => $m->sender->name, 'listing' => $m->conversation->listing->title, 'flags' => collect($m->flags)->pluck('rule'), 'at' => $m->created_at->toDateTimeString()]),
             'reports' => MessageReport::with('reporter:id,name')->where('status', 'open')->latest('id')->get()->map(fn ($r) => ['id' => $r->id, 'conversation_id' => $r->conversation_id, 'reason' => $r->reason, 'detail' => $r->detail, 'reporter' => $r->reporter->name, 'at' => $r->created_at->toDateTimeString()]),
         ]);

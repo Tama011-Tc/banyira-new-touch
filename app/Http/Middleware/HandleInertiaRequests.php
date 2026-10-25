@@ -21,7 +21,7 @@ class HandleInertiaRequests extends Middleware
         'executive' => [['Overview', 'executive.index', 'chart'], ['Decisions', 'credit.index', 'inbox'], ['Listings', 'listings.index', 'list'], ['Loans', 'agreements.index', 'wallet'], ['Finance', 'finance.index', 'coins'], ['Compliance', 'compliance.index', 'shield'], ['Audit log', 'audit.index', 'scroll']],
         'finance' => [['Finance', 'finance.index', 'coins'], ['Loans', 'agreements.index', 'wallet'], ['Audit log', 'audit.index', 'scroll']],
         'compliance' => [['Compliance', 'compliance.index', 'shield'], ['Moderation', 'moderation.index', 'flag'], ['Finance', 'finance.index', 'coins'], ['Loans', 'agreements.index', 'wallet'], ['Audit log', 'audit.index', 'scroll']],
-        'it_admin' => [['Users', 'admin.users', 'users'], ['Settings', 'admin.settings', 'cog'], ['Audit log', 'audit.index', 'scroll'], ['System health', 'admin.health', 'pulse']],
+        'it_admin' => [['Oversight', 'executive.index', 'chart'], ['Users & access', 'admin.users', 'users'], ['Applications', 'credit.index', 'inbox'], ['Listings', 'listings.index', 'list'], ['Loans', 'agreements.index', 'wallet'], ['Finance & ledger', 'finance.index', 'coins'], ['Moderation', 'moderation.index', 'flag'], ['Complaints', 'complaints.index', 'file'], ['Audit log', 'audit.index', 'scroll'], ['Settings', 'admin.settings', 'cog'], ['System health', 'admin.health', 'pulse']],
         'support' => [['Moderation', 'moderation.index', 'flag'], ['Complaints', 'complaints.index', 'inbox']],
     ];
 

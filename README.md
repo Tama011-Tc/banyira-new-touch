@@ -57,6 +57,8 @@ Redis is optional (queues/cache use the database driver by default). Nothing her
 php artisan banyira:create-admin you@example.com --name="Your Name"   # prints a temporary password once
 ```
 
+**What the admin can see.** The IT administrator's window is read-only oversight of everything operational: the executive overview, all applications and their credit assessments, listings, loans and schedules, payments, fees and the ledger, moderation and complaints, the audit log and system health. It cannot change a credit decision, a loan, a payment, a fee or the ledger, and confidential documents, registration numbers and private conversations stay closed to it. Each admin view of an application or loan is itself written to the audit log.
+
 Customers and staff are separate: a role can never be moved from one group to the other.
 
 ## What it does
@@ -82,7 +84,7 @@ Customers and staff are separate: a role can never be moved from one group to th
 php artisan test
 ```
 
-**118 tests, 1,202 assertions, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**119 tests, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 

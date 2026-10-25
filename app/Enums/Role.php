@@ -16,19 +16,24 @@ enum Role: string
     case ItAdmin = 'it_admin';
     case Support = 'support';
 
-    /** ability => roles. Deliberately absent: no role can edit a decision, a ledger entry or an audit row. */
+    /**
+     * ability => roles. Deliberately absent: no role can edit a decision, a ledger entry or an audit row.
+     * The IT administrator can SEE operations (oversight.* and the *.view abilities) but holds none of the write
+     * abilities: credit.assess/approve, finance.approve/reconcile, listing.manage, kyc.review, moderation.review.
+     */
     public const ABILITIES = [
-        'marketplace.view' => ['investor', 'executive'],
+        'marketplace.view' => ['investor', 'executive', 'it_admin'],
         'invest' => ['investor'],
         'business.apply' => ['business_owner'],
         'sales.workspace' => ['sales'],
         'credit.assess' => ['credit_analyst'],
         'credit.approve' => ['credit_approver', 'executive'],
-        'credit.view' => ['credit_analyst', 'credit_approver', 'executive', 'compliance'],
+        'credit.view' => ['credit_analyst', 'credit_approver', 'executive', 'compliance', 'it_admin'],   // it_admin: read-only oversight
         'documents.view_any' => ['credit_analyst', 'credit_approver', 'compliance'],
         'listing.manage' => ['credit_approver', 'executive'],
-        'executive.dashboard' => ['executive'],
-        'finance.workspace' => ['finance', 'compliance', 'executive'],
+        'listing.view' => ['credit_approver', 'executive', 'it_admin', 'compliance'],
+        'executive.dashboard' => ['executive', 'it_admin'],
+        'finance.workspace' => ['finance', 'compliance', 'executive', 'it_admin'],   // it_admin: read-only; every write route needs finance.approve/reconcile
         'finance.reconcile' => ['finance'],
         'finance.approve' => ['finance', 'compliance', 'executive'],
         'compliance.workspace' => ['compliance', 'executive'],
@@ -38,8 +43,11 @@ enum Role: string
         'admin.settings' => ['it_admin'],
         'audit.view' => ['it_admin', 'compliance', 'executive', 'finance'],
         'moderation.review' => ['support', 'compliance'],
+        'moderation.view' => ['support', 'compliance', 'it_admin'],
         'complaints.handle' => ['support', 'compliance'],
-        'agreements.view_any' => ['executive', 'finance', 'compliance'],
+        'agreements.view_any' => ['executive', 'finance', 'compliance', 'it_admin'],
+        'complaints.view' => ['support', 'compliance', 'it_admin'],
+        'oversight.read_only' => ['it_admin'],
     ];
 
     public function can(string $ability): bool

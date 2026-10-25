@@ -28,7 +28,7 @@ class PagesRenderTest extends TestCase
             'executive@banyira.test' => ['/executive', '/credit', '/listings', '/agreements', '/finance', '/finance/ledger', '/compliance', '/audit'],
             'finance@banyira.test' => ['/finance', '/finance/ledger', '/agreements', "/agreements/{$agreement->id}", '/audit'],
             'compliance@banyira.test' => ['/compliance', '/moderation', '/finance', '/audit'],
-            'admin@banyira.test' => ['/admin/users', '/admin/settings', '/admin/health', '/audit'],
+            'admin@banyira.test' => ['/admin/users', '/admin/settings', '/admin/health', '/audit', '/executive', '/credit', "/credit/{$app->id}", '/listings', '/agreements', "/agreements/{$agreement->id}", '/finance', '/finance/ledger', '/moderation', '/complaints', '/marketplace'],
             'support@banyira.test' => ['/moderation', '/complaints'],
         ];
         foreach ($screens as $email => $urls) {

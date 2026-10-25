@@ -11,11 +11,11 @@ class ComplaintController extends Controller
 {
     public function index(Request $request)
     {
-        $staff = $request->user()->role->can('complaints.handle');
+        $viewAll = $request->user()->role->can('complaints.view');
         $q = Complaint::query()->with('user:id,name')->latest('id');
-        $staff || $q->where('user_id', $request->user()->id);
+        $viewAll || $q->where('user_id', $request->user()->id);
 
-        return Inertia::render('complaints/Index', ['staff' => $staff, 'complaints' => $q->get()->map(fn ($c) => ['id' => $c->id, 'category' => $c->category, 'subject' => $c->subject, 'body' => $c->body, 'status' => $c->status, 'resolution' => $c->resolution, 'who' => $c->user->name, 'at' => $c->created_at->toDateString()])]);
+        return Inertia::render('complaints/Index', ['staff' => $request->user()->role->can('complaints.handle'), 'view_all' => $viewAll, 'complaints' => $q->get()->map(fn ($c) => ['id' => $c->id, 'category' => $c->category, 'subject' => $c->subject, 'body' => $c->body, 'status' => $c->status, 'resolution' => $c->resolution, 'who' => $c->user->name, 'at' => $c->created_at->toDateString()])]);
     }
 
     public function store(Request $request, AuditLogger $audit)
