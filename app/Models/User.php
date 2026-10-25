@@ -19,7 +19,7 @@ class User extends Authenticatable
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'mfa_confirmed_at' => 'datetime', 'role' => Role::class];
+        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'mfa_confirmed_at' => 'datetime', 'role' => Role::class, 'must_change_password' => 'boolean'];
     }
 
     public function isStaff(): bool

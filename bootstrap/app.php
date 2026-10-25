@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\EnsureActiveAccount::class,
+            \App\Http\Middleware\EnsurePasswordChanged::class,
         ]);
         // Provider webhooks are authenticated by HMAC signature, not by a browser session or CSRF token.
         $middleware->validateCsrfTokens(except: ['webhooks/*']);

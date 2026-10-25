@@ -27,6 +27,8 @@ Route::get('/how-it-works', fn () => Inertia::render('Risks'))->name('risks');
 Route::post('webhooks/payments/sandbox', [WebhookController::class, 'sandbox'])->middleware('throttle:webhooks')->name('webhooks.sandbox');
 
 Route::middleware('auth')->group(function () {
+    Route::get('password/change', [\App\Http\Controllers\Auth\ForcedPasswordController::class, 'show'])->name('password.change');
+    Route::put('password/change', [\App\Http\Controllers\Auth\ForcedPasswordController::class, 'update'])->middleware('throttle:6,1')->name('password.change.update');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('complaints', [ComplaintController::class, 'index'])->name('complaints.index');
     Route::post('complaints', [ComplaintController::class, 'store'])->middleware('throttle:10,1')->name('complaints.store');
@@ -150,6 +152,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users', [AdminController::class, 'users'])->name('users');
         Route::post('users', [AdminController::class, 'storeStaff'])->middleware('throttle:10,1')->name('staff');
         Route::put('users/{user}/role', [AdminController::class, 'changeRole'])->name('role');
+        Route::post('users/{user}/reset-password', [AdminController::class, 'resetPassword'])->middleware('throttle:10,1')->name('reset');
         Route::post('users/{user}/suspend', [AdminController::class, 'suspend'])->name('suspend');
         Route::get('settings', [AdminController::class, 'settings'])->name('settings');
         Route::put('settings', [AdminController::class, 'updateSettings'])->name('settings.update');

@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
             'can' => $user ? collect(array_keys(Role::ABILITIES))->mapWithKeys(fn ($a) => [$a => $user->role->can($a)]) : (object) [],
             'mode' => ['operating' => Platform::mode(), 'simulation' => Platform::isSimulation()],
             'flash' => ['success' => fn () => $request->session()->get('success'), 'error' => fn () => $request->session()->get('error')],
+            'temp_credential' => fn () => $request->session()->get('temp_credential'),
             'unread' => fn () => $user ? $user->unreadNotifications()->count() : 0,
         ];
     }

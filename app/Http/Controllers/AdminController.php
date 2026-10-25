@@ -11,6 +11,7 @@ use App\Services\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -33,14 +34,34 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * Create a staff account. If no password is typed, a strong one is generated and shown ONCE on the next page.
+     * Either way the person must replace it at first sign-in.
+     */
     public function storeStaff(Request $request, AuditLogger $audit)
     {
-        $d = $request->validate(['name' => 'required|string|max:120', 'email' => 'required|email|unique:users,email', 'password' => ['required', Password::min(12)->mixedCase()->numbers()], 'role' => ['required', Rule::in(collect(Role::cases())->filter->isStaff()->map->value->all())]]);
-        $u = new User(['name' => $d['name'], 'email' => strtolower($d['email']), 'password' => $d['password']]);
-        $u->forceFill(['role' => Role::from($d['role']), 'status' => 'active', 'email_verified_at' => now()])->save();
-        $audit->record('admin.staff_created', $u, ['role' => $d['role']]);
+        $d = $request->validate(['name' => 'required|string|max:120', 'email' => 'required|email|unique:users,email', 'password' => ['nullable', Password::min(12)->mixedCase()->numbers()], 'role' => ['required', Rule::in(collect(Role::cases())->filter->isStaff()->map->value->all())]]);
+        $generated = empty($d['password']);
+        $password = $generated ? Str::password(16, symbols: false).'a1A' : $d['password'];
+        $u = new User(['name' => $d['name'], 'email' => strtolower($d['email']), 'password' => $password]);
+        $u->forceFill(['role' => Role::from($d['role']), 'status' => 'active', 'email_verified_at' => now(), 'must_change_password' => true])->save();
+        $audit->record('admin.staff_created', $u, ['role' => $d['role'], 'password_generated' => $generated]);
 
-        return back()->with('success', 'Staff account created.');
+        $back = back()->with('success', 'Staff account created. They must change the password at first sign-in.');
+
+        return $generated ? $back->with('temp_credential', ['email' => $u->email, 'password' => $password]) : $back;
+    }
+
+    /** Issue a new temporary password to a locked-out person. The old one stops working and they must choose their own. */
+    public function resetPassword(Request $request, User $user, AuditLogger $audit)
+    {
+        abort_if($user->id === $request->user()->id, 422, 'Use Change password for your own account.');
+        $password = Str::password(16, symbols: false).'a1A';
+        $user->forceFill(['password' => $password, 'must_change_password' => true])->save();
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+        $audit->record('admin.password_reset', $user);
+
+        return back()->with('success', 'Password reset. Share the temporary password securely.')->with('temp_credential', ['email' => $user->email, 'password' => $password]);
     }
 
     public function changeRole(Request $request, User $user, AuditLogger $audit)

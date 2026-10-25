@@ -47,6 +47,18 @@ Redis is optional (queues/cache use the database driver by default). Nothing her
 6. **Business**: *Messages* → counter-propose → the investor **Accepts** → a simulated agreement and **repayment schedule** appear.
 7. **Investor** pays in the sandbox → **Finance** approves the release → **Business** repays instalments → watch balances, the ledger and the audit log.
 
+## How accounts are created
+
+- **Investors and business owners** sign up on the public Register page. That form cannot create any other role.
+- **Staff** (sales, credit analyst, credit approver, executive, finance, compliance, support, other IT admins) are created only by an **IT administrator** in *Admin → Users*. Leave the password blank to generate a strong one; it is shown once and never stored in plain text or logged. The new person must replace it at first sign-in, and an admin can reset a forgotten password the same way.
+- **The very first administrator** is created from the console, because nobody can create them in the app yet:
+
+```bash
+php artisan banyira:create-admin you@example.com --name="Your Name"   # prints a temporary password once
+```
+
+Customers and staff are separate: a role can never be moved from one group to the other.
+
 ## What it does
 
 | Area | Notes |
@@ -70,7 +82,7 @@ Redis is optional (queues/cache use the database driver by default). Nothing her
 php artisan test
 ```
 
-**112 tests, 1,150 assertions, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
+**118 tests, 1,202 assertions, all passing** at the time of writing (run `php artisan test` to confirm on your machine). They cover calculation accuracy, message screening (including false-positive cases), the role matrix, document and agreement access (IDOR), the full application path, offer versioning and tamper detection, payment verification, forged and replayed webhooks, duplicate checkout, repayment allocation (partial, over- and under-payment), overdue and default rules, reversals, fee-change approval, immutability of the ledger and audit log, and rendering of every screen for every role. There are no browser end-to-end tests yet.
 
 ## Documentation
 
@@ -81,6 +93,7 @@ php artisan test
 
 - **Live payments, escrow, wallets, pooled funds** — deliberately absent. They need licences and a contracted provider.
 - **Staff MFA (TOTP)** — a marker column exists; enrolment and enforcement are not implemented.
+- **Emailed invitations** — temporary passwords are handed over by the admin; no invite email is sent.
 - **KYC document capture / sanctions screening / credit-bureau lookups** — manual review UI only; no vendor integrations.
 - **Chichewa translations** — the locale column and structure exist; strings are English only.
 - **Email/SMS notifications** — in-app records only; templates not built.
