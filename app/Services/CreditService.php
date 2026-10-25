@@ -177,6 +177,16 @@ class CreditService
                 throw ValidationException::withMessages(['eligibility' => 'The business does not meet the usual criteria ('.collect($eligibility['checks'])->reject->met->pluck('label')->implode('; ').'). To approve anyway, record a written exception of at least 20 characters.']);
             }
             $amount = $approvedAmount ?? $app->amount;
+            $limits = collect(self::bands())->firstWhere('code', $assessment->risk_category) ?? [];
+            if (! empty($limits['max_amount']) && $amount > $limits['max_amount']) {
+                throw ValidationException::withMessages(['approved_amount' => "Band {$assessment->risk_category} businesses can be approved for at most ".\App\Support\Money::format($limits['max_amount']).'.']);
+            }
+            if (! empty($limits['max_term_months']) && $app->term_months > $limits['max_term_months']) {
+                throw ValidationException::withMessages(['decision' => "Band {$assessment->risk_category} loans can run at most {$limits['max_term_months']} months; this application asks for {$app->term_months}. Ask the business to shorten the term."]);
+            }
+            if (! empty($limits['needs_conditions']) && mb_strlen(trim((string) $conditions)) < 10) {
+                throw ValidationException::withMessages(['conditions' => "Band {$assessment->risk_category} approvals need written conditions (for example reporting or monitoring commitments)."]);
+            }
             if ($amount <= 0 || $amount > $app->amount) {
                 throw ValidationException::withMessages(['approved_amount' => 'The approved amount cannot exceed the amount requested.']);
             }

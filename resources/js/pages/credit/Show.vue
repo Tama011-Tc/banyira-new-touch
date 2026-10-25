@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { label, method, mk, pct } from '@/lib/format';
 import { Head, router, useForm } from '@inertiajs/vue3';
 
-const props = defineProps<{ application: Record<string, any>; suggested: { score: number; category: string; criteria: Record<string, any> } | null; is_analyst: boolean; is_approver: boolean; read_only: boolean; can_open_documents: boolean; eligibility: { checks: { key: string; label: string; actual: string; met: boolean }[]; met: boolean }; executive_threshold: number; max_rate_bp: number; transitions: string[] }>();
+const props = defineProps<{ application: Record<string, any>; suggested: { score: number; category: string; criteria: Record<string, any> } | null; is_analyst: boolean; is_approver: boolean; read_only: boolean; can_open_documents: boolean; band_limits: Record<string, { max_amount: number | null; max_term_months: number | null; needs_conditions: boolean }>; eligibility: { checks: { key: string; label: string; actual: string; met: boolean }[]; met: boolean }; executive_threshold: number; max_rate_bp: number; transitions: string[] }>();
 const a = props.application;
 const assess = useForm({ score: props.suggested?.score ?? 50, notes: '', recommendation: 'approve' });
 const decide = useForm({ decision: 'approved', reason: '', conditions: '', exception_reason: '', approved_amount: (a.amount / 100).toFixed(2), max_rate: Math.min(props.max_rate_bp / 100, a.rate_bp / 100 + 3) });
@@ -85,6 +85,7 @@ const surplus = a.monthly_revenue - a.monthly_expenses;
                 </section>
                 <section v-if="is_approver && a.status === 'assessment' && a.assessments.length" class="rounded-lg border-2 border-gold/60 bg-card p-5">
                     <h2 class="font-semibold">Final decision</h2>
+                    <p v-if="a.assessments.length && band_limits[a.assessments.at(-1).category] && (band_limits[a.assessments.at(-1).category].max_amount || band_limits[a.assessments.at(-1).category].max_term_months || band_limits[a.assessments.at(-1).category].needs_conditions)" class="mt-1 rounded-md bg-gold/10 p-2 text-xs">Band {{ a.assessments.at(-1).category }} limits: {{ [band_limits[a.assessments.at(-1).category].max_amount ? 'up to ' + mk(band_limits[a.assessments.at(-1).category].max_amount as number) : '', band_limits[a.assessments.at(-1).category].max_term_months ? 'up to ' + band_limits[a.assessments.at(-1).category].max_term_months + ' months' : '', band_limits[a.assessments.at(-1).category].needs_conditions ? 'written conditions required' : ''].filter(Boolean).join(' · ') }}</p>
                     <p class="text-xs text-muted-foreground">Must be a different person from the analyst. Amounts above {{ mk(executive_threshold) }} need an executive.</p>
                     <form class="mt-3 space-y-3" @submit.prevent="decide.post(route('credit.decide', a.id))">
                         <FormField label="Decision" for="dec" :error="decide.errors.decision"><SelectField id="dec" v-model="decide.decision"><option value="approved">Approve</option><option value="rejected">Reject</option></SelectField></FormField>

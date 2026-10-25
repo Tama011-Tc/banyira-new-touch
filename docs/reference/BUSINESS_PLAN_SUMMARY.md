@@ -23,9 +23,10 @@ Source: the January 2025 Banyira MicroCredit business plan, as supplied by the p
 | Profitability after 18 months; finance 1,000+ SMEs; Blantyre first | Executive dashboard shows SMEs financed against the 1,000 target | `targets.smes_financed` |
 | Later: Lilongwe/Mzuzu branches, credit reference bureau, debt-collection agency, government funding | Out of scope | none |
 
-## Open questions the plan does not answer
-1. Is the 4–15% scale **higher for small loans or for large ones**? The demo uses 15% under MK 1m, 10% under MK 5m, 4% above. Needs confirming.
-2. What interest-rate ceiling applies to investor bids? The software caps negotiation at an approver-set ceiling per listing (platform maximum 45%).
-3. Loan terms and repayment frequency limits (the software allows up to 36 months, weekly or monthly).
-4. Who pays the debt-collection fee and when it is added (see D7).
-5. What "average risk" lending means for conditions or limits on a band C business.
+## Questions the plan does not answer, and how they were decided
+Taken on the product owner's instruction ("use a suggestion"); each is a setting and can be revisited.
+
+1. **Direction of the 4–15% scale.** Higher percentage for **smaller** loans, lower for larger ones (small loans cost more to serve). Demo: 15% under MK 1m, 10% under MK 5m, 4% above. The approved schedule is set by finance with a second approver.
+2. **Investor bid ceiling.** Platform maximum **36% a year** (`loan.max_rate_bp`), against informal lenders at 50–100%, and the plan's promise of "very low" rates. Credit approvers set a lower ceiling per listing at approval.
+3. **Band C ("average risk").** Tighter limits: at most **MK 3,000,000**, at most **12 months**, and **written conditions** required. Band B: at most 24 months. A+ and A: no extra limits. Limits are edited only through a two-person policy change.
+4. **Not yet answered:** the debt-collection fee (D7) and early-payoff quotes (D3).

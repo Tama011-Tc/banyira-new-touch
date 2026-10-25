@@ -22,6 +22,11 @@
 - **D5. Offers** lapse after 7 days (`offers.ttl_days`). A proposer may withdraw an unanswered proposal. Once both parties accept, the agreement is binding.
 - **D6 (revised after reading the plan). SMS replies can accept or decline an offer.** The plan requires owners without internet to do this by SMS. It is allowed only for a **business owner**, only from their registered number, only with the one-use 6-digit code we texted them for that specific offer (valid 48 hours), only for offers up to MK 5,000,000 (larger ones go to the website), and with failed attempts rate-limited per number. The reply performs exactly what the website would, through the same checks, and never completes a deal by itself: the investor's side is still required. The earlier code-only rule remains for the optional web step-up.
 
+## Decided on instruction ("use a suggestion")
+- **D8. Fee scale direction:** higher percentage for smaller loans, lower for larger.
+- **D9. Rate ceiling:** platform maximum 36% a year; per-listing ceilings set at approval.
+- **D10. Band C:** maximum MK 3,000,000, maximum 12 months, written conditions required. Band B: maximum 24 months. Editable only by two-person policy change.
+
 ## Still open
 - **D3 (partly answered).** The plan says **no early-repayment fee**: so early repayment is allowed and free. A settlement-quote feature (reducing interest on early payoff) is not built; today extra payments are applied to later instalments as scheduled. Restructuring still needs a policy.
 - **D7.** The plan allows a **debt-collection agency fee charged to the borrower** after missed payments. It must be disclosed in the agreement before acceptance. Not built; no late-payment penalty exists.

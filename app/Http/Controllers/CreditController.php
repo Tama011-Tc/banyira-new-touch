@@ -44,6 +44,7 @@ class CreditController extends Controller
                 'assessments' => $a->assessments->map(fn ($x) => ['id' => $x->id, 'analyst' => $x->analyst->name, 'score' => $x->score, 'category' => $x->risk_category, 'recommendation' => $x->recommendation, 'notes' => $x->notes, 'criteria' => $x->criteria, 'at' => $x->created_at->toDateTimeString()]),
                 'decisions' => $a->decisions->map(fn ($x) => ['exception' => $x->exception_reason, 'by' => $x->decider->name, 'decision' => $x->decision, 'reason' => $x->reason, 'conditions' => $x->conditions, 'approved_amount' => $x->approved_amount, 'max_rate_bp' => $x->max_rate_bp, 'at' => $x->created_at->toDateTimeString()]),
             ],
+            'band_limits' => collect(CreditService::bands())->mapWithKeys(fn ($b) => [$b['code'] => ['max_amount' => $b['max_amount'] ?? null, 'max_term_months' => $b['max_term_months'] ?? null, 'needs_conditions' => (bool) ($b['needs_conditions'] ?? false)]]),
             'suggested' => $suggest, 'eligibility' => $this->credit->eligibility($a),
             'read_only' => $readOnly, 'can_open_documents' => $u->role->can('documents.view_any'),
             'is_analyst' => $u->role->can('credit.assess'), 'is_approver' => $u->role->can('credit.approve'),
@@ -94,8 +95,8 @@ class CreditController extends Controller
 
     public function requestBands(Request $request, \App\Services\ApprovalService $approvals)
     {
-        $d = $request->validate(['bands' => 'required|array|min:2|max:6', 'bands.*.code' => 'required|string|max:3|distinct', 'bands.*.min' => 'required|integer|min:0|max:100', 'bands.*.name' => 'required|string|max:60', 'bands.*.definition' => 'required|string|max:300', 'reason' => 'required|string|min:10|max:500']);
-        $bands = collect($d['bands'])->map(fn ($b) => ['code' => $b['code'], 'min' => (int) $b['min'], 'name' => $b['name'], 'definition' => $b['definition']])->sortByDesc('min')->values();
+        $d = $request->validate(['bands' => 'required|array|min:2|max:6', 'bands.*.code' => 'required|string|max:3|distinct', 'bands.*.min' => 'required|integer|min:0|max:100', 'bands.*.name' => 'required|string|max:60', 'bands.*.definition' => 'required|string|max:300', 'bands.*.max_amount' => ['nullable', 'regex:/^\d{1,12}(\.\d{1,2})?$/'], 'bands.*.max_term_months' => 'nullable|integer|min:1|max:60', 'bands.*.needs_conditions' => 'nullable|boolean', 'reason' => 'required|string|min:10|max:500']);
+        $bands = collect($d['bands'])->map(fn ($b) => array_filter(['code' => $b['code'], 'min' => (int) $b['min'], 'name' => $b['name'], 'definition' => $b['definition'], 'max_amount' => ($b['max_amount'] ?? '') === '' ? null : \App\Support\Money::toMinor($b['max_amount']), 'max_term_months' => ($b['max_term_months'] ?? '') === '' ? null : (int) $b['max_term_months'], 'needs_conditions' => ! empty($b['needs_conditions']) ?: null], fn ($v) => $v !== null))->sortByDesc('min')->values();
         if ($bands->pluck('min')->duplicates()->isNotEmpty()) {
             return back()->withErrors(['bands' => 'Every band needs a different starting score.']);
         }

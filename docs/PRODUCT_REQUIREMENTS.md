@@ -1,6 +1,6 @@
 # Product requirements and status
 
-Source: the "Banyira MicroCredit" master prompt (peer-to-peer SME lending for Malawi) and the January 2025 business plan, summarised in [reference/BUSINESS_PLAN_SUMMARY.md](reference/BUSINESS_PLAN_SUMMARY.md). Plan figures (fee range 4–15%, six months of records, one year trading, bands A+ to C, SMS replies) are implemented as configuration, not constants.
+Source: the "Banyira MicroCredit" master prompt (peer-to-peer SME lending for Malawi) and the January 2025 business plan, summarised in [reference/BUSINESS_PLAN_SUMMARY.md](reference/BUSINESS_PLAN_SUMMARY.md). Questions the plan leaves open were settled by the owner's instruction (see [DECISIONS_AND_ASSUMPTIONS.md](DECISIONS_AND_ASSUMPTIONS.md) D8–D10). Plan figures (fee range 4–15%, six months of records, one year trading, bands A+ to C, SMS replies) are implemented as configuration, not constants.
 
 Legend: ✅ built and tested · 🟡 partly built · ⬜ not started · ⛔ deliberately not built (needs legal/provider approval).
 

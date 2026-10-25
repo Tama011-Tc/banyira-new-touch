@@ -21,8 +21,8 @@ class Settings
         'credit.bands' => [
             ['code' => 'A+', 'min' => 85, 'name' => 'Very low risk', 'definition' => 'Strong repayment capacity, long record, complete verified documents.'],
             ['code' => 'A', 'min' => 70, 'name' => 'Low risk', 'definition' => 'Good repayment capacity and a consistent record with minor gaps.'],
-            ['code' => 'B', 'min' => 55, 'name' => 'Low to average risk', 'definition' => 'Adequate repayment capacity; some weaknesses in record, documents or existing debt.'],
-            ['code' => 'C', 'min' => 40, 'name' => 'Average risk', 'definition' => 'Thinner repayment capacity or material weaknesses. Listed only if approved, usually with conditions.'],
+            ['code' => 'B', 'min' => 55, 'name' => 'Low to average risk', 'definition' => 'Adequate repayment capacity; some weaknesses in record, documents or existing debt.', 'max_term_months' => 24],
+            ['code' => 'C', 'min' => 40, 'name' => 'Average risk', 'definition' => 'Thinner repayment capacity or material weaknesses. Listed with tighter limits and written conditions.', 'max_amount' => 300000000, 'max_term_months' => 12, 'needs_conditions' => true],   // MK 3,000,000, 12 months
         ],
         // Plan: SMEs with at least 6 months of financial records and at least one year of successful trading.
         'eligibility.min_trading_years' => 1,
@@ -40,7 +40,7 @@ class Settings
         'credit.sector_scores' => ['Agriculture' => 60, 'Retail & trade' => 75, 'Manufacturing' => 65, 'Transport & logistics' => 60, 'Services' => 70, 'Construction' => 55, 'Food & hospitality' => 62, 'Technology' => 68, 'Education' => 72, 'Health' => 74, 'Mining' => 55, 'Tourism' => 62],
         'loan.default_days' => 90,
         'loan.max_grace_instalments' => 3,
-        'loan.max_rate_bp' => 4500,
+        'loan.max_rate_bp' => 3600,   // 36% a year: the plan promises "very low" rates against informal lenders at 50-100%
         'loan.max_term_months' => 36,
         'investor.min_commitment' => 5000000,   // MK 50,000
         'moderation.rules' => null,             // null = all rules on
