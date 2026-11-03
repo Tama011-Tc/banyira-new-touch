@@ -16,12 +16,21 @@ use App\Http\Controllers\ListingAdminController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', fn () => Inertia::render('Welcome', ['canRegister' => Route::has('register')]))->name('home');
+Route::get('/', [SiteController::class, 'home'])->name('home');
 Route::get('/how-it-works', fn () => Inertia::render('Risks'))->name('risks');
+Route::controller(SiteController::class)->group(function () {
+    Route::get('/products', 'products')->name('products');
+    Route::get('/how-to-get-a-loan', 'loanGuide')->name('loan-guide');
+    Route::get('/support', 'support')->name('support');
+    Route::get('/about', 'about')->name('about');
+    Route::get('/investors', 'investors')->name('investors');
+    Route::post('/language', 'language')->middleware('throttle:20,1')->name('site.language');
+});
 
 // Provider callbacks: authenticated by HMAC signature, never by session.
 Route::post('webhooks/sms/inbound', [\App\Http\Controllers\SmsWebhookController::class, 'inbound'])->middleware('throttle:webhooks')->name('webhooks.sms');

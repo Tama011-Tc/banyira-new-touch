@@ -13,7 +13,19 @@ export function date(value: string | null | undefined): string {
     return new Date(value.length === 10 ? value + 'T00:00:00' : value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export const label = (s: string | null | undefined): string => (s ? s.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()) : '');
+/** Whole days from today until a YYYY-MM-DD date; negative once it has passed. */
+export function daysUntil(value: string): number {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.round((new Date(value + 'T00:00:00').getTime() - today.getTime()) / 86400000);
+}
+
+export function closes(value: string): string {
+    const d = daysUntil(value);
+    return d < 0 ? 'Closed' : d === 0 ? 'Closes today' : d === 1 ? 'Closes tomorrow' : d <= 14 ? `${d} days left` : `Closes ${date(value)}`;
+}
+
+export const label =(s: string | null | undefined): string => (s ? s.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()) : '');
 
 type Tone = 'neutral' | 'good' | 'warn' | 'bad' | 'demo';
 const tones: Record<string, Tone> = {

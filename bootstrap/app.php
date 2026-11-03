@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         // Provider webhooks are authenticated by HMAC signature, not by a browser session or CSRF token.
         $middleware->validateCsrfTokens(except: ['webhooks/*']);
+        // Public-site language choice ("en" or "ny"); nothing secret, so it stays readable.
+        $middleware->encryptCookies(except: ['site_locale']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-03T00:00:00Z",
+  "title": "Design System: Banyira MicroCredit (public site)",
+  "scope": "Public marketing site only (SiteLayout, Welcome, site/*, auth shell). The signed-in app uses a separate shadcn / Instrument Sans system not described here.",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#14212b", "tonalRamp": ["#080d11", "#0c141a", "#101a22", "#14212b", "#5b646b", "#959ba0", "#c4c8ca", "#e8e9ea"] },
+      "ink-body": { "role": "neutral", "displayName": "Ink Body (75%)", "canonical": "rgb(20 33 43 / 0.75)" },
+      "ink-quiet": { "role": "neutral", "displayName": "Ink Quiet (65%, text floor)", "canonical": "rgb(20 33 43 / 0.65)" },
+      "ink-hairline": { "role": "neutral", "displayName": "Ink Hairline (10%)", "canonical": "rgb(20 33 43 / 0.10)" },
+      "leaf": { "role": "primary", "displayName": "Banyira Leaf", "canonical": "#0a7553", "tonalRamp": ["#042f21", "#064632", "#085e42", "#0a7553", "#549e87", "#91c1b2", "#c2ddd4", "#e7f1ee"] },
+      "leaf-deep": { "role": "primary", "displayName": "Leaf Deep (hover)", "canonical": "#085f43", "tonalRamp": ["#03261b", "#053928", "#064c36", "#085f43", "#528f7b", "#90b7aa", "#c1d7d0", "#e6efec"] },
+      "lake": { "role": "secondary", "displayName": "Lake", "canonical": "#e6efee", "tonalRamp": ["#5c605f", "#8a8f8f", "#b8bfbe", "#e6efee", "#eef4f3", "#f4f8f7", "#f9fbfb", "#fdfdfd"] },
+      "maize": { "role": "tertiary", "displayName": "Maize (signal only)", "canonical": "#e8b931", "tonalRamp": ["#5d4a14", "#8b6f1d", "#ba9427", "#e8b931", "#efce6f", "#f5e0a2", "#f9eecc", "#fdf8ea"] },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#ffffff", "tonalRamp": ["#2b2b2b", "#555555", "#808080", "#aaaaaa", "#d4d4d4", "#eaeaea", "#f5f5f5", "#ffffff"] },
+      "unset-red": { "role": "status", "displayName": "Unset Red (unconfigured setting)", "canonical": "#b23a2e", "tonalRamp": ["#471712", "#6b231c", "#8e2e25", "#b23a2e", "#c9756d", "#dca6a1", "#eccecb", "#f7ebea"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page h1 only; widened 122%, weight 850. 2.6rem / 3.75rem sm / 4.4rem lg on the home hero." },
+      "headline": { "displayName": "Headline", "purpose": "Section h2s; widened 112%, weight 800; 1.875rem mobile to 2.6rem." },
+      "title": { "displayName": "Title", "purpose": "Heads of ruled columns and product names." },
+      "subtitle": { "displayName": "Subtitle", "purpose": "Step titles, contact column heads." },
+      "lead": { "displayName": "Lead", "purpose": "Paragraph under an h1/h2, ink at 75%." },
+      "body": { "displayName": "Body", "purpose": "Running copy, 60-65ch max on reading pages." },
+      "data": { "displayName": "Data", "purpose": "Values in ruled label/value lists; tabular figures." },
+      "label": { "displayName": "Label", "purpose": "Nav, language switch, form labels." }
+    },
+    "shadows": [
+      { "name": "device-lift", "value": "0 30px 60px -30px rgba(20,33,43,0.6)", "purpose": "The hero phone only." },
+      { "name": "panel-lift", "value": "0 20px 50px -30px rgba(20,33,43,0.4)", "purpose": "White data panel or auth card on a lake ground." },
+      { "name": "menu-lift", "value": "0 18px 40px -20px rgba(20,33,43,0.35)", "purpose": "Products dropdown." }
+    ],
+    "motion": [
+      { "name": "sms-in", "value": "0.45s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; opacity 0 to 1, translateY(10px) to none", "purpose": "Hero phone bubbles, played once, staggered 0.3s / 1.3s / 2.4s." },
+      { "name": "color-transition", "value": "150ms cubic-bezier(0.4, 0, 0.2, 1) on color and background-color", "purpose": "Button and link hover." },
+      { "name": "reduced-motion", "value": "animation and transition durations 0.01ms under prefers-reduced-motion", "purpose": "Global." }
+    ],
+    "breakpoints": [
+      { "name": "wordmark", "value": "420px" },
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ],
+    "focus": [
+      { "name": "focus-light", "value": "outline: 3px solid #14212b; outline-offset: 2px", "purpose": "Light grounds." },
+      { "name": "focus-on-ink", "value": "outline: 3px solid #e8b931; outline-offset: 2px", "purpose": "Footer and .on-ink bands." }
+    ],
+    "selection": { "background": "#0a7553", "color": "#ffffff" }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Every primary action (Apply now). Leaf ground, widened bold label.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Apply now</a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-stretch: 108%; font-weight: 700; font-size: 15px; padding: 12px 24px; border-radius: 8px; background: #0a7553; color: #fff; text-decoration: none; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: #085f43; } .ds-btn-primary:focus-visible { outline: 3px solid #14212b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary button (Contact us, All risks, mobile Sign In).",
+      "html": "<a class=\"ds-btn-outline\" href=\"#\">Contact us</a>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-stretch: 108%; font-weight: 700; font-size: 15px; padding: 10px 22px; border: 2px solid #14212b; border-radius: 8px; background: #fff; color: #14212b; text-decoration: none; transition: background-color 150ms, color 150ms; } .ds-btn-outline:hover { background: #14212b; color: #fff; } .ds-btn-outline:focus-visible { outline: 3px solid #14212b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ink Button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "Solid ink action where leaf would compete (risks panel on lake).",
+      "html": "<a class=\"ds-btn-ink\" href=\"#\">I understand, open an account</a>",
+      "css": ".ds-btn-ink { display: inline-flex; align-items: center; justify-content: center; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-stretch: 108%; font-weight: 700; font-size: 15px; padding: 12px 24px; border-radius: 8px; background: #14212b; color: #fff; text-decoration: none; transition: background-color 150ms; } .ds-btn-ink:hover { background: #000; } .ds-btn-ink:focus-visible { outline: 3px solid #14212b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Button on Ink",
+      "kind": "button",
+      "refersTo": "button-on-ink",
+      "description": "The single action on an ink band (How investing works).",
+      "html": "<div class=\"ds-ink-band\"><a class=\"ds-btn-on-ink\" href=\"#\">How investing works</a></div>",
+      "css": ".ds-ink-band { background: #14212b; padding: 24px; } .ds-btn-on-ink { display: inline-flex; align-items: center; justify-content: center; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-stretch: 108%; font-weight: 700; font-size: 15px; padding: 12px 24px; border-radius: 8px; background: #fff; color: #14212b; text-decoration: none; transition: background-color 150ms; } .ds-btn-on-ink:hover { background: #e6efee; } .ds-btn-on-ink:focus-visible { outline: 3px solid #e8b931; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Link",
+      "kind": "custom",
+      "refersTo": "link",
+      "description": "Underlined leaf link; the quieter path beside every primary button.",
+      "html": "<a class=\"ds-link\" href=\"#\">Work out your repayments</a>",
+      "css": ".ds-link { font-family: Archivo, ui-sans-serif, system-ui, sans-serif; font-weight: 700; color: #0a7553; text-decoration: underline; text-decoration-color: rgba(10,117,83,0.4); text-decoration-thickness: 2px; text-underline-offset: 4px; } .ds-link:hover { text-decoration-color: #0a7553; } .ds-link:focus-visible { outline: 3px solid #14212b; outline-offset: 2px; }"
+    },
+    {
+      "name": "Navigation Bar",
+      "kind": "nav",
+      "refersTo": "language-switch-active",
+      "description": "Sticky white header: nav items with 3px bottom-border state, segmented language switch, Apply Now.",
+      "html": "<header class=\"ds-nav\"><strong class=\"ds-nav-brand\">Banyira</strong><nav class=\"ds-nav-items\"><a href=\"#\" class=\"ds-nav-item is-current\">Products</a><a href=\"#\" class=\"ds-nav-item\">How to get a loan</a><a href=\"#\" class=\"ds-nav-item\">Support</a></nav><div class=\"ds-lang\"><button class=\"is-on\">English</button><button>Chichewa</button></div><a href=\"#\" class=\"ds-nav-cta\">Apply Now</a></header>",
+      "css": ".ds-nav { display: flex; align-items: stretch; gap: 32px; height: 72px; padding: 0 24px; background: #fff; border-bottom: 1px solid rgba(20,33,43,0.1); font-family: Archivo, ui-sans-serif, system-ui, sans-serif; color: #14212b; } .ds-nav-brand { align-self: center; font-stretch: 112%; font-weight: 800; font-size: 20px; } .ds-nav-items { display: flex; gap: 24px; } .ds-nav-item { display: flex; align-items: center; padding-top: 3px; border-bottom: 3px solid transparent; font-weight: 600; color: #14212b; text-decoration: none; } .ds-nav-item:hover { border-bottom-color: rgba(20,33,43,0.2); } .ds-nav-item.is-current { border-bottom-color: #0a7553; } .ds-nav-item:focus-visible { outline: 3px solid #14212b; outline-offset: 2px; } .ds-lang { align-self: center; margin-left: auto; display: flex; padding: 2px; border: 1px solid rgba(20,33,43,0.15); border-radius: 8px; font-size: 14px; } .ds-lang button { border: 0; background: none; border-radius: 4px; padding: 4px 10px; font: inherit; font-weight: 600; color: rgba(20,33,43,0.7); cursor: pointer; } .ds-lang button.is-on { background: #14212b; color: #fff; } .ds-nav-cta { align-self: center; padding: 10px 20px; border-radius: 8px; background: #0a7553; color: #fff; font-weight: 700; font-stretch: 108%; font-size: 15px; text-decoration: none; } .ds-nav-cta:hover { background: #085f43; }"
+    },
+    {
+      "name": "Ruled Statement Panel",
+      "kind": "card",
+      "refersTo": "data-panel",
+      "description": "Signature: cost shown as label/value rows with tabular figures in a white 8px panel; panel lift on lake.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-panel\"><p class=\"ds-panel-title\">Example: MK 1,000,000 over 12 months at 24%</p><dl><div><dt>Banyira fee (10%)</dt><dd>MK 100,000</dd></div><div><dt>Paid into your account</dt><dd>MK 900,000</dd></div><div><dt>Monthly repayment</dt><dd>MK 94,560</dd></div><div><dt>Charge for repaying early</dt><dd>MK 0</dd></div></dl><p class=\"ds-panel-note\">An illustration, not an offer.</p></div></div>",
+      "css": ".ds-ground { background: #e6efee; padding: 32px; } .ds-panel { background: #fff; border-radius: 8px; padding: 32px; box-shadow: 0 20px 50px -30px rgba(20,33,43,0.4); font-family: Archivo, ui-sans-serif, system-ui, sans-serif; color: #14212b; } .ds-panel-title { margin: 0; font-weight: 700; } .ds-panel dl { margin: 20px 0 0; font-size: 15px; } .ds-panel dl div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(20,33,43,0.1); } .ds-panel dl div:last-child { border-bottom: 0; } .ds-panel dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; } .ds-panel-note { margin: 12px 0 0; font-size: 12px; line-height: 1.6; color: rgba(20,33,43,0.65); }"
+    },
+    {
+      "name": "Ruled Column",
+      "kind": "card",
+      "refersTo": "title",
+      "description": "3px ink top rule replaces the card box: widened title, body, text link.",
+      "html": "<article class=\"ds-ruled\"><h3>Growth loans</h3><p>Open a second shop, hire and train staff, or take on an order bigger than you could fund yourself.</p><a href=\"#\">More about growth loans</a></article>",
+      "css": ".ds-ruled { border-top: 3px solid #14212b; padding-top: 20px; max-width: 22rem; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; color: #14212b; } .ds-ruled h3 { margin: 0; font-size: 24px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.015em; line-height: 1.08; } .ds-ruled p { margin: 12px 0 0; line-height: 1.625; color: rgba(20,33,43,0.75); } .ds-ruled a { display: inline-block; margin-top: 20px; font-weight: 700; color: #0a7553; text-decoration: underline; text-decoration-color: rgba(10,117,83,0.4); text-decoration-thickness: 2px; text-underline-offset: 4px; } .ds-ruled a:hover { text-decoration-color: #0a7553; }"
+    },
+    {
+      "name": "Search on Ink",
+      "kind": "input",
+      "refersTo": "search-on-ink",
+      "description": "Support hero search: borderless white field on ink, maize focus.",
+      "html": "<div class=\"ds-ink-search\"><label class=\"ds-search\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input type=\"search\" placeholder=\"Search questions\" aria-label=\"Search questions\"></label></div>",
+      "css": ".ds-ink-search { background: #14212b; padding: 32px; } .ds-search { position: relative; display: block; max-width: 36rem; } .ds-search svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(20,33,43,0.5); pointer-events: none; } .ds-search input { width: 100%; box-sizing: border-box; border: 0; border-radius: 8px; background: #fff; padding: 14px 16px 14px 48px; font: 16px Archivo, ui-sans-serif, system-ui, sans-serif; color: #14212b; } .ds-search input::placeholder { color: rgba(20,33,43,0.55); } .ds-search input:focus { outline: 3px solid #e8b931; }"
+    },
+    {
+      "name": "Hero Phone (SMS alert)",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Signature: ink device, lake screen, SMS bubble with maize unread dot, played in once, captioned as fictional.",
+      "html": "<figure class=\"ds-phone\"><div class=\"ds-phone-body\"><div class=\"ds-phone-screen\"><p class=\"ds-bubble\"><span class=\"ds-dot\"></span><span>Banyira: new offer for Chikondi Grain Mill. MK 400,000 at 21% a year for 18 months.</span></p><p class=\"ds-bubble ds-bubble-done\">Offer accepted.</p></div></div><figcaption>Example. Chikondi Grain Mill is a fictional business.</figcaption></figure>",
+      "css": ".ds-phone { margin: 0; max-width: 22rem; font-family: Archivo, ui-sans-serif, system-ui, sans-serif; color: #14212b; } .ds-phone-body { background: #14212b; border-radius: 2rem; padding: 12px; box-shadow: 0 30px 60px -30px rgba(20,33,43,0.6); } .ds-phone-screen { background: #e6efee; border-radius: 1.5rem; padding: 16px 16px 20px; display: grid; gap: 12px; font-size: 14.5px; line-height: 1.375; } .ds-bubble { margin: 0; display: flex; gap: 10px; background: #fff; border-radius: 12px; padding: 12px 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); animation: ds-sms-in 0.45s cubic-bezier(0.2,0.7,0.2,1) both; } .ds-bubble-done { background: #0a7553; color: #fff; font-weight: 600; animation-delay: 1s; } .ds-dot { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: #e8b931; } .ds-phone figcaption { margin-top: 16px; text-align: center; font-size: 14px; color: rgba(20,33,43,0.65); } @keyframes ds-sms-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } } @media (prefers-reduced-motion: reduce) { .ds-bubble { animation: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Signboard and the Statement",
+    "overview": "The site plays the category standard straight: a white page, dark ink, one leaf green for every action, and the cost of a loan shown as a plain ruled statement rather than as headline numbers. The only voice raised above that is the headline type. Archivo is widened (122% on display, 112% on headings) and set very heavy, so headlines read like a painted shop signboard while everything beneath them stays an ordinary, readable bank page. It works on a low-end Android phone first and then opens out to two columns on desktop.\n\nStructure does the work that decoration would do on other sites. Sections take turns between white and a pale lake tint, and the investor band and the calculator sit on full-width ink. Content groups open with a heavy 3px ink rule instead of a card box. Figures sit in ruled definition lists with tabular numerals. The one moving element is the hero phone, which plays the SMS-to-acceptance exchange once and then stays still.\n\nThe world was chosen against gimmick: no pattern fills, no gradients, no eyebrow labels above headings, no grids of icon tiles.",
+    "keyCharacteristics": [
+      "White ground, ink text, one green for action; lake for alternate sections; ink bands for the investor and calculator moments.",
+      "Widened, heavy Archivo headlines over plain Archivo body at normal width.",
+      "3px ink top rules open columns, tables, FAQ groups and the auth card.",
+      "Money shown as ruled label/value rows with tabular figures, never as big standalone stats.",
+      "Underlined text links as the secondary action next to every primary button.",
+      "Bilingual (English / Chichewa) with the switch always visible."
+    ],
+    "rules": [
+      { "name": "The One Green Rule", "body": "Leaf means \"act\" or \"money to you\". If something is green, it is a button, a link, a check against a term, or the amount received. Never use it as decoration.", "section": "colors" },
+      { "name": "The Maize Is a Signal Rule", "body": "Maize lights the unread SMS dot and focus on ink. It never fills a surface, a button or a headline.", "section": "colors" },
+      { "name": "The Lake Then Ink Rhythm Rule", "body": "Full-width sections alternate between white and lake. Ink is saved for the one or two moments per page that need a change of key (investors, the calculator, the Support search, the footer).", "section": "colors" },
+      { "name": "The Two Widths Rule", "body": "Only headings are widened (display at 122%, headings and the wordmark at 112%, buttons at 108%). Body, data and labels stay at 100%. Never widen running text.", "section": "typography" },
+      { "name": "The Tabular Money Rule", "body": "Every money figure, rate and count in a list or output is set with tabular figures.", "section": "typography" },
+      { "name": "The Flat Page Rule", "body": "Sections, columns, lists and buttons never cast shadows. A shadow means \"this object sits on top of the page\", and there should be no more than one such object per section.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use leaf for every primary action and pair it with one underlined text link as the secondary path.",
+      "Do open content groups with a 3px ink top rule and divide their rows with ink-hairline (ink at 10%).",
+      "Do show cost as a ruled statement of label/value rows with tabular figures, inside a white 8px data panel.",
+      "Do alternate full-width sections between white and lake, and reserve ink bands for the investor moment, the calculator, the Support search and the footer.",
+      "Do widen headings only (122% display, 112% headings) and keep body text at normal width.",
+      "Do keep text at ink 65% or darker on light grounds.",
+      "Do use a 3px ink focus outline on light grounds and a 3px maize one on ink.",
+      "Do caption every illustrative example (the hero phone, worked costs) as fictional or illustrative."
+    ],
+    "donts": [
+      "Don't put eyebrow labels or kickers above headings; the heading stands alone.",
+      "Don't use gradients, pattern fills or textured grounds.",
+      "Don't build grids of icon tiles or boxed cards; use ruled columns and step numerals.",
+      "Don't use maize anywhere except the unread SMS dot and focus on ink.",
+      "Don't cast shadows from sections, columns, lists or buttons; only a single floating object (phone, panel on lake, auth card, dropdown) gets lift.",
+      "Don't use unset-red for anything except a site setting that has not been configured yet.",
+      "Don't apply this system to the signed-in app, which keeps its own shadcn / Instrument Sans system."
+    ]
+  }
+}

@@ -108,6 +108,79 @@ html {
     }
 }
 
+@layer components {
+    /* Public marketing site. Archivo throughout; headlines widened like hand-painted shop signboards. */
+    .site {
+        font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        font-stretch: 100%;
+        --ink: #14212b;
+        --leaf: #0a7553;
+        --maize: #e8b931;
+        --lake: #e6efee;
+    }
+    .site ::selection {
+        background: #0a7553;
+        color: #fff;
+    }
+    /* Ink ring on light grounds; maize only on ink bands, where it clears 3:1. */
+    .site :focus-visible {
+        outline: 3px solid #14212b;
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+    .site footer :focus-visible,
+    .site .on-ink :focus-visible {
+        outline-color: #e8b931;
+    }
+    .site input[type='range'] {
+        accent-color: #0a7553;
+    }
+    .site-display {
+        font-stretch: 122%;
+        font-weight: 850;
+        letter-spacing: -0.025em;
+        line-height: 0.98;
+    }
+    .site-heading {
+        font-stretch: 112%;
+        font-weight: 800;
+        letter-spacing: -0.015em;
+        line-height: 1.08;
+    }
+    .site-btn {
+        @apply inline-flex items-center justify-center rounded-md px-6 py-3 text-[15px] font-bold transition-colors focus-visible:ring-2 focus-visible:ring-offset-2;
+        font-stretch: 108%;
+    }
+    .site-btn-primary {
+        @apply site-btn bg-[#0a7553] text-white hover:bg-[#085f43];
+    }
+    .site-btn-ink {
+        @apply site-btn bg-[#14212b] text-white hover:bg-black;
+    }
+    .site-btn-outline {
+        @apply site-btn border-2 border-[#14212b] px-[22px] py-[10px] text-[#14212b] hover:bg-[#14212b] hover:text-white;
+    }
+    .site-link {
+        @apply font-bold text-[#0a7553] underline decoration-[#0a7553]/40 decoration-2 underline-offset-4 hover:decoration-[#0a7553];
+    }
+
+    /* The hero SMS exchange plays once on load. */
+    .sms-in {
+        opacity: 0;
+        animation: sms-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    @keyframes sms-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+}
+
 @layer utilities {
     .tabular {
         font-variant-numeric: tabular-nums;

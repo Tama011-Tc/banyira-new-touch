@@ -34,6 +34,8 @@ class HandleInertiaRequests extends Middleware
             'name' => config('banyira.brand'),
             'brand' => ['name' => config('banyira.brand'), 'tagline' => config('banyira.tagline')],
             'auth' => ['user' => $user ? ['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'role' => $user->role->value, 'role_label' => $user->role->label(), 'locale' => $user->locale] : null],
+            // Public-site language: the account's choice when signed in, otherwise the visitor's cookie.
+            'site_locale' => in_array($l = $user?->locale ?? $request->cookie('site_locale'), ['en', 'ny'], true) ? $l : 'en',
             'nav' => $user ? array_map(fn ($n) => ['title' => $n[0], 'route' => $n[1], 'icon' => $n[2]], self::NAV[$user->role->value] ?? []) : [],
             'can' => $user ? collect(array_keys(Role::ABILITIES))->mapWithKeys(fn ($a) => [$a => $user->role->can($a)]) : (object) [],
             'risk_bands' => fn () => $user ? \App\Services\CreditService::bands() : [],

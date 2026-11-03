@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
-import { Link } from '@inertiajs/vue3';
+import SiteLayout from '@/layouts/SiteLayout.vue';
 
 defineProps<{
     title?: string;
@@ -9,23 +8,16 @@ defineProps<{
 </script>
 
 <template>
-    <div class="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-        <div class="w-full max-w-sm">
-            <div class="flex flex-col gap-8">
-                <div class="flex flex-col items-center gap-4">
-                    <Link :href="route('home')" class="flex flex-col items-center gap-2 font-medium">
-                        <div class="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                            <AppLogoIcon class="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                        </div>
-                        <span class="sr-only">{{ title }}</span>
-                    </Link>
-                    <div class="space-y-2 text-center">
-                        <h1 class="text-xl font-medium">{{ title }}</h1>
-                        <p class="text-center text-sm text-muted-foreground">{{ description }}</p>
-                    </div>
+    <!-- Sign in, register and password pages sit inside the public site so the nav stays the same. -->
+    <SiteLayout>
+        <div class="bg-[#e6efee] px-4 py-12 sm:py-20">
+            <div class="mx-auto w-full max-w-md rounded-md border-t-[3px] border-[#14212b] bg-white p-6 shadow-[0_20px_50px_-30px_rgba(20,33,43,0.4)] sm:p-10">
+                <div class="mb-8 space-y-2">
+                    <h1 class="site-heading text-balance text-3xl">{{ title }}</h1>
+                    <p class="text-[15px] text-[#14212b]/75">{{ description }}</p>
                 </div>
                 <slot />
             </div>
         </div>
-    </div>
+    </SiteLayout>
 </template>

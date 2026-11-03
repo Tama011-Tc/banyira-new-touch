@@ -7,6 +7,8 @@ return [
     'brand' => env('BANYIRA_BRAND', 'Banyira MicroCredit'),
     'tagline' => env('BANYIRA_TAGLINE', 'Lend to Malawian businesses. Grow with them.'),
     'support_email' => env('BANYIRA_SUPPORT_EMAIL', 'support@example.test'),
+    'support_phone' => env('BANYIRA_SUPPORT_PHONE'),   // shown on the public site; null shows a visible placeholder
+    'support_hours' => env('BANYIRA_SUPPORT_HOURS'),
 
     /*
     | This build can only run in SIMULATION mode. Setting operating_mode=live is refused unless every compliance
