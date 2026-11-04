@@ -1,0 +1,10 @@
+{
+  "name": "Banyira",
+  "short_name": "Banyira",
+  "description": "SME financing and investment marketplace for Malawi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafaf8",
+  "theme_color": "#1d4a37",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -1,0 +1,116 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/ibm-plex-sans/wght.css';
+
+@source '../js/**/*.vue';
+@source '../views/**/*.blade.php';
+
+/* Headings use self-hosted IBM Plex Sans (one variable file, latin subset
+   downloaded on demand). Body text stays on system fonts for speed. */
+@theme {
+  --color-paper: #fafaf8;
+  --color-ink: #17191a;
+  --color-forest: #1d4a37;
+  --color-forest-2: #275c46;
+  --color-mint: #eff3f0;
+  --color-maize: #9a5d0d;
+  --color-maize-soft: #fbf6ec;
+  --color-line: #e4e4e0;
+  --color-line-2: #cfcfc8;
+  --color-muted: #5f6467;
+  --color-clay: #9a3d1c;
+  --color-clay-soft: #fbf0eb;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdf1f0;
+  --color-ok: #1f6b44;
+  --color-ok-soft: #eef5f0;
+  --color-sky: #f3f5f7;
+  --color-skyink: #364152;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'IBM Plex Sans Variable', var(--font-sans);
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+:root {
+  /* Distance used by every entrance. Reduced motion sets it to zero so
+     elements still fade, but nothing travels. */
+  --rise: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --rise: 0; }
+  html { scroll-behavior: auto !important; }
+}
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scrollbar-color: #cfcfc8 transparent; }
+  body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 560; letter-spacing: -0.02em; line-height: 1.18; text-wrap: balance; }
+  p { text-wrap: pretty; }
+  a { text-underline-offset: 3px; }
+  input, textarea { caret-color: var(--color-forest); }
+  input[type='checkbox'], input[type='radio'], input[type='range'], progress { accent-color: var(--color-forest); }
+  ::selection { background: #cfe0d6; color: var(--color-ink); }
+  :focus-visible { outline: 2px solid var(--color-forest); outline-offset: 2px; border-radius: 3px; }
+  [v-cloak] { display: none; }
+}
+
+@layer components {
+  .input { width: 100%; height: 2.5rem; border-radius: 0.375rem; border: 1px solid var(--color-line-2); background: #fff; padding: 0 0.75rem; font-size: 0.875rem; transition: border-color 150ms ease, box-shadow 150ms ease; }
+  .input:focus { border-color: var(--color-ink); outline: none; box-shadow: 0 0 0 3px rgb(29 74 55 / 0.12); }
+  .input[aria-invalid='true'] { border-color: var(--color-danger); }
+  textarea.input { height: auto; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .eyebrow { font-size: 12px; font-weight: 500; color: var(--color-muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  .link { text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 35%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms ease, color 150ms ease; }
+  .link:hover { text-decoration-color: currentColor; color: var(--color-forest); }
+
+  /* Press feedback for anything clickable */
+  .press { transition: transform 160ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
+  .press:active { transform: scale(0.97); }
+
+  /* Expand/collapse without animating height: grid rows 0fr → 1fr */
+  .collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 280ms var(--ease-out), opacity 200ms ease; }
+  .collapse[data-open='true'] { grid-template-rows: 1fr; opacity: 1; }
+  .collapse > * { overflow: hidden; min-height: 0; }
+
+  /* Entrances. Content stays visible if CSS animations do not run. */
+  .rise-in { animation: rise-in 600ms var(--ease-out) both; animation-delay: var(--d, 0ms); }
+  .fade-in { animation: fade-in 180ms ease-out both; }
+  .line-mask { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+  .line-mask > span { display: block; animation: line-up 760ms var(--ease-out) both; animation-delay: var(--d, 0ms); }
+}
+
+@keyframes rise-in { from { opacity: 0; transform: translateY(calc(10px * var(--rise))); } }
+@keyframes fade-in { from { opacity: 0; transform: translateY(calc(4px * var(--rise))); } }
+@keyframes line-up { from { transform: translateY(calc(105% * var(--rise))); opacity: calc(1 - var(--rise)); } }
+@keyframes pulse-soft { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+.skeleton { background: #ececea; border-radius: 3px; animation: pulse-soft 1.4s ease-in-out infinite; }
+
+/* Vue <Transition> classes */
+.pop-enter-active { transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
+.pop-leave-active { transition: opacity 120ms ease, transform 120ms ease; }
+.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(calc(-4px * var(--rise))) scale(0.97); }
+
+.backdrop-enter-active { transition: opacity 220ms ease; }
+.backdrop-leave-active { transition: opacity 160ms ease; }
+.backdrop-enter-from, .backdrop-leave-to { opacity: 0; }
+
+.sheet-enter-active { transition: opacity 240ms var(--ease-drawer), transform 320ms var(--ease-drawer); }
+.sheet-leave-active { transition: opacity 160ms ease, transform 180ms ease; }
+.sheet-enter-from, .sheet-leave-to { opacity: 0; transform: translateY(calc(24px * var(--rise))) scale(0.98); }
+@media (max-width: 639px) {
+  .sheet-enter-from, .sheet-leave-to { opacity: 1; transform: translateY(calc(100% * var(--rise))); }
+}
+
+.drawer-enter-active { transition: transform 300ms var(--ease-drawer); }
+.drawer-leave-active { transition: transform 200ms ease; }
+.drawer-enter-from, .drawer-leave-to { transform: translateX(calc(-100% * var(--rise))); }
+
+.toast-enter-active { transition: opacity 260ms var(--ease-out), transform 300ms var(--ease-out); }
+.toast-leave-active { transition: opacity 160ms ease, transform 160ms ease; }
+.toast-enter-from { opacity: 0; transform: translateY(calc(14px * var(--rise))) scale(0.98); }
+.toast-leave-to { opacity: 0; transform: scale(0.96); }
+.toast-move { transition: transform 260ms var(--ease-out); }

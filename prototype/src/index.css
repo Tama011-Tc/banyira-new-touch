@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+
+/* System fonts only: nothing to download on slow connections. */
+@theme {
+  --color-paper: #fafaf8;
+  --color-ink: #17191a;
+  --color-forest: #1d4a37;
+  --color-forest-2: #275c46;
+  --color-mint: #f0f3f1;
+  --color-maize: #a8650f;
+  --color-maize-soft: #fbf6ec;
+  --color-line: #e4e4e0;
+  --color-line-2: #d2d2cc;
+  --color-muted: #62676a;
+  --color-clay: #9a3d1c;
+  --color-clay-soft: #fbf0eb;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdf1f0;
+  --color-ok: #1f6b44;
+  --color-sky: #f3f5f7;
+  --color-skyink: #364152;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; font-feature-settings: 'tnum' 0; }
+  h1, h2, h3 { font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; }
+  a { text-underline-offset: 3px; }
+  ::selection { background: #d9e6df; }
+  :focus-visible { outline: 2px solid var(--color-forest); outline-offset: 2px; border-radius: 3px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+}
+
+@keyframes pulse-soft { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+.skeleton { background: #ececea; border-radius: 3px; animation: pulse-soft 1.4s ease-in-out infinite; }
