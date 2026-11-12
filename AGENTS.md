@@ -48,3 +48,15 @@ Tests use the `banyira4_test` MySQL database: `php artisan test`. Type-check Vue
 - Investors only ever receive `ListingResource` fields about a business.
 - Design: system fonts, one green accent (`forest`), thin borders, no gradients or shadows. Status = coloured dot + text. Keep it that way.
 - Tailwind v4 tokens live in `resources/css/app.css` (`@theme`). Global element styles go in `@layer base`.
+
+## Engineering standards
+
+Work like a senior engineer: correctness, security, maintainability and performance come before "it works". Read the existing code first and reuse what is there.
+
+- **Principles:** SOLID, DRY, KISS, YAGNI, separation of concerns. Small functions, descriptive names, no dead code, no speculative features.
+- **Layers:** controllers validate (Form Requests or `$request->validate`), authorise and delegate. Business rules live in `app/Services`. Data access stays in models, scopes and relationships. Vue pages present data; shared UI goes in `Components`, shared logic in `resources/js/lib` (e.g. `useCan()` for permissions, `format.ts` for money and dates).
+- **No hardcoded values:** colours are tokens in `app.css`, rules (fees, ceilings, bands) come from `RulesService`, and permission slugs use the `Permission` type, kept in sync with `ReferenceDataSeeder::PERMISSIONS`.
+- **Security:** every route is guarded (`auth:*`, `can:*`, policies). The UI hiding a link is never the authorisation. Validate all input, never trust client-side money maths, and audit sensitive actions through `AuditLogger`.
+- **Database integrity:** foreign keys and unique constraints in migrations, indexes on filtered or joined columns, `DB::transaction` plus row locks for multi-row money changes. Ledger entries are immutable.
+- **Tests:** new behaviour ships with feature tests. `php artisan test` and `npm run typecheck` must pass before a change is done.
+- **Dependencies:** add a package only when it clearly beats a few lines of our own code. No workarounds or quick fixes; fix the cause.

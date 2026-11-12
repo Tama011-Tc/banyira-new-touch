@@ -64,7 +64,7 @@ const faq: [string, string][] = [
       </section>
     </div>
 
-    <section class="border-t border-line bg-white">
+    <section class="border-t border-line bg-surface">
       <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
         <h2 class="text-[28px] uppercase tracking-tight md:text-[36px]">Ready to finance your business?</h2>
         <div class="mt-6"><Btn size="lg" href="/register/business">GET STARTED WITH A LOAN</Btn></div>

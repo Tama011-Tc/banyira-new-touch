@@ -37,26 +37,24 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
     <!-- Hero -->
     <section class="mx-auto grid max-w-6xl items-end gap-12 px-4 pb-20 pt-14 sm:px-6 md:grid-cols-[1.25fr_1fr] md:pb-28 md:pt-24">
       <div>
-        <h1 class="text-[38px] uppercase leading-[1.02] tracking-[-0.03em] sm:text-[48px] md:text-[60px]">
-          <span class="line-mask"><span style="--d: 0ms">Capital for</span></span>
-          <span class="line-mask"><span style="--d: 70ms">businesses.</span></span>
-          <span class="line-mask"><span class="text-forest" style="--d: 140ms">Opportunities</span></span>
-          <span class="line-mask"><span class="text-forest" style="--d: 210ms">for investors.</span></span>
+        <h1 class="text-[36px] leading-[1.08] tracking-[-0.03em] sm:text-[44px] md:text-[52px]">
+          Capital for businesses.<br />
+          <span class="text-forest">Opportunities for investors.</span>
         </h1>
-        <p class="rise-in mt-7 max-w-lg text-[17px] text-muted" style="--d: 360ms">Banyira connects ambitious businesses seeking financing with investors looking for opportunities to support real businesses and participate in their growth.</p>
-        <div class="rise-in mt-9 flex flex-wrap gap-3" style="--d: 440ms">
+        <p class="mt-7 max-w-lg text-[17px] text-muted">Banyira connects ambitious businesses seeking financing with investors looking for opportunities to support real businesses and participate in their growth.</p>
+        <div class="mt-9 flex flex-wrap gap-3">
           <Btn size="lg" href="/register/business">Find Business Financing</Btn>
           <Btn size="lg" variant="outline" href="/register/investor">Explore Investment Opportunities</Btn>
         </div>
       </div>
 
-      <figure class="rise-in rounded-xl bg-white p-6 shadow-[0_1px_3px_rgb(23_25_26/0.08),0_16px_40px_-16px_rgb(23_25_26/0.18)]" style="--d: 260ms" aria-labelledby="ex-cap">
+      <figure class="rounded-xl border border-separator bg-surface p-6" aria-labelledby="ex-cap">
         <div class="mb-1 flex items-center justify-between">
           <p class="text-sm font-medium">Equipment financing · 18 months</p>
           <RiskBadge r="B" />
         </div>
-        <FundingSplit :total="5_000_000" :parts="example" :delay="900" />
-        <figcaption id="ex-cap" class="mt-5 border-t border-line pt-3 text-xs text-muted">Illustration. One request, three investors, each with their own rate and repayment schedule.</figcaption>
+        <FundingSplit :total="5_000_000" :parts="example" />
+        <figcaption id="ex-cap" class="mt-5 border-t border-line pt-3 text-xs text-muted">Example only, not a real listing. One request, three investors, each with their own rate and repayment schedule.</figcaption>
       </figure>
     </section>
 
@@ -133,7 +131,7 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
     </Section>
 
     <Section id="risk" title="Read this before you invest." tone="white">
-      <div class="max-w-2xl space-y-3 rounded-xl border border-clay/25 bg-clay-soft p-6 text-[15px] text-[#5e2611]">
+      <div class="max-w-2xl space-y-3 rounded-xl border border-clay/25 bg-clay-soft p-6 text-[15px] text-orange-text">
         <p>Investing through Banyira involves financial risk. Investors may experience delayed repayments or lose some or all of their invested capital.</p>
         <p>Banyira's credit assessments and risk classifications are intended to support informed investment decisions. They do not guarantee repayment or returns.</p>
         <p>Investors are responsible for evaluating opportunities and making their own investment decisions. Investments are not guaranteed, insured or risk-free.</p>

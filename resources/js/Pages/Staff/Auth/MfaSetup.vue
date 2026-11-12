@@ -14,7 +14,7 @@ const form = useForm({ code: '' })
       <li><span class="num mr-1 text-muted">1</span> Open your authenticator app and choose <em>Add account</em>, then <em>Enter a setup key</em>.</li>
       <li>
         <span class="num mr-1 text-muted">2</span> Account name: Banyira. Key:
-        <p class="mt-2 select-all rounded border border-line bg-white px-3 py-2.5 font-mono text-[15px] tracking-wider">{{ secret }}</p>
+        <p class="mt-2 select-all rounded border border-line bg-surface px-3 py-2.5 font-mono text-[15px] tracking-wider">{{ secret }}</p>
         <p class="mt-1 text-xs text-muted">Time-based, 6 digits. <a :href="uri" class="link">Open in an authenticator app</a> on this device.</p>
       </li>
       <li><span class="num mr-1 text-muted">3</span> Enter the 6-digit code the app shows.</li>

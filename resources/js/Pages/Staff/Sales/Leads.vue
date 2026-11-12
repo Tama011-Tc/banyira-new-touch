@@ -31,7 +31,7 @@ const overdue = (d: string | null) => d && new Date(d) < new Date(new Date().toD
       <Btn @click="adding = true">Add lead</Btn>
     </PageHead>
     <Tabs :model-value="stage ?? ''" :tabs="tabs" />
-    <ul class="mt-4 divide-y divide-line rounded-lg border border-line bg-white">
+    <ul class="mt-4 divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-if="!leads.data.length" class="px-5 py-10 text-center text-sm text-muted">No leads in this stage.</li>
       <li v-for="l in leads.data" :key="l.id" class="grid gap-3 px-5 py-4 md:grid-cols-[1.4fr_1fr_auto] md:items-center">
         <div>

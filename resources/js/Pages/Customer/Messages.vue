@@ -21,10 +21,10 @@ watch(() => props.active?.messages.length, scroll)
 <template>
   <CustomerLayout :area="area">
     <PageHead title="Messages" sub="Conversations stay on Banyira. Phone numbers, emails and links are removed automatically." />
-    <div class="grid overflow-hidden rounded-lg border border-line bg-white md:grid-cols-[260px_1fr]" style="min-height: 460px">
+    <div class="grid overflow-hidden rounded-lg border border-line bg-surface md:grid-cols-[260px_1fr]" style="min-height: 460px">
       <nav aria-label="Conversations" class="border-b border-line md:border-b-0 md:border-r" :class="active && 'hidden md:block'">
         <p v-if="!conversations.length" class="px-4 py-8 text-sm text-muted">No conversations yet.<template v-if="area === 'investor'"> Open a business in the marketplace and ask a question.</template></p>
-        <Link v-for="c in conversations" :key="c.id" :href="`${base}/${c.id}`" class="block border-b border-line px-4 py-3 last:border-0" :class="active?.id === c.id ? 'bg-mint' : 'hover:bg-[#fcfcfb]'">
+        <Link v-for="c in conversations" :key="c.id" :href="`${base}/${c.id}`" class="block border-b border-line px-4 py-3 last:border-0" :class="active?.id === c.id ? 'bg-mint' : 'hover:bg-fill-2'">
           <span class="flex items-center justify-between gap-2"><span class="truncate text-sm" :class="c.unread && 'font-semibold'">{{ c.with }}</span><span v-if="c.unread" class="h-1.5 w-1.5 shrink-0 rounded-full bg-forest" aria-label="Unread" /></span>
           <span class="block truncate text-[13px] text-muted">{{ c.subject }}</span>
           <span class="block truncate text-xs text-muted">{{ c.last }}</span>
@@ -39,7 +39,7 @@ watch(() => props.active?.messages.length, scroll)
         <div ref="thread" class="flex-1 space-y-3 overflow-y-auto px-4 py-4" style="max-height: 55vh" aria-live="polite">
           <div v-for="m in active.messages" :key="m.id" class="max-w-[80%]" :class="m.mine && 'ml-auto text-right'">
             <p class="text-xs text-muted">{{ m.from }} · {{ dateTime(m.at) }}</p>
-            <div class="mt-1 inline-block rounded-lg px-3 py-2 text-left text-sm" :class="m.mine ? 'bg-forest text-white' : 'bg-[#f1f1ee]'">{{ m.body }}</div>
+            <div class="mt-1 inline-block rounded-lg px-3 py-2 text-left text-sm" :class="m.mine ? 'bg-forest text-white' : 'bg-fill'">{{ m.body }}</div>
             <p v-for="f in m.attachments" :key="f.id" class="mt-1 text-xs"><a :href="`/${area}/attachments/${f.id}`" class="link">{{ f.original_name }}</a></p>
           </div>
           <p v-if="!active.messages.length" class="text-sm text-muted">No messages yet.</p>

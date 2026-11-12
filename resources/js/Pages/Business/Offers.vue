@@ -54,7 +54,7 @@ const pct = computed(() => props.listing ? (+props.listing.amount_accepted / +pr
       </div>
 
       <div v-if="!list.length" class="mt-4 rounded-lg border border-dashed border-line-2 px-6 py-10 text-center text-sm text-muted">No {{ show === 'pending' ? 'pending ' : '' }}offers yet.</div>
-      <div v-else class="mt-4 overflow-x-auto rounded-lg border border-line bg-white">
+      <div v-else class="mt-4 relative overflow-x-auto rounded-lg border border-line bg-surface">
         <table class="w-full min-w-[640px] text-sm">
           <caption class="sr-only">Investor offers</caption>
           <thead class="text-left text-xs text-muted"><tr><th class="px-4 py-2.5 font-medium">Investor</th><th class="px-4 py-2.5 text-right font-medium">Amount</th><th class="px-4 py-2.5 text-right font-medium">Rate a year</th><th class="px-4 py-2.5 font-medium">Period</th><th class="px-4 py-2.5 text-right font-medium">Monthly cost</th><th class="px-4 py-2.5 font-medium">Status</th><th class="px-4 py-2.5"><span class="sr-only">Actions</span></th></tr></thead>

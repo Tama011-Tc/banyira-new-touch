@@ -1,116 +1,235 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/ibm-plex-sans/wght.css';
 
 @source '../js/**/*.vue';
 @source '../views/**/*.blade.php';
 
-/* Headings use self-hosted IBM Plex Sans (one variable file, latin subset
-   downloaded on demand). Body text stays on system fonts for speed. */
+/* dark: follows the resolved theme (set on <html> by lib/theme.ts). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Banyira design system, after Apple's Human Interface Guidelines.
+ * Tailwind v4 keeps its configuration here (there is no tailwind.config.js).
+ * Every colour is a semantic token backed by a CSS variable, so light and
+ * dark mode switch without touching components.
+ *
+ * Contrast note: white on #007AFF is 4.0:1 (fails WCAG AA for body text),
+ * so filled controls use #0071E3 (4.6:1) and blue text uses #0066CC.
+ */
+
+/* Variables the utilities point at. Light is the default. */
+:root {
+  color-scheme: light;
+  --bg: #f5f5f7;            /* page */
+  --surface: #ffffff;       /* cards, grouped rows */
+  --surface-2: #fbfbfd;     /* subtle raised fill inside surfaces */
+  --fill: rgb(120 120 128 / 0.12);       /* controls, selected rows */
+  --fill-2: rgb(120 120 128 / 0.08);     /* hover */
+  --label: #1d1d1f;
+  --label-2: #6e6e73;       /* secondary text, 4.9:1 on white */
+  --label-3: #86868b;       /* placeholders, decoration only */
+  --separator: rgb(60 60 67 / 0.14);
+  --separator-2: rgb(60 60 67 / 0.26);
+  --tint: #0071e3;          /* primary fills */
+  --tint-hover: #0077ed;
+  --tint-text: #0066cc;     /* links and blue text */
+  --tint-soft: rgb(0 113 227 / 0.1);
+  --green: #34c759;  --green-text: #248a3d;  --green-soft: rgb(52 199 89 / 0.14);
+  --orange: #ff9500; --orange-text: #b25000; --orange-soft: rgb(255 149 0 / 0.14);
+  --red: #ff3b30;    --red-text: #d70015;    --red-soft: rgb(255 59 48 / 0.11);
+  --scrim: rgb(0 0 0 / 0.28);
+  --chart-1: #0071e3; --chart-2: #4a9df5; --chart-3: #8cc2f8; --chart-4: #c6e0fb; --chart-5: #86868b;
+  /* Fixed in both themes: text on always-white buttons and on the light chart fills. */
+  --tint-on-white: #0066cc;
+  --chart-ink: #0b2a4a;
+  --seg-thumb: #ffffff;
+}
+
+/* Dark: follows the system unless the user picked a theme. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e;
+    --fill: rgb(118 118 128 / 0.24); --fill-2: rgb(118 118 128 / 0.16);
+    --label: #f5f5f7; --label-2: #a1a1a6; --label-3: #6e6e73;
+    --separator: rgb(84 84 88 / 0.55); --separator-2: rgb(84 84 88 / 0.85);
+    --tint: #0071e3; --tint-hover: #0a84ff; --tint-text: #2997ff; --tint-soft: rgb(10 132 255 / 0.2);
+    --green: #30d158;  --green-text: #30d158;  --green-soft: rgb(48 209 88 / 0.18);
+    --orange: #ff9f0a; --orange-text: #ff9f0a; --orange-soft: rgb(255 159 10 / 0.18);
+    --red: #ff453a;    --red-text: #ff6961;    --red-soft: rgb(255 69 58 / 0.18);
+    --scrim: rgb(0 0 0 / 0.5); --seg-thumb: #636366;
+    --chart-1: #0a84ff; --chart-2: #409cff; --chart-3: #7ab8ff; --chart-4: #2c4a6b; --chart-5: #6e6e73;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e;
+  --fill: rgb(118 118 128 / 0.24); --fill-2: rgb(118 118 128 / 0.16);
+  --label: #f5f5f7; --label-2: #a1a1a6; --label-3: #6e6e73;
+  --separator: rgb(84 84 88 / 0.55); --separator-2: rgb(84 84 88 / 0.85);
+  --tint: #0071e3; --tint-hover: #0a84ff; --tint-text: #2997ff; --tint-soft: rgb(10 132 255 / 0.2);
+  --green: #30d158;  --green-text: #30d158;  --green-soft: rgb(48 209 88 / 0.18);
+  --orange: #ff9f0a; --orange-text: #ff9f0a; --orange-soft: rgb(255 159 10 / 0.18);
+  --red: #ff453a;    --red-text: #ff6961;    --red-soft: rgb(255 69 58 / 0.18);
+  --scrim: rgb(0 0 0 / 0.5); --seg-thumb: #636366;
+  --chart-1: #0a84ff; --chart-2: #409cff; --chart-3: #7ab8ff; --chart-4: #2c4a6b; --chart-5: #6e6e73;
+}
+
+/* Tailwind utilities (bg-surface, text-label, border-separator …) */
+@theme inline {
+  --color-tint-on-white: var(--tint-on-white);
+  --color-chart-ink: var(--chart-ink);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fill: var(--fill);
+  --color-fill-2: var(--fill-2);
+  --color-label: var(--label);
+  --color-label-2: var(--label-2);
+  --color-label-3: var(--label-3);
+  --color-separator: var(--separator);
+  --color-separator-2: var(--separator-2);
+  --color-tint: var(--tint);
+  --color-tint-hover: var(--tint-hover);
+  --color-tint-text: var(--tint-text);
+  --color-tint-soft: var(--tint-soft);
+  --color-green: var(--green);  --color-green-text: var(--green-text);  --color-green-soft: var(--green-soft);
+  --color-orange: var(--orange); --color-orange-text: var(--orange-text); --color-orange-soft: var(--orange-soft);
+  --color-red: var(--red);      --color-red-text: var(--red-text);      --color-red-soft: var(--red-soft);
+  --color-scrim: var(--scrim);
+
+  /* Earlier token names, kept so every existing page adopts the new system. */
+  --color-paper: var(--bg);
+  --color-ink: var(--label);
+  --color-muted: var(--label-2);
+  --color-line: var(--separator);
+  --color-line-2: var(--separator-2);
+  --color-forest: var(--tint);
+  --color-forest-2: var(--tint-hover);
+  --color-mint: var(--fill);
+  --color-ok: var(--green-text);   --color-ok-soft: var(--green-soft);
+  --color-maize: var(--orange-text); --color-maize-soft: var(--orange-soft);
+  --color-clay: var(--orange-text);  --color-clay-soft: var(--orange-soft);
+  --color-danger: var(--red-text); --color-danger-soft: var(--red-soft);
+  --color-sky: var(--tint-soft);   --color-skyink: var(--tint-text);
+
+}
+
 @theme {
-  --color-paper: #fafaf8;
-  --color-ink: #17191a;
-  --color-forest: #1d4a37;
-  --color-forest-2: #275c46;
-  --color-mint: #eff3f0;
-  --color-maize: #9a5d0d;
-  --color-maize-soft: #fbf6ec;
-  --color-line: #e4e4e0;
-  --color-line-2: #cfcfc8;
-  --color-muted: #5f6467;
-  --color-clay: #9a3d1c;
-  --color-clay-soft: #fbf0eb;
-  --color-danger: #b42318;
-  --color-danger-soft: #fdf1f0;
-  --color-ok: #1f6b44;
-  --color-ok-soft: #eef5f0;
-  --color-sky: #f3f5f7;
-  --color-skyink: #364152;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'IBM Plex Sans Variable', var(--font-sans);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', Inter, 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-sheet: 20px;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-:root {
-  /* Distance used by every entrance. Reduced motion sets it to zero so
-     elements still fade, but nothing travels. */
-  --rise: 1;
-}
+:root { --rise: 1; }
 @media (prefers-reduced-motion: reduce) {
   :root { --rise: 0; }
   html { scroll-behavior: auto !important; }
 }
 
 @layer base {
-  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scrollbar-color: #cfcfc8 transparent; }
-  body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
-  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 560; letter-spacing: -0.02em; line-height: 1.18; text-wrap: balance; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scrollbar-color: var(--separator-2) transparent; }
+  body {
+    background: var(--bg); color: var(--label); font-family: var(--font-sans);
+    font-size: 17px; line-height: 1.47; letter-spacing: -0.022em;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+  /* Size-specific tracking: tight on large titles, near zero on small text. */
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; letter-spacing: -0.025em; text-wrap: balance; }
+  h1 { font-weight: 700; }
+  small, .text-xs, .text-\[11px\], .text-\[12px\], .text-\[13px\] { letter-spacing: -0.005em; }
   p { text-wrap: pretty; }
   a { text-underline-offset: 3px; }
-  input, textarea { caret-color: var(--color-forest); }
-  input[type='checkbox'], input[type='radio'], input[type='range'], progress { accent-color: var(--color-forest); }
-  ::selection { background: #cfe0d6; color: var(--color-ink); }
-  :focus-visible { outline: 2px solid var(--color-forest); outline-offset: 2px; border-radius: 3px; }
+  input, textarea { caret-color: var(--tint); }
+  input[type='checkbox'], input[type='radio'], input[type='range'], progress { accent-color: var(--tint); }
+  ::selection { background: var(--tint-soft); color: var(--label); }
+  ::placeholder { color: var(--label-3); }
+  :focus-visible { outline: 3px solid color-mix(in srgb, var(--tint) 55%, transparent); outline-offset: 2px; border-radius: 8px; }
   [v-cloak] { display: none; }
 }
 
 @layer components {
-  .input { width: 100%; height: 2.5rem; border-radius: 0.375rem; border: 1px solid var(--color-line-2); background: #fff; padding: 0 0.75rem; font-size: 0.875rem; transition: border-color 150ms ease, box-shadow 150ms ease; }
-  .input:focus { border-color: var(--color-ink); outline: none; box-shadow: 0 0 0 3px rgb(29 74 55 / 0.12); }
-  .input[aria-invalid='true'] { border-color: var(--color-danger); }
-  textarea.input { height: auto; padding-top: 0.5rem; padding-bottom: 0.5rem; }
-  .eyebrow { font-size: 12px; font-weight: 500; color: var(--color-muted); }
-  .num { font-variant-numeric: tabular-nums; }
-  .link { text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 35%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms ease, color 150ms ease; }
-  .link:hover { text-decoration-color: currentColor; color: var(--color-forest); }
+  /* Text fields: filled, rounded, 16px+ so iOS never zooms on focus. */
+  .input {
+    width: 100%; min-height: 44px; border-radius: var(--radius-control); background: var(--surface);
+    border: 1px solid var(--separator-2); padding: 0 0.875rem; font-size: 16px; color: var(--label);
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  }
+  .input:hover { border-color: color-mix(in srgb, var(--label) 30%, transparent); }
+  .input:focus { outline: none; border-color: var(--tint); box-shadow: 0 0 0 4px var(--tint-soft); }
+  .input[aria-invalid='true'] { border-color: var(--red-text); box-shadow: 0 0 0 4px var(--red-soft); }
+  .input:disabled { background: var(--fill-2); color: var(--label-2); }
+  textarea.input { padding-top: 0.625rem; padding-bottom: 0.625rem; line-height: 1.4; }
+  select.input { appearance: none; padding-right: 2.25rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.875rem center; }
 
-  /* Press feedback for anything clickable */
-  .press { transition: transform 160ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
-  .press:active { transform: scale(0.97); }
+  .eyebrow { font-size: 13px; font-weight: 500; color: var(--label-2); }
+  .num { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .link { color: var(--tint-text); text-decoration: none; transition: opacity 150ms ease; }
+  .link:hover { text-decoration: underline; }
 
-  /* Expand/collapse without animating height: grid rows 0fr → 1fr */
-  .collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 280ms var(--ease-out), opacity 200ms ease; }
-  .collapse[data-open='true'] { grid-template-rows: 1fr; opacity: 1; }
-  .collapse > * { overflow: hidden; min-height: 0; }
+  /* Cards: surface and a hairline border. No shadow. */
+  .surface-card { background: var(--surface); border-radius: var(--radius-card); border: 1px solid var(--separator); }
 
-  /* Entrances. Content stays visible if CSS animations do not run. */
-  .rise-in { animation: rise-in 600ms var(--ease-out) both; animation-delay: var(--d, 0ms); }
-  .fade-in { animation: fade-in 180ms ease-out both; }
-  .line-mask { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
-  .line-mask > span { display: block; animation: line-up 760ms var(--ease-out) both; animation-delay: var(--d, 0ms); }
+
+  /* Press feedback, on pointer-down */
+  .press { transition: transform 120ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease; }
+  .press:active { transform: scale(0.98); }
+
+  /* Expand/collapse via grid rows */
+  .reveal { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 280ms var(--ease-out), opacity 200ms ease; }
+  .reveal[data-open='true'] { grid-template-rows: 1fr; opacity: 1; }
+  .reveal > * { overflow: hidden; min-height: 0; }
+
+
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-@keyframes rise-in { from { opacity: 0; transform: translateY(calc(10px * var(--rise))); } }
-@keyframes fade-in { from { opacity: 0; transform: translateY(calc(4px * var(--rise))); } }
-@keyframes line-up { from { transform: translateY(calc(105% * var(--rise))); opacity: calc(1 - var(--rise)); } }
-@keyframes pulse-soft { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
-.skeleton { background: #ececea; border-radius: 3px; animation: pulse-soft 1.4s ease-in-out infinite; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.skeleton { border-radius: 8px; background: linear-gradient(90deg, var(--fill-2) 25%, var(--fill) 50%, var(--fill-2) 75%); background-size: 200% 100%; animation: shimmer 1.6s ease-in-out infinite; }
 
 /* Vue <Transition> classes */
-.pop-enter-active { transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
+.pop-enter-active { transition: opacity 180ms var(--ease-out), transform 220ms var(--ease-out), filter 220ms var(--ease-out); }
 .pop-leave-active { transition: opacity 120ms ease, transform 120ms ease; }
-.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(calc(-4px * var(--rise))) scale(0.97); }
+.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(calc(-4px * var(--rise))) scale(0.96); filter: blur(4px); }
 
-.backdrop-enter-active { transition: opacity 220ms ease; }
-.backdrop-leave-active { transition: opacity 160ms ease; }
+.backdrop-enter-active { transition: opacity 240ms ease; }
+.backdrop-leave-active { transition: opacity 180ms ease; }
 .backdrop-enter-from, .backdrop-leave-to { opacity: 0; }
 
-.sheet-enter-active { transition: opacity 240ms var(--ease-drawer), transform 320ms var(--ease-drawer); }
-.sheet-leave-active { transition: opacity 160ms ease, transform 180ms ease; }
-.sheet-enter-from, .sheet-leave-to { opacity: 0; transform: translateY(calc(24px * var(--rise))) scale(0.98); }
+/* Sheets materialise: scale and blur arrive together. */
+.sheet-enter-active { transition: opacity 260ms var(--ease-drawer), transform 340ms var(--ease-drawer), filter 260ms var(--ease-drawer); }
+.sheet-leave-active { transition: opacity 180ms ease, transform 200ms ease, filter 180ms ease; }
+.sheet-enter-from, .sheet-leave-to { opacity: 0; transform: translateY(calc(16px * var(--rise))) scale(0.96); filter: blur(6px); }
 @media (max-width: 639px) {
-  .sheet-enter-from, .sheet-leave-to { opacity: 1; transform: translateY(calc(100% * var(--rise))); }
+  .sheet-enter-from, .sheet-leave-to { opacity: 1; filter: none; transform: translateY(calc(100% * var(--rise))); }
 }
 
-.drawer-enter-active { transition: transform 300ms var(--ease-drawer); }
-.drawer-leave-active { transition: transform 200ms ease; }
-.drawer-enter-from, .drawer-leave-to { transform: translateX(calc(-100% * var(--rise))); }
+.drawer-enter-active { transition: transform 320ms var(--ease-drawer); }
+.drawer-leave-active { transition: transform 220ms ease; }
+.drawer-enter-from, .drawer-leave-to { transform: translateY(calc(100% * var(--rise))); }
 
-.toast-enter-active { transition: opacity 260ms var(--ease-out), transform 300ms var(--ease-out); }
+.toast-enter-active { transition: opacity 260ms var(--ease-out), transform 320ms var(--ease-out), filter 260ms var(--ease-out); }
 .toast-leave-active { transition: opacity 160ms ease, transform 160ms ease; }
-.toast-enter-from { opacity: 0; transform: translateY(calc(14px * var(--rise))) scale(0.98); }
-.toast-leave-to { opacity: 0; transform: scale(0.96); }
+.toast-enter-from { opacity: 0; transform: translateY(calc(16px * var(--rise))) scale(0.96); filter: blur(4px); }
+.toast-leave-to { opacity: 0; transform: scale(0.94); }
 .toast-move { transition: transform 260ms var(--ease-out); }
+
+@media (prefers-contrast: more) {
+  :root { --separator: var(--separator-2); --label-2: var(--label); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-enter-from, .sheet-leave-to, .pop-enter-from, .pop-leave-to, .toast-enter-from { filter: none; }
+}
+
+/* Light ↔ dark eases instead of flashing (class is set for ~300ms by lib/theme.ts). */
+.theme-switching, .theme-switching * {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, fill 300ms ease, stroke 300ms ease !important;
+}

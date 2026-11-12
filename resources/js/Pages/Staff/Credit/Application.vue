@@ -14,10 +14,14 @@ import TextArea from '@/Components/TextArea.vue'
 import ConfirmAction from '@/Components/ConfirmAction.vue'
 import BarChart from '@/Components/BarChart.vue'
 import { date, dateTime, label, mk, mkShort, months } from '@/lib/format'
+import { useCan } from '@/lib/permissions'
 
 const props = defineProps<{ application: any; assessment: any | null; rules: { version: string; bands: any[] }; can: { approve: boolean } }>()
 const app = props.application
 const a = props.assessment
+// Approvers can open an application without access to the credit queue; send them back to Approvals.
+const can = useCan()
+const back = can('applications.assess') ? { href: '/internal/credit', label: 'Queue' } : { href: '/internal/approvals', label: 'Approvals' }
 const editable = computed(() => a?.status === 'draft' && a.mine)
 const tab = ref(a ? 'scoring' : 'business')
 const tabs = [
@@ -65,7 +69,7 @@ const chart = app.records.map((r: any) => ({ l: r.period.split(' ')[0], v: +r.in
 
 <template>
   <StaffLayout>
-    <PageHead :title="app.business.legal_name" :sub="`${app.reference} · ${app.product.name} · ${mk(app.amount)} over ${months(app.term_months)}`" :back="{ href: '/internal/credit', label: 'Queue' }">
+    <PageHead :title="app.business.legal_name" :sub="`${app.reference} · ${app.product.name} · ${mk(app.amount)} over ${months(app.term_months)}`" :back="back">
       <ConfirmAction v-if="app.status === 'submitted'" :href="`/internal/credit/applications/${app.id}/review`" variant="primary" size="md" title="Take this application?" confirm="Assign to me">
         Assign to me
         <template #body>It moves to “Under review” and you become the responsible officer.</template>
@@ -104,7 +108,7 @@ const chart = app.records.map((r: any) => ({ l: r.period.split(' ')[0], v: +r.in
 
       <!-- Documents -->
       <div v-if="tab === 'documents'">
-        <ul class="divide-y divide-line rounded-lg border border-line bg-white">
+        <ul class="divide-y divide-line rounded-lg border border-line bg-surface">
           <li v-for="d in app.documents" :key="d.id" class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-sm">
             <div><a :href="`/internal/credit/documents/${d.id}`" class="hover:underline">{{ d.type }}</a><p class="text-[13px] text-muted">{{ d.original_name }} · {{ Math.ceil(d.size / 1024) }} KB · {{ date(d.created_at) }}</p></div>
             <div class="flex items-center gap-3">
@@ -124,10 +128,10 @@ const chart = app.records.map((r: any) => ({ l: r.period.split(' ')[0], v: +r.in
           </form>
         </Card>
         <div v-if="app.requests.length" class="mt-6 space-y-2">
-          <div v-for="r in app.requests" :key="r.id" class="rounded-lg border border-line bg-white p-4 text-sm">
+          <div v-for="r in app.requests" :key="r.id" class="rounded-lg border border-line bg-surface p-4 text-sm">
             <div class="flex justify-between gap-3"><p>“{{ r.message }}”</p><Status :s="r.status" /></div>
             <p class="mt-1 text-xs text-muted">{{ r.by }} · {{ dateTime(r.created_at) }}</p>
-            <p v-if="r.response" class="mt-3 rounded-md bg-[#f4f4f1] px-3 py-2">{{ r.response }}</p>
+            <p v-if="r.response" class="mt-3 rounded-md bg-fill px-3 py-2">{{ r.response }}</p>
           </div>
         </div>
       </div>
@@ -166,7 +170,7 @@ const chart = app.records.map((r: any) => ({ l: r.period.split(' ')[0], v: +r.in
                   <p class="text-[13px] text-muted">{{ c.guidance }}</p>
                   <div class="mt-2 flex gap-1" role="radiogroup" :aria-label="c.label">
                     <button v-for="s in 5" :key="s" type="button" role="radio" :aria-checked="form.scores[c.id] === s" :disabled="!editable"
-                      class="h-9 w-11 rounded border text-sm" :class="form.scores[c.id] === s ? 'border-ink bg-ink text-white' : 'border-line-2 bg-white hover:border-ink'" @click="form.scores[c.id] = s">{{ s }}</button>
+                      class="h-9 w-11 rounded border text-sm" :class="form.scores[c.id] === s ? 'border-ink bg-ink text-surface' : 'border-line-2 bg-surface hover:border-ink'" @click="form.scores[c.id] = s">{{ s }}</button>
                   </div>
                   <input v-if="editable || form.notes[c.id]" v-model="form.notes[c.id]" class="input mt-2 h-9" placeholder="Evidence or note (optional)" :aria-label="`Note for ${c.label}`" :disabled="!editable" />
                 </div>

@@ -100,17 +100,17 @@ const nextStep = () => save(() => { const i = steps.findIndex((s) => s.key === s
           <p class="font-medium">For this product you will need:</p>
           <ul class="mt-2 list-disc space-y-0.5 pl-5 text-muted"><li v-for="r in product.requirements" :key="r">{{ r }}</li></ul>
         </div>
-        <form class="grid gap-3 rounded-lg border border-line bg-white p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end" @submit.prevent="sendFile">
+        <form class="grid gap-3 rounded-lg border border-line bg-surface p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end" @submit.prevent="sendFile">
           <SelectInput v-model="upload.type" label="Document type" :options="documentTypes" />
           <div>
             <label class="mb-1.5 block text-[13px] font-medium" for="doc-file">File</label>
-            <input id="doc-file" ref="fileInput" type="file" accept=".pdf,.jpg,.jpeg,.png" class="block w-full text-sm file:mr-3 file:rounded file:border file:border-line-2 file:bg-white file:px-3 file:py-1.5" @change="upload.file = ($event.target as HTMLInputElement).files?.[0] ?? null" />
+            <input id="doc-file" ref="fileInput" type="file" accept=".pdf,.jpg,.jpeg,.png" class="block w-full text-sm file:mr-3 file:rounded file:border file:border-line-2 file:bg-surface file:px-3 file:py-1.5" @change="upload.file = ($event.target as HTMLInputElement).files?.[0] ?? null" />
           </div>
           <Btn type="submit" :disabled="!upload.file || upload.processing">{{ upload.processing ? 'Uploading…' : 'Upload' }}</Btn>
           <p class="text-xs text-muted sm:col-span-3">PDF, JPG or PNG, up to 5 MB. A clear phone photo is fine.</p>
           <p v-if="upload.errors.file" class="text-[13px] text-danger sm:col-span-3">{{ upload.errors.file }}</p>
         </form>
-        <ul v-if="a.documents.length" class="divide-y divide-line rounded-lg border border-line bg-white">
+        <ul v-if="a.documents.length" class="divide-y divide-line rounded-lg border border-line bg-surface">
           <li v-for="d in a.documents" :key="d.id" class="flex items-center justify-between gap-3 px-4 py-3 text-sm">
             <span><span class="block">{{ d.type }}</span><span class="text-[13px] text-muted">{{ d.original_name }} · {{ Math.ceil(d.size / 1024) }} KB</span></span>
             <span class="flex items-center gap-3"><Status :s="d.status" /><button v-if="d.status === 'pending'" type="button" class="text-[13px] text-muted underline hover:text-danger" @click="router.delete(`/business/applications/${a.id}/documents/${d.id}`, { preserveScroll: true })">Remove</button></span>
@@ -120,7 +120,7 @@ const nextStep = () => save(() => { const i = steps.findIndex((s) => s.key === s
       </section>
 
       <section v-if="step === 'review'" class="space-y-4">
-        <dl class="divide-y divide-line rounded-lg border border-line bg-white text-sm">
+        <dl class="divide-y divide-line rounded-lg border border-line bg-surface text-sm">
           <div class="flex justify-between px-4 py-2.5"><dt class="text-muted">Product</dt><dd>{{ product?.name }}</dd></div>
           <div class="flex justify-between px-4 py-2.5"><dt class="text-muted">Amount</dt><dd class="num">{{ form.amount ? mk(form.amount) : 'Missing' }}</dd></div>
           <div class="flex justify-between px-4 py-2.5"><dt class="text-muted">Period</dt><dd>{{ form.term_months ? months(+form.term_months) : 'Missing' }}</dd></div>

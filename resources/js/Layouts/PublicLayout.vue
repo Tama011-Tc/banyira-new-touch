@@ -27,8 +27,8 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
 
 <template>
   <div class="flex min-h-screen flex-col">
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:p-3">Skip to content</a>
-    <header class="sticky top-0 z-40 border-b bg-paper/90 backdrop-blur-md transition-[border-color,background-color] duration-300" :class="scrolled || open ? 'border-line' : 'border-transparent'">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-surface focus:p-3">Skip to content</a>
+    <header class="sticky top-0 z-40 border-b bg-paper transition-[border-color] duration-300" :class="scrolled || open ? 'border-line' : 'border-transparent'">
       <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
         <Link href="/" aria-label="Banyira home" class="press"><Logo /></Link>
 
@@ -40,7 +40,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
             </button>
             <Transition name="pop">
               <div v-if="dd" class="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-3" style="transform-origin: top center">
-                <div class="rounded-xl bg-white p-2 shadow-[0_2px_4px_rgb(23_25_26/0.04),0_20px_48px_-12px_rgb(23_25_26/0.22)]">
+                <div class="rounded-xl border border-separator-2 bg-surface p-2">
                   <Link v-for="p in products" :key="p.slug" :href="`/products/${p.slug}`" class="block rounded-lg px-3 py-2.5 transition-colors duration-150 hover:bg-mint">
                     <span class="block font-medium">{{ p.name }}</span>
                     <span class="block text-[13px] text-muted">{{ p.summary }}</span>
@@ -69,7 +69,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
         </button>
       </div>
 
-      <div class="collapse lg:hidden" :data-open="open">
+      <div class="reveal lg:hidden" :data-open="open">
         <div>
           <nav aria-label="Mobile" class="px-4 pb-5 sm:px-6">
             <Link href="/" class="flex h-11 items-center border-b border-line">Home</Link>

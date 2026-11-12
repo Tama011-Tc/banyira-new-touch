@@ -20,7 +20,7 @@ const done = props.requests.filter((r) => r.status !== 'pending')
     <PageHead title="Maker-checker queue" sub="Disbursements, expenses and payroll prepared by one officer must be approved by another." />
     <h2 class="mb-3 text-[15px]">Waiting</h2>
     <div v-if="!pending.length" class="rounded-lg border border-dashed border-line-2 px-6 py-8 text-center text-sm text-muted">Nothing waiting for approval.</div>
-    <ul v-else class="divide-y divide-line rounded-lg border border-line bg-white">
+    <ul v-else class="divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-for="r in pending" :key="r.id" class="grid gap-3 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
         <div>
           <p class="text-sm"><span class="mr-2 text-xs uppercase tracking-wide text-muted">{{ label(r.type) }}</span>{{ r.summary }}</p>

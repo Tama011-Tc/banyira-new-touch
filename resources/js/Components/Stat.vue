@@ -3,9 +3,9 @@ defineProps<{ label: string; value: string | number; note?: string; warn?: boole
 </script>
 
 <template>
-  <div class="border-t border-ink/80 pt-2.5">
-    <p class="text-[13px] text-muted">{{ label }}</p>
-    <p class="num mt-0.5 text-[22px] font-semibold tracking-tight" :class="warn && 'text-clay'">{{ value }}</p>
-    <p v-if="note" class="text-xs text-muted">{{ note }}</p>
+  <div class="surface-card px-4 py-3.5 sm:px-5 sm:py-4">
+    <p class="text-[13px] text-label-2">{{ label }}</p>
+    <p class="num mt-1 text-[22px] font-semibold leading-tight tracking-[-0.025em] sm:text-[24px]" :class="warn ? 'text-orange-text' : 'text-label'">{{ value }}</p>
+    <p v-if="note" class="mt-0.5 text-[12px] text-label-2">{{ note }}</p>
   </div>
 </template>

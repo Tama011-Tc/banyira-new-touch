@@ -5,11 +5,11 @@ defineProps<{ r: string | null; long?: boolean }>()
 
 <template>
   <span v-if="r" class="inline-flex items-center gap-2" :title="`${LABELS[r]}. A rating is an assessment, not a guarantee of repayment.`">
-    <span
-      class="inline-flex min-w-8 justify-center rounded border px-1 font-mono text-xs font-semibold leading-5"
-      :class="r === 'B' ? 'border-maize/40 text-maize' : r === 'C' ? 'border-clay/40 text-clay' : 'border-ok/40 text-ok'"
-    >{{ r }}</span>
-    <span v-if="long" class="text-[13px] text-muted">{{ LABELS[r] }}</span>
+    <span class="inline-flex items-center gap-1.5 text-[13px] font-semibold"
+      :class="r === 'B' ? 'text-orange-text' : r === 'C' ? 'text-red-text' : 'text-green-text'">
+      <span class="h-2 w-2 shrink-0 rounded-full" :class="r === 'B' ? 'bg-orange' : r === 'C' ? 'bg-red' : 'bg-green'" aria-hidden="true" />{{ r }}
+    </span>
+    <span v-if="long" class="text-[13px] text-label-2">{{ LABELS[r] }}</span>
   </span>
-  <span v-else class="text-muted">—</span>
+  <span v-else class="text-label-3">—</span>
 </template>

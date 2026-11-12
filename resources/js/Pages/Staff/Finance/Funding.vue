@@ -11,10 +11,11 @@ import TextInput from '@/Components/TextInput.vue'
 import ConfirmAction from '@/Components/ConfirmAction.vue'
 import Notice from '@/Components/Notice.vue'
 import { date, mk } from '@/lib/format'
+import { useCan } from '@/lib/permissions'
 
 defineProps<{ agreements: any[] }>()
 const page = usePage()
-const canConfirm = (page.props.auth.user?.permissions ?? []).includes('payments.reconcile')
+const can = useCan()
 const party = ref<any>(null)
 const form = useForm({ provider_reference: '' })
 const confirm = () => form.post(`/internal/finance/parties/${party.value.id}/confirm`, { preserveScroll: true, onSuccess: () => { party.value = null; form.reset() } })
@@ -42,7 +43,7 @@ const confirm = () => form.post(`/internal/finance/parties/${party.value.id}/con
               <td class="num py-2 text-right">{{ p.principal ? mk(p.principal) : '—' }}</td>
               <td class="py-2">{{ p.signed ? date(p.signed) : 'Waiting' }}</td>
               <td class="py-2">{{ p.role === 'borrower' ? '—' : p.funded ? 'Confirmed ' + date(p.funded) : 'Not received' }}</td>
-              <td class="py-2 text-right"><Btn v-if="canConfirm && a.status === 'awaiting_funding' && p.role === 'investor' && !p.funded" size="sm" variant="outline" @click="party = p">Confirm received</Btn></td>
+              <td class="py-2 text-right"><Btn v-if="can('payments.reconcile') && a.status === 'awaiting_funding' && p.role === 'investor' && !p.funded" size="sm" variant="outline" @click="party = p">Confirm received</Btn></td>
             </tr>
           </tbody>
         </table>

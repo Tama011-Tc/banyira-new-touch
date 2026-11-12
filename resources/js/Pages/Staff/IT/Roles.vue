@@ -20,7 +20,7 @@ const err = computed(() => (usePage().props.errors as Record<string, string>).pe
     <PageHead title="Roles and permissions" sub="Changes take effect at the employee's next request and are logged with before and after values." />
     <Notice v-if="err" tone="error">{{ err }}</Notice>
     <Notice v-else>IT administrators cannot hold credit, finance or rule-approval powers. You cannot edit a role you hold yourself.</Notice>
-    <div class="mt-5 overflow-x-auto rounded-lg border border-line bg-white">
+    <div class="mt-5 relative overflow-x-auto rounded-lg border border-line bg-surface">
       <table class="w-full min-w-[760px] text-sm">
         <caption class="sr-only">Permission matrix</caption>
         <thead>
@@ -28,7 +28,7 @@ const err = computed(() => (usePage().props.errors as Record<string, string>).pe
         </thead>
         <tbody>
           <template v-for="g in groups" :key="g">
-            <tr><th :colspan="roles.length + 1" class="bg-[#fafaf8] px-4 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider text-muted">{{ g }}</th></tr>
+            <tr><th :colspan="roles.length + 1" class="bg-fill px-4 py-1.5 text-left text-[11px] font-medium uppercase tracking-wider text-muted">{{ g }}</th></tr>
             <tr v-for="p in permissions.filter((x) => x.group === g)" :key="p.id" class="border-t border-line">
               <td class="px-4 py-2">{{ p.name }}<span class="block font-mono text-[11px] text-muted">{{ p.slug }}</span></td>
               <td v-for="r in roles" :key="r.id" class="px-2 py-2 text-center">

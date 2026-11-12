@@ -38,9 +38,9 @@ const parts = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: 'In
     <PageTop title="How to invest" sub="Support verified Malawian businesses with an amount, rate and period you choose, and follow every repayment." />
 
     <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-      <section class="rise-in mb-14 rounded-xl border border-clay/30 bg-clay-soft p-6 md:p-8" aria-labelledby="risk-h">
-        <h2 id="risk-h" class="text-[19px] text-[#5e2611]">Investment risk disclosure</h2>
-        <div class="mt-3 max-w-3xl space-y-3 text-[15px] text-[#5e2611]">
+      <section class="mb-14 rounded-xl border border-clay/30 bg-clay-soft p-6 md:p-8" aria-labelledby="risk-h">
+        <h2 id="risk-h" class="text-[19px] text-orange-text">Investment risk disclosure</h2>
+        <div class="mt-3 max-w-3xl space-y-3 text-[15px] text-orange-text">
           <p>Investing through Banyira involves financial risk.</p>
           <p>Investors may experience delayed repayments or lose some or all of their invested capital.</p>
           <p>Banyira's credit assessments and risk classifications are intended to support informed investment decisions. They do not guarantee repayment or returns.</p>
@@ -55,8 +55,8 @@ const parts = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: 'In
         <div>
           <h3 class="text-[19px]">How several investors finance one business</h3>
           <p class="mt-2 max-w-2xl text-muted">A business requesting MK5,000,000 rarely gets it from one person. Each investor offers part of the amount. The business accepts offers until the total is reached, and the system never lets accepted offers exceed what was requested.</p>
-          <div class="mt-8 max-w-xl rounded-xl bg-white p-6 shadow-[0_1px_3px_rgb(23_25_26/0.08),0_16px_40px_-16px_rgb(23_25_26/0.18)]">
-            <FundingSplit :total="5_000_000" :parts="parts" trigger="view" />
+          <div class="mt-8 max-w-xl rounded-xl border border-separator bg-surface p-6">
+            <FundingSplit :total="5_000_000" :parts="parts" />
             <p class="mt-4 border-t border-line pt-3 text-xs text-muted">Illustration only. Each investor has a separate repayment schedule at their own agreed rate.</p>
           </div>
         </div>
@@ -72,7 +72,7 @@ const parts = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: 'In
       </section>
     </div>
 
-    <section class="border-t border-line bg-white">
+    <section class="border-t border-line bg-surface">
       <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
         <h2 class="text-[28px] uppercase tracking-tight md:text-[36px]">Ready to explore investment opportunities?</h2>
         <div class="mt-6"><Btn size="lg" href="/register/investor">GET STARTED WITH INVESTING</Btn></div>

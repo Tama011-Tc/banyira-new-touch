@@ -16,7 +16,7 @@ const read = (id?: string) => router.post(`/${props.area}/notifications/read`, {
       <Btn v-if="items.data.some((n: any) => !n.read)" variant="outline" size="sm" @click="read()">Mark all as read</Btn>
     </PageHead>
     <div v-if="!items.data.length" class="rounded-lg border border-dashed border-line-2 px-6 py-12 text-center text-sm text-muted">You have no notifications.</div>
-    <ul v-else class="divide-y divide-line rounded-lg border border-line bg-white">
+    <ul v-else class="divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-for="n in items.data" :key="n.id" class="flex items-start gap-4 px-5 py-4">
         <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" :class="n.read ? 'bg-transparent' : 'bg-forest'" aria-hidden="true" />
         <div class="flex-1">

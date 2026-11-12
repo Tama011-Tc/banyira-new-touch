@@ -37,10 +37,10 @@ const go = () => {
   <span class="contents">
     <Btn :variant="variant" :size="size" @click="open = true; error = null"><slot /></Btn>
     <Modal :open="open" :title="title" @close="open = false">
-      <div class="text-muted"><slot name="body" /></div>
+      <div class="text-label-2"><slot name="body" /></div>
       <div v-if="error" class="mt-4"><Notice tone="error">{{ error }}</Notice></div>
       <template #actions>
-        <Btn variant="outline" @click="open = false">Cancel</Btn>
+        <Btn variant="secondary" @click="open = false">Cancel</Btn>
         <Btn :variant="danger ? 'danger' : 'primary'" :disabled="busy" @click="go">{{ busy ? 'Working…' : confirm }}</Btn>
       </template>
     </Modal>

@@ -43,9 +43,9 @@ const clear = () => Object.assign(f, { q: '', industry: '', region: '', risk: ''
     </div>
 
     <div v-if="!listings.data.length" class="mt-6 rounded-lg border border-dashed border-line-2 px-6 py-12 text-center text-sm text-muted">No businesses match these filters.</div>
-    <ul class="mt-4 divide-y divide-line rounded-lg border border-line bg-white">
+    <ul class="mt-4 divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-for="l in listings.data" :key="l.id">
-        <Link :href="`/investor/marketplace/${l.id}`" class="grid gap-4 px-5 py-5 transition-colors duration-200 hover:bg-[#fafaf7] md:grid-cols-[1.6fr_1fr_auto] md:items-center">
+        <Link :href="`/investor/marketplace/${l.id}`" class="grid gap-4 px-5 py-5 transition-colors duration-200 hover:bg-fill-2 md:grid-cols-[1.6fr_1fr_auto] md:items-center">
           <div>
             <div class="flex items-center gap-3"><span class="font-medium">{{ l.name }}</span><RiskBadge :r="l.risk" /></div>
             <p class="text-[13px] text-muted">{{ l.industry }} · {{ l.region }}</p>

@@ -28,7 +28,7 @@ const save = () => form
 <template>
   <StaffLayout>
     <PageHead title="Products" sub="What the public website and application form show. Changes appear immediately and are logged." />
-    <ul class="divide-y divide-line rounded-lg border border-line bg-white">
+    <ul class="divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-for="p in products" :key="p.id" class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-sm">
         <span><span class="mr-2 font-mono text-[12px] text-muted">{{ p.code }}</span><span class="font-medium">{{ p.name }}</span><span class="num block text-[13px] text-muted">{{ mk(p.min_amount) }}–{{ mk(p.max_amount) }} · {{ p.min_months }}–{{ months(p.max_months) }}</span></span>
         <span class="flex items-center gap-4"><Status :s="p.is_active ? 'published' : 'hidden'" /><Btn size="sm" variant="outline" @click="edit(p)">Edit</Btn></span>

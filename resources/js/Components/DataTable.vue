@@ -3,46 +3,47 @@ export type Column = { key: string; label: string; align?: 'right' }
 </script>
 
 <script setup lang="ts" generic="T extends Record<string, any>">
-// Table on wide screens, stacked rows on phones. Cell content can be
-// overridden with a #cell-<key> slot; row actions go in #actions.
-defineProps<{ columns: Column[]; rows: T[]; caption: string; empty?: string }>()
+import EmptyState from './EmptyState.vue'
+
+// Clean rows with a hover highlight on wide screens; on phones each row
+// becomes a card in a grouped list. Override a cell with #cell-<key>.
+defineProps<{ columns: Column[]; rows: T[]; caption: string; empty?: string; emptyIcon?: string }>()
 </script>
 
 <template>
   <div>
-    <div v-if="!rows.length" class="rounded-lg border border-dashed border-line-2 px-6 py-10 text-center text-sm text-muted">
-      {{ empty ?? 'Nothing to show yet.' }}
-      <div v-if="$slots.emptyAction" class="mt-3"><slot name="emptyAction" /></div>
-    </div>
+    <EmptyState v-if="!rows.length" :title="empty ?? 'Nothing here yet'" :icon="emptyIcon">
+      <slot name="emptyAction" />
+    </EmptyState>
     <template v-else>
-      <div class="hidden overflow-x-auto rounded-lg border border-line bg-white md:block">
-        <table class="w-full text-left text-sm">
+      <div class="surface-card hidden relative overflow-x-auto md:block">
+        <table class="w-full text-left text-[14px]">
           <caption class="sr-only">{{ caption }}</caption>
-          <thead class="text-xs text-muted">
-            <tr>
-              <th v-for="c in columns" :key="c.key" scope="col" class="px-4 py-2.5 font-medium" :class="c.align === 'right' && 'text-right'">{{ c.label }}</th>
-              <th v-if="$slots.actions" scope="col" class="px-4 py-2.5"><span class="sr-only">Actions</span></th>
+          <thead>
+            <tr class="text-[12px] text-label-2">
+              <th v-for="c in columns" :key="c.key" scope="col" class="px-4 pb-2 pt-3.5 font-medium first:pl-5" :class="c.align === 'right' && 'text-right'">{{ c.label }}</th>
+              <th v-if="$slots.actions" scope="col" class="px-4 pb-2 pt-3.5 pr-5"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(r, i) in rows" :key="r.id ?? i" class="border-t border-line transition-colors duration-150 hover:bg-[#fafaf7]">
-              <td v-for="c in columns" :key="c.key" class="px-4 py-2.5 align-middle" :class="c.align === 'right' && 'num text-right'">
+            <tr v-for="(r, i) in rows" :key="r.id ?? i" class="group transition-colors duration-150 hover:bg-fill-2">
+              <td v-for="c in columns" :key="c.key" class="border-t border-separator px-4 py-3 align-middle first:pl-5" :class="c.align === 'right' && 'num text-right'">
                 <slot :name="'cell-' + c.key" :row="r">{{ r[c.key] ?? '—' }}</slot>
               </td>
-              <td v-if="$slots.actions" class="px-4 py-2 text-right"><div class="flex justify-end gap-2"><slot name="actions" :row="r" /></div></td>
+              <td v-if="$slots.actions" class="border-t border-separator px-4 py-2 pr-5 text-right"><div class="flex justify-end gap-2"><slot name="actions" :row="r" /></div></td>
             </tr>
           </tbody>
         </table>
       </div>
-      <ul class="divide-y divide-line rounded-lg border border-line bg-white md:hidden">
-        <li v-for="(r, i) in rows" :key="r.id ?? i" class="p-4">
-          <dl class="space-y-1">
-            <div v-for="c in columns" :key="c.key" class="flex justify-between gap-4 text-sm">
-              <dt class="text-muted">{{ c.label }}</dt>
-              <dd class="text-right"><slot :name="'cell-' + c.key" :row="r">{{ r[c.key] ?? '—' }}</slot></dd>
+      <ul class="space-y-2.5 md:hidden">
+        <li v-for="(r, i) in rows" :key="r.id ?? i" class="surface-card px-4 py-3.5">
+          <dl class="space-y-1.5">
+            <div v-for="(c, ci) in columns" :key="c.key" class="flex items-baseline justify-between gap-4" :class="ci === 0 ? 'text-[15px] font-semibold' : 'text-[14px]'">
+              <dt v-if="ci > 0" class="text-label-2">{{ c.label }}</dt>
+              <dd :class="[ci === 0 ? 'w-full' : 'text-right', c.align === 'right' && 'num']"><slot :name="'cell-' + c.key" :row="r">{{ r[c.key] ?? '—' }}</slot></dd>
             </div>
           </dl>
-          <div v-if="$slots.actions" class="mt-3 flex justify-end gap-2"><slot name="actions" :row="r" /></div>
+          <div v-if="$slots.actions" class="mt-3 flex flex-wrap justify-end gap-2 border-t border-separator pt-3"><slot name="actions" :row="r" /></div>
         </li>
       </ul>
     </template>

@@ -62,7 +62,7 @@ const fees = (r: any) => r.fees.map((f: any, i: number) => `${f.upper_bound ? '<
         </fieldset>
         <fieldset>
           <legend class="mb-2 text-[13px] font-medium">Risk bands</legend>
-          <div class="overflow-x-auto"><table class="w-full min-w-[480px] text-sm">
+          <div class="relative overflow-x-auto"><table class="w-full min-w-[480px] text-sm">
             <thead class="text-left text-xs text-muted"><tr><th class="pb-1 font-medium">Class</th><th class="pb-1 font-medium">Minimum score</th><th class="pb-1 font-medium">Max amount (MK)</th><th class="pb-1 font-medium">Max months</th></tr></thead>
             <tbody><tr v-for="b in form.bands" :key="b.risk_class"><td class="py-1 pr-2"><RiskBadge :r="b.risk_class" /></td><td class="py-1 pr-2"><input v-model="b.min_score" class="input" inputmode="numeric" :aria-label="`${b.risk_class} minimum score`" /></td><td class="py-1 pr-2"><input v-model="b.max_amount" class="input" inputmode="numeric" placeholder="None" :aria-label="`${b.risk_class} max amount`" /></td><td class="py-1"><input v-model="b.max_months" class="input" inputmode="numeric" placeholder="None" :aria-label="`${b.risk_class} max months`" /></td></tr></tbody>
           </table></div>
@@ -73,7 +73,7 @@ const fees = (r: any) => r.fees.map((f: any, i: number) => `${f.upper_bound ? '<
     </Card>
 
     <h2 class="mb-3 mt-10 text-[15px]">History</h2>
-    <ul class="divide-y divide-line rounded-lg border border-line bg-white">
+    <ul class="divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-for="r in history" :key="r.id" class="grid gap-2 px-5 py-3 text-sm md:grid-cols-[120px_1fr_auto] md:items-center">
         <span class="font-mono text-[13px]">{{ r.version }}</span>
         <span><span class="num">{{ fees(r) }} · ceiling {{ Number(r.interest_ceiling) }}%</span><span class="block text-xs text-muted">{{ r.notes }} · proposed by {{ r.by ?? 'system' }}<template v-if="r.decidedBy">, decided by {{ r.decidedBy }}</template> · effective {{ date(r.effective_from) }}</span></span>

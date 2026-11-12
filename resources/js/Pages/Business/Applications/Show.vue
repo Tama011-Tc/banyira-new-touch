@@ -36,7 +36,7 @@ defineProps<{ application: any }>()
           <ul class="divide-y divide-line">
             <li v-for="r in application.requests" :key="r.id" class="px-5 py-3 text-sm">
               <div class="flex justify-between gap-3"><p>“{{ r.message }}”</p><Status :s="r.status" /></div>
-              <p v-if="r.response" class="mt-2 rounded-md bg-[#f4f4f1] px-3 py-2 text-muted">{{ r.response }}</p>
+              <p v-if="r.response" class="mt-2 rounded-md bg-fill px-3 py-2 text-muted">{{ r.response }}</p>
             </li>
           </ul>
         </Card>

@@ -48,7 +48,7 @@ const decideRules = (id: number, approve: boolean) => router.post(`/internal/app
           </div>
         </div>
         <p class="mt-4 text-sm">{{ a.purpose }}</p>
-        <p class="mt-3 rounded-md bg-[#f4f4f1] px-3 py-2 text-sm text-muted">“{{ a.comments }}” — {{ a.assessor }}, {{ date(a.submitted) }}</p>
+        <p class="mt-3 rounded-md bg-fill px-3 py-2 text-sm text-muted">“{{ a.comments }}” — {{ a.assessor }}, {{ date(a.submitted) }}</p>
         <p v-if="a.override" class="mt-2 text-[13px] text-maize">Class overridden from {{ a.suggested }}: {{ a.override }}</p>
         <div class="mt-4 flex gap-2">
           <template v-if="!a.mine"><Btn @click="openDecision(a, true)">Approve</Btn><Btn variant="outline" @click="openDecision(a, false)">Reject</Btn></template>
@@ -59,7 +59,7 @@ const decideRules = (id: number, approve: boolean) => router.post(`/internal/app
 
     <h2 class="mb-3 mt-10 text-[15px]">Ready to publish <span class="num text-muted">{{ toPublish.length }}</span></h2>
     <div v-if="!toPublish.length" class="rounded-lg border border-dashed border-line-2 px-6 py-8 text-center text-sm text-muted">No approved applications waiting to be listed.</div>
-    <ul v-else class="divide-y divide-line rounded-lg border border-line bg-white">
+    <ul v-else class="divide-y divide-line rounded-lg border border-line bg-surface">
       <li v-for="x in toPublish" :key="x.id" class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-sm">
         <span><span class="font-medium">{{ x.business }}</span> <span class="ml-2 font-mono text-[13px] text-muted">{{ x.reference }}</span><span class="block text-[13px] text-muted">{{ mk(x.amount) }} · {{ months(x.term) }}</span></span>
         <span class="flex items-center gap-3"><RiskBadge :r="x.risk" /><Btn size="sm" @click="openPublish(x)">Publish</Btn></span>

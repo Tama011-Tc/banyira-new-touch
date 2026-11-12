@@ -3,8 +3,8 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import Icon from './Icon.vue'
 
-// Toasts enter from where they rest, leave quickly, and pause while hovered
-// or while the tab is hidden, so nobody misses one.
+// Toasts: banners at the top on phones (clear of the tab bar), bottom
+// right on desktop. They pause while hovered or while the tab is hidden.
 type Toast = { id: number; msg: string; ok: boolean; left: number; started: number }
 const page = usePage()
 const items = ref<Toast[]>([])
@@ -31,12 +31,12 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', onVis);
 </script>
 
 <template>
-  <div class="fixed bottom-4 left-4 right-4 z-[70] sm:left-auto" role="status" aria-live="polite" @mouseenter="pause" @mouseleave="resume">
-    <TransitionGroup name="toast" tag="div" class="flex flex-col items-end gap-2">
-      <div v-for="x in items" :key="x.id" class="flex max-w-sm items-start gap-2.5 rounded-lg py-2.5 pl-3.5 pr-2 text-sm text-white shadow-[0_12px_32px_-8px_rgb(23_25_26/0.4)]" :class="x.ok ? 'bg-ink' : 'bg-danger'">
-        <Icon :n="x.ok ? 'check' : 'alert'" :size="16" class="mt-0.5" />
-        <span class="flex-1">{{ x.msg }}</span>
-        <button type="button" class="press -my-0.5 rounded p-1 text-white/60 hover:text-white" aria-label="Dismiss" @click="remove(x.id)"><Icon n="x" :size="14" /></button>
+  <div class="pointer-events-none fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[70] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:top-auto" role="status" aria-live="polite">
+    <TransitionGroup name="toast" tag="div" class="flex flex-col items-center gap-2 sm:items-end" @mouseenter="pause" @mouseleave="resume">
+      <div v-for="x in items" :key="x.id" class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-separator-2 bg-surface py-3 pl-4 pr-2 text-[15px]">
+        <span :class="x.ok ? 'text-green-text' : 'text-red-text'"><Icon :n="x.ok ? 'ok' : 'error'" :size="20" class="mt-px" /></span>
+        <span class="flex-1 text-label">{{ x.msg }}</span>
+        <button type="button" class="press -my-1 flex h-8 w-8 items-center justify-center rounded-full text-label-2 hover:bg-fill-2" aria-label="Dismiss" @click="remove(x.id)"><Icon n="x" :size="16" /></button>
       </div>
     </TransitionGroup>
   </div>

@@ -2,12 +2,13 @@
 import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import AppShell, { type NavGroup, type NavItem } from './AppShell.vue'
+import { useCan } from '@/lib/permissions'
 
 // Navigation is built from the signed-in employee's permissions, so each role
 // only sees its own workspace.
 const page = usePage<{ staffCounts?: Record<string, number> }>()
 const user = computed(() => page.props.auth.user!)
-const can = (p: string) => user.value.permissions.includes(p)
+const can = useCan()
 const n = computed(() => page.props.staffCounts ?? {})
 
 const nav = computed<NavGroup[]>(() => {

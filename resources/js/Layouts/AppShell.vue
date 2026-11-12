@@ -48,13 +48,13 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
 
 <template>
   <div class="min-h-screen lg:flex" :class="secure && 'border-t-[3px] border-clay'">
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:p-3">Skip to content</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-surface focus:p-3">Skip to content</a>
 
     <!-- Desktop sidebar -->
-    <aside class="hidden w-60 shrink-0 flex-col border-r border-line bg-white lg:sticky lg:top-0 lg:flex lg:h-screen">
+    <aside class="hidden w-60 shrink-0 flex-col border-r border-line bg-surface lg:sticky lg:top-0 lg:flex lg:h-screen">
       <div class="flex h-14 items-center gap-2 px-5">
         <Logo />
-        <span v-if="secure" class="rounded-sm bg-clay px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-white">Internal</span>
+        <span v-if="secure" class="rounded-sm bg-orange-soft px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-orange-text">Internal</span>
       </div>
       <nav ref="navEl" aria-label="Main" class="relative flex-1 overflow-y-auto px-3 py-3">
         <span aria-hidden="true" class="pointer-events-none absolute left-3 right-3 rounded-md bg-mint"
@@ -79,11 +79,11 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
 
     <!-- Mobile drawer -->
     <Teleport to="body">
-      <Transition name="backdrop"><div v-if="open" class="fixed inset-0 z-40 bg-ink/35 lg:hidden" @click="open = false" /></Transition>
+      <Transition name="backdrop"><div v-if="open" class="fixed inset-0 z-40 bg-scrim lg:hidden" @click="open = false" /></Transition>
       <Transition name="drawer">
-        <aside v-if="open" class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85%] flex-col bg-white shadow-[16px_0_48px_-16px_rgb(23_25_26/0.3)] lg:hidden" aria-label="Menu">
+        <aside v-if="open" class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85%] flex-col border-r border-separator bg-surface lg:hidden" aria-label="Menu">
           <div class="flex h-14 items-center justify-between px-5">
-            <span class="flex items-center gap-2"><Logo /><span v-if="secure" class="rounded-sm bg-clay px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-white">Internal</span></span>
+            <span class="flex items-center gap-2"><Logo /><span v-if="secure" class="rounded-sm bg-orange-soft px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-orange-text">Internal</span></span>
             <button type="button" aria-label="Close menu" class="press -mr-2 flex h-10 w-10 items-center justify-center" @click="open = false"><Icon n="x" /></button>
           </div>
           <nav aria-label="Main" class="flex-1 overflow-y-auto px-3 py-3">
@@ -106,11 +106,11 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
     </Teleport>
 
     <div class="min-w-0 flex-1">
-      <header class="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-line bg-white/90 px-4 backdrop-blur-md lg:hidden">
+      <header class="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-line bg-surface px-4 lg:hidden">
         <Logo :size="20" />
         <button type="button" aria-label="Open menu" :aria-expanded="open" class="press -mr-2 flex h-10 w-10 items-center justify-center" @click="open = true"><Icon n="menu" /></button>
       </header>
-      <main id="main" :key="page.component" class="fade-in mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:py-10">
+      <main id="main" class="mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:py-10">
         <slot />
       </main>
     </div>

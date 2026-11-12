@@ -70,7 +70,7 @@ const pending = computed(() => props.myOffers.some((o) => o.status === 'pending'
             <TextInput v-model="form.annual_rate" label="Annual interest rate (%)" inputmode="decimal" :error="form.errors.annual_rate" :hint="`Maximum ${Number(limits.ceiling)}% a year`" />
             <TextInput v-model="form.term_months" label="Repayment period (months)" inputmode="numeric" :error="form.errors.term_months" :hint="limits.maxMonths ? `Class ${l.risk} limit: ${months(limits.maxMonths)}` : undefined" />
             <TextArea v-model="form.conditions" label="Conditions" optional :rows="2" :error="form.errors.conditions" hint="For example: monthly sales summary shared with investors." />
-            <p v-if="monthly" class="rounded-md bg-[#f4f4f1] px-3 py-2 text-[13px] text-muted">If accepted, you would receive about <span class="num text-ink">{{ mk(monthly) }}</span> a month. This is an estimate, not a guaranteed return.</p>
+            <p v-if="monthly" class="rounded-md bg-fill px-3 py-2 text-[13px] text-muted">If accepted, you would receive about <span class="num text-ink">{{ mk(monthly) }}</span> a month. This is an estimate, not a guaranteed return.</p>
             <label class="flex items-start gap-3 text-[13px]"><input v-model="form.accept_risk" type="checkbox" class="mt-0.5 h-4 w-4" />I understand I could lose some or all of this amount, and that the rating does not guarantee repayment.</label>
             <p v-if="form.errors.accept_risk" class="text-[13px] text-danger">{{ form.errors.accept_risk }}</p>
             <Btn type="submit" full :disabled="form.processing">{{ form.processing ? 'Sending…' : 'Submit offer' }}</Btn>

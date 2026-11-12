@@ -13,8 +13,8 @@ const options = [
 
 <template>
   <AuthLayout :title="login ? 'Log in' : 'Create an account'" :sub="login ? 'Which account do you use?' : 'Choose the account that fits you. It cannot be changed later.'" back="/">
-    <div class="divide-y divide-line rounded-lg border border-line bg-white">
-      <Link v-for="[t, h, d] in options" :key="t" :href="`/${mode}/${t}`" class="flex items-center gap-4 px-4 py-4 hover:bg-[#fcfcfb]">
+    <div class="divide-y divide-line rounded-lg border border-line bg-surface">
+      <Link v-for="[t, h, d] in options" :key="t" :href="`/${mode}/${t}`" class="flex items-center gap-4 px-4 py-4 hover:bg-fill-2">
         <span class="flex-1"><span class="block font-medium">{{ h }}</span><span class="text-[13px] text-muted">{{ d }}</span></span>
         <Icon n="chev" class="text-muted" />
       </Link>

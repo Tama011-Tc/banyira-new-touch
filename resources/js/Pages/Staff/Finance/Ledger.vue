@@ -31,7 +31,7 @@ const filter = (c: string) => router.get('/internal/finance/ledger', c ? { categ
         <option value="">All categories</option><option v-for="c in cats" :key="c" :value="c">{{ label(c) }}</option>
       </select>
       <div class="space-y-3">
-        <article v-for="e in entries.data" :key="e.id" class="rounded-lg border border-line bg-white">
+        <article v-for="e in entries.data" :key="e.id" class="rounded-lg border border-line bg-surface">
           <header class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-2.5 text-sm">
             <span><span class="font-mono text-[13px]">{{ e.reference }}</span><span class="ml-3">{{ e.description }}</span><span v-if="e.is_demo" class="ml-2 text-xs text-muted">demo</span><span v-if="e.reverses_id" class="ml-2 text-xs text-maize">reversal</span></span>
             <span class="text-xs text-muted">{{ date(e.entry_date) }} · {{ e.by ?? 'System' }}<template v-if="e.approvedBy && e.approvedBy !== e.by"> · approved {{ e.approvedBy }}</template></span>
@@ -53,7 +53,7 @@ const filter = (c: string) => router.get('/internal/finance/ledger', c ? { categ
       <Pagination :page="entries" />
     </div>
 
-    <div v-else class="mt-4 overflow-x-auto rounded-lg border border-line bg-white">
+    <div v-else class="mt-4 relative overflow-x-auto rounded-lg border border-line bg-surface">
       <table class="w-full min-w-[640px] text-sm">
         <thead class="text-left text-xs text-muted"><tr><th class="px-4 py-2.5 font-medium">Account</th><th class="px-4 py-2.5 font-medium">Category</th><th class="px-4 py-2.5 text-right font-medium">Debits</th><th class="px-4 py-2.5 text-right font-medium">Credits</th><th class="px-4 py-2.5 text-right font-medium">Balance</th></tr></thead>
         <tbody>
