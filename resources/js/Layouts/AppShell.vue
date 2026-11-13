@@ -51,29 +51,31 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-surface focus:p-3">Skip to content</a>
 
     <!-- Desktop sidebar -->
-    <aside class="hidden w-60 shrink-0 flex-col border-r border-line bg-surface lg:sticky lg:top-0 lg:flex lg:h-screen">
-      <div class="flex h-14 items-center gap-2 px-5">
-        <Logo />
+    <aside class="hidden w-56 shrink-0 flex-col border-r border-line lg:sticky lg:top-0 lg:flex lg:h-screen">
+      <div class="flex h-12 items-center gap-2 px-4">
+        <Logo :size="20" />
         <span v-if="secure" class="rounded-sm bg-orange-soft px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-orange-text">Internal</span>
       </div>
-      <nav ref="navEl" aria-label="Main" class="relative flex-1 overflow-y-auto px-3 py-3">
-        <span aria-hidden="true" class="pointer-events-none absolute left-3 right-3 rounded-md bg-mint"
-          :class="[pill.ready && 'transition-[transform,height,opacity] duration-300 ease-[var(--ease-out)]', pill.show ? 'opacity-100' : 'opacity-0']"
+      <nav ref="navEl" aria-label="Main" class="relative flex-1 overflow-y-auto px-2 py-2">
+        <span aria-hidden="true" class="pointer-events-none absolute left-2 right-2 rounded-md bg-mint"
+          :class="[pill.ready && 'transition-[transform,height,opacity] duration-300 ease-[var(--ease-smooth)] motion-reduce:duration-0', pill.show ? 'opacity-100' : 'opacity-0']"
           :style="{ height: pill.h + 'px', transform: `translateY(${pill.y}px)`, top: 0 }" />
-        <div v-for="(g, gi) in nav" :key="gi" :class="gi > 0 && 'mt-5'">
-          <p v-if="g.label" class="relative px-2 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted">{{ g.label }}</p>
+        <div v-for="(g, gi) in nav" :key="gi" :class="gi > 0 && 'mt-4'">
+          <p v-if="g.label" class="relative px-2 pb-1 text-[12px] font-medium text-label-3">{{ g.label }}</p>
           <Link v-for="i in g.items" :key="i.href" :href="i.href" :aria-current="active(i) ? 'page' : undefined"
-            class="relative flex h-8 items-center gap-2 rounded-md px-2 text-sm transition-colors duration-150"
-            :class="active(i) ? 'font-medium text-ink' : 'text-muted hover:text-ink'">
+            class="relative flex h-7 items-center gap-2 rounded-md px-2 text-[13px] transition-colors duration-150"
+            :class="active(i) ? 'font-medium text-ink' : 'text-muted hover:bg-fill-2 hover:text-ink'">
             <span class="flex-1 truncate">{{ i.label }}</span>
-            <span v-if="i.badge" class="num min-w-5 rounded-full bg-forest px-1.5 text-center text-[11px] leading-[18px] text-white">{{ i.badge }}</span>
+            <span v-if="i.badge" class="num text-[12px] font-medium text-tint-text">{{ i.badge }}</span>
           </Link>
         </div>
       </nav>
-      <div class="border-t border-line px-5 py-4 text-sm">
-        <p class="font-medium">{{ who }}</p>
-        <p class="text-[13px] text-muted">{{ sub }}</p>
-        <button type="button" class="mt-2 text-[13px] text-muted underline transition-colors hover:text-ink" @click="signOut">Sign out</button>
+      <div class="flex items-center gap-2 border-t border-line px-4 py-3">
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-[13px] font-medium">{{ who }}</p>
+          <p class="truncate text-[12px] text-muted">{{ sub }}</p>
+        </div>
+        <button type="button" class="press flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted hover:bg-fill-2 hover:text-ink" aria-label="Sign out" title="Sign out" @click="signOut"><Icon n="logout" :size="15" /></button>
       </div>
     </aside>
 
@@ -88,11 +90,11 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
           </div>
           <nav aria-label="Main" class="flex-1 overflow-y-auto px-3 py-3">
             <div v-for="(g, gi) in nav" :key="gi" :class="gi > 0 && 'mt-5'">
-              <p v-if="g.label" class="px-2 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted">{{ g.label }}</p>
+              <p v-if="g.label" class="px-2 pb-1 text-[12px] font-medium text-label-3">{{ g.label }}</p>
               <Link v-for="i in g.items" :key="i.href" :href="i.href" :aria-current="active(i) ? 'page' : undefined"
                 class="flex h-10 items-center gap-2 rounded-md px-2 text-[15px]" :class="active(i) ? 'bg-mint font-medium text-ink' : 'text-muted'">
                 <span class="flex-1 truncate">{{ i.label }}</span>
-                <span v-if="i.badge" class="num min-w-5 rounded-full bg-forest px-1.5 text-center text-[11px] leading-[18px] text-white">{{ i.badge }}</span>
+                <span v-if="i.badge" class="num text-[13px] font-medium text-tint-text">{{ i.badge }}</span>
               </Link>
             </div>
           </nav>
@@ -110,7 +112,7 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
         <Logo :size="20" />
         <button type="button" aria-label="Open menu" :aria-expanded="open" class="press -mr-2 flex h-10 w-10 items-center justify-center" @click="open = true"><Icon n="menu" /></button>
       </header>
-      <main id="main" class="mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:py-10">
+      <main id="main" class="page-in mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:py-8">
         <slot />
       </main>
     </div>

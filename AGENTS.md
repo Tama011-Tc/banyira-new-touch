@@ -47,6 +47,7 @@ Tests use the `banyira4_test` MySQL database: `php artisan test`. Type-check Vue
 - Every status change, approval and sensitive view goes through `AuditLogger`.
 - Investors only ever receive `ListingResource` fields about a business.
 - Design: system fonts, one green accent (`forest`), thin borders, no gradients or shadows. Status = coloured dot + text. Keep it that way.
+  Five references, one job each: Muji for palette and restraint, Linear for product UI density, Pentagram for typography (`.t-display`, `.t-title`, `.t-lead`, `.t-label`), Apple for motion (`--ease-smooth`, `--ease-spring`; always honour reduced motion), Duolingo for sign-up (one question per screen: `WizardLayout` + `useWizard()` + `ChoiceCards`).
 - Tailwind v4 tokens live in `resources/css/app.css` (`@theme`). Global element styles go in `@layer base`.
 
 ## Engineering standards

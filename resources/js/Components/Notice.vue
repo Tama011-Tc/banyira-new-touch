@@ -9,11 +9,11 @@ withDefaults(defineProps<{ tone?: 'info' | 'warn' | 'ok' | 'risk' | 'error'; tit
 <template>
   <div
     :role="tone === 'error' ? 'alert' : tone === 'warn' || tone === 'risk' ? 'note' : undefined"
-    class="flex gap-3 rounded-[14px] px-4 py-3.5 text-[15px] leading-snug"
+    class="flex gap-2.5 rounded-lg px-3.5 py-3 text-[14px] leading-snug"
     :class="{ info: 'bg-tint-soft', ok: 'bg-green-soft', warn: 'bg-orange-soft', risk: 'bg-orange-soft', error: 'bg-red-soft' }[tone]"
   >
     <span :class="{ info: 'text-tint-text', ok: 'text-green-text', warn: 'text-orange-text', risk: 'text-orange-text', error: 'text-red-text' }[tone]">
-      <Icon :n="tone === 'ok' ? 'ok' : tone === 'info' ? 'info' : tone === 'error' ? 'error' : 'alert'" :size="20" class="mt-px" />
+      <Icon :n="tone === 'ok' ? 'ok' : tone === 'info' ? 'info' : tone === 'error' ? 'error' : 'alert'" :size="18" class="mt-px" />
     </span>
     <div class="min-w-0 text-label">
       <p v-if="title" class="font-semibold">{{ title }}</p>

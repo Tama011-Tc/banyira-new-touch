@@ -9,7 +9,7 @@ defineProps<{ title: string; sub?: string }>()
 <template>
   <Head :title="title" />
   <div class="flex min-h-screen items-start justify-center border-t-[3px] border-clay px-4 pt-16 sm:pt-24">
-    <main id="main" class="w-full max-w-sm">
+    <main id="main" class="page-in w-full max-w-sm">
       <div class="flex items-center gap-2"><Logo /><span class="rounded-sm bg-orange-soft px-1.5 py-px font-mono text-[10px] font-semibold uppercase tracking-wider text-orange-text">Internal</span></div>
       <h1 class="mt-8 text-[22px]">{{ title }}</h1>
       <p v-if="sub" class="mt-1 text-sm text-muted">{{ sub }}</p>

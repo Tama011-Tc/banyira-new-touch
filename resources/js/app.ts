@@ -13,7 +13,7 @@ createInertiaApp({
   setup({ el, App, props, plugin }) {
     createApp({ render: () => h(App, props) }).use(plugin).mount(el!)
   },
-  progress: { color: '#1d4a37', delay: 150, showSpinner: false },
+  progress: { color: '#1f5a43', delay: 150, showSpinner: false },
 })
 
 // Installable app shell for low-connectivity use (static assets only; no financial data is cached).

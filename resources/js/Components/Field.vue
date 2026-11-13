@@ -8,7 +8,7 @@ const id = useId()
 
 <template>
   <div>
-    <label :for="id" class="mb-1.5 block text-[14px] font-medium text-label">
+    <label :for="id" class="mb-1.5 block text-[13px] font-medium text-label">
       {{ label }} <span v-if="optional" class="font-normal text-label-2">Optional</span>
     </label>
     <slot :id="id" :described="error ? id + '-e' : hint ? id + '-h' : undefined" :invalid="!!error" />

@@ -7,71 +7,76 @@
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /*
- * Banyira design system, after Apple's Human Interface Guidelines.
+ * Banyira design system. Five references, one job each:
+ *   Muji      - palette and restraint: paper, ink, one forest accent, nothing decorative.
+ *   Linear    - product UI: dense controls, small radii, hairline borders.
+ *   Pentagram - typography: a short scale with large, tight, left-aligned display type.
+ *   Apple     - motion: springs, continuity between states, feedback on press.
+ *   Duolingo  - onboarding: one question per screen (Layouts/WizardLayout.vue).
  * Tailwind v4 keeps its configuration here (there is no tailwind.config.js).
  * Every colour is a semantic token backed by a CSS variable, so light and
  * dark mode switch without touching components.
  *
- * Contrast note: white on #007AFF is 4.0:1 (fails WCAG AA for body text),
- * so filled controls use #0071E3 (4.6:1) and blue text uses #0066CC.
+ * Contrast: white on --tint is 8.0:1 (light) and 5.2:1 (dark); --label-2 on
+ * --surface is 5.4:1. Status text colours are all above 4.5:1.
  */
 
 /* Variables the utilities point at. Light is the default. */
 :root {
   color-scheme: light;
-  --bg: #f5f5f7;            /* page */
-  --surface: #ffffff;       /* cards, grouped rows */
-  --surface-2: #fbfbfd;     /* subtle raised fill inside surfaces */
-  --fill: rgb(120 120 128 / 0.12);       /* controls, selected rows */
-  --fill-2: rgb(120 120 128 / 0.08);     /* hover */
-  --label: #1d1d1f;
-  --label-2: #6e6e73;       /* secondary text, 4.9:1 on white */
-  --label-3: #86868b;       /* placeholders, decoration only */
-  --separator: rgb(60 60 67 / 0.14);
-  --separator-2: rgb(60 60 67 / 0.26);
-  --tint: #0071e3;          /* primary fills */
-  --tint-hover: #0077ed;
-  --tint-text: #0066cc;     /* links and blue text */
-  --tint-soft: rgb(0 113 227 / 0.1);
-  --green: #34c759;  --green-text: #248a3d;  --green-soft: rgb(52 199 89 / 0.14);
-  --orange: #ff9500; --orange-text: #b25000; --orange-soft: rgb(255 149 0 / 0.14);
-  --red: #ff3b30;    --red-text: #d70015;    --red-soft: rgb(255 59 48 / 0.11);
-  --scrim: rgb(0 0 0 / 0.28);
-  --chart-1: #0071e3; --chart-2: #4a9df5; --chart-3: #8cc2f8; --chart-4: #c6e0fb; --chart-5: #86868b;
+  --bg: #f6f4ef;            /* page: unbleached paper */
+  --surface: #fdfcfa;       /* cards, grouped rows */
+  --surface-2: #f9f7f3;     /* subtle raised fill inside surfaces */
+  --fill: rgb(40 36 28 / 0.08);          /* controls, selected rows */
+  --fill-2: rgb(40 36 28 / 0.045);       /* hover */
+  --label: #1c1b19;
+  --label-2: #6b6862;       /* secondary text */
+  --label-3: #8f8b84;       /* placeholders, decoration only */
+  --separator: rgb(40 36 28 / 0.12);
+  --separator-2: rgb(40 36 28 / 0.22);
+  --tint: #1f5a43;          /* the one accent: forest */
+  --tint-hover: #26694f;
+  --tint-text: #1f5a43;
+  --tint-soft: rgb(31 90 67 / 0.09);
+  --green: #4a8f66;  --green-text: #2f6b48;  --green-soft: rgb(74 143 102 / 0.13);
+  --orange: #c4862a; --orange-text: #8a5a10; --orange-soft: rgb(196 134 42 / 0.13);
+  --red: #c4472f;    --red-text: #a5331f;    --red-soft: rgb(196 71 47 / 0.1);
+  --scrim: rgb(28 27 25 / 0.32);
+  --chart-1: #1f5a43; --chart-2: #4f8a70; --chart-3: #8fb5a1; --chart-4: #cfdfd6; --chart-5: #8f8b84;
   /* Fixed in both themes: text on always-white buttons and on the light chart fills. */
-  --tint-on-white: #0066cc;
-  --chart-ink: #0b2a4a;
-  --seg-thumb: #ffffff;
+  --tint-on-white: #1f5a43;
+  --chart-ink: #12261d;
+  --seg-thumb: #fdfcfa;
 }
 
 /* Dark: follows the system unless the user picked a theme. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e;
-    --fill: rgb(118 118 128 / 0.24); --fill-2: rgb(118 118 128 / 0.16);
-    --label: #f5f5f7; --label-2: #a1a1a6; --label-3: #6e6e73;
-    --separator: rgb(84 84 88 / 0.55); --separator-2: rgb(84 84 88 / 0.85);
-    --tint: #0071e3; --tint-hover: #0a84ff; --tint-text: #2997ff; --tint-soft: rgb(10 132 255 / 0.2);
-    --green: #30d158;  --green-text: #30d158;  --green-soft: rgb(48 209 88 / 0.18);
-    --orange: #ff9f0a; --orange-text: #ff9f0a; --orange-soft: rgb(255 159 10 / 0.18);
-    --red: #ff453a;    --red-text: #ff6961;    --red-soft: rgb(255 69 58 / 0.18);
-    --scrim: rgb(0 0 0 / 0.5); --seg-thumb: #636366;
-    --chart-1: #0a84ff; --chart-2: #409cff; --chart-3: #7ab8ff; --chart-4: #2c4a6b; --chart-5: #6e6e73;
+    --bg: #111110; --surface: #191918; --surface-2: #222221;
+    --fill: rgb(236 232 222 / 0.1); --fill-2: rgb(236 232 222 / 0.06);
+    --label: #ecebe7; --label-2: #a3a09a; --label-3: #73706a;
+    --separator: rgb(236 232 222 / 0.1); --separator-2: rgb(236 232 222 / 0.2);
+    --tint: #2f7a5c; --tint-hover: #368a68; --tint-text: #7cc4a3; --tint-soft: rgb(95 174 140 / 0.16);
+    --green: #5fae82;  --green-text: #7cc49b;  --green-soft: rgb(95 174 130 / 0.16);
+    --orange: #d9a045; --orange-text: #e0ad5c; --orange-soft: rgb(217 160 69 / 0.16);
+    --red: #e0664f;    --red-text: #ee8a76;    --red-soft: rgb(224 102 79 / 0.16);
+    --scrim: rgb(0 0 0 / 0.55); --seg-thumb: #2e2e2c;
+    --chart-1: #3f9b76; --chart-2: #5fae8c; --chart-3: #8cc7ad; --chart-4: #2b4a3d; --chart-5: #6e6b66;
   }
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e;
-  --fill: rgb(118 118 128 / 0.24); --fill-2: rgb(118 118 128 / 0.16);
-  --label: #f5f5f7; --label-2: #a1a1a6; --label-3: #6e6e73;
-  --separator: rgb(84 84 88 / 0.55); --separator-2: rgb(84 84 88 / 0.85);
-  --tint: #0071e3; --tint-hover: #0a84ff; --tint-text: #2997ff; --tint-soft: rgb(10 132 255 / 0.2);
-  --green: #30d158;  --green-text: #30d158;  --green-soft: rgb(48 209 88 / 0.18);
-  --orange: #ff9f0a; --orange-text: #ff9f0a; --orange-soft: rgb(255 159 10 / 0.18);
-  --red: #ff453a;    --red-text: #ff6961;    --red-soft: rgb(255 69 58 / 0.18);
-  --scrim: rgb(0 0 0 / 0.5); --seg-thumb: #636366;
-  --chart-1: #0a84ff; --chart-2: #409cff; --chart-3: #7ab8ff; --chart-4: #2c4a6b; --chart-5: #6e6e73;
+  --bg: #111110; --surface: #191918; --surface-2: #222221;
+  --fill: rgb(236 232 222 / 0.1); --fill-2: rgb(236 232 222 / 0.06);
+  --label: #ecebe7; --label-2: #a3a09a; --label-3: #73706a;
+  --separator: rgb(236 232 222 / 0.1); --separator-2: rgb(236 232 222 / 0.2);
+  --tint: #2f7a5c; --tint-hover: #368a68; --tint-text: #7cc4a3; --tint-soft: rgb(95 174 140 / 0.16);
+  --green: #5fae82;  --green-text: #7cc49b;  --green-soft: rgb(95 174 130 / 0.16);
+  --orange: #d9a045; --orange-text: #e0ad5c; --orange-soft: rgb(217 160 69 / 0.16);
+  --red: #e0664f;    --red-text: #ee8a76;    --red-soft: rgb(224 102 79 / 0.16);
+  --scrim: rgb(0 0 0 / 0.55); --seg-thumb: #2e2e2c;
+  --chart-1: #3f9b76; --chart-2: #5fae8c; --chart-3: #8cc7ad; --chart-4: #2b4a3d; --chart-5: #6e6b66;
 }
 
 /* Tailwind utilities (bg-surface, text-label, border-separator …) */
@@ -119,13 +124,18 @@
   --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
-  --radius-control: 10px;
-  --radius-card: 16px;
-  --radius-sheet: 20px;
+  --radius-control: 6px;
+  --radius-card: 8px;
+  --radius-sheet: 12px;
 
+  /* Motion. "smooth" is the critically damped curve sheets and pushes use;
+     "spring" overshoots slightly and is kept for small things that land
+     (a check mark, a switch thumb, a selected choice). */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1);
 }
 
 :root { --rise: 1; }
@@ -138,39 +148,44 @@
   html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scrollbar-color: var(--separator-2) transparent; }
   body {
     background: var(--bg); color: var(--label); font-family: var(--font-sans);
-    font-size: 17px; line-height: 1.47; letter-spacing: -0.022em;
-    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    transition: background-color 300ms ease, color 300ms ease;
+    font-size: 15px; line-height: 1.5; letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
   }
-  /* Size-specific tracking: tight on large titles, near zero on small text. */
-  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; letter-spacing: -0.025em; text-wrap: balance; }
-  h1 { font-weight: 700; }
-  small, .text-xs, .text-\[11px\], .text-\[12px\], .text-\[13px\] { letter-spacing: -0.005em; }
+  /* Tracking tightens as type grows; small text stays near zero. */
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.15; letter-spacing: -0.022em; text-wrap: balance; }
+  small, .text-xs, .text-\[11px\], .text-\[12px\], .text-\[13px\] { letter-spacing: -0.003em; }
   p { text-wrap: pretty; }
   a { text-underline-offset: 3px; }
   input, textarea { caret-color: var(--tint); }
   input[type='checkbox'], input[type='radio'], input[type='range'], progress { accent-color: var(--tint); }
   ::selection { background: var(--tint-soft); color: var(--label); }
   ::placeholder { color: var(--label-3); }
-  :focus-visible { outline: 3px solid color-mix(in srgb, var(--tint) 55%, transparent); outline-offset: 2px; border-radius: 8px; }
+  :focus-visible { outline: 2px solid color-mix(in srgb, var(--tint) 70%, transparent); outline-offset: 2px; border-radius: 4px; }
   [v-cloak] { display: none; }
 }
 
 @layer components {
-  /* Text fields: filled, rounded, 16px+ so iOS never zooms on focus. */
+  /* Type scale. Display sizes are fluid and set tight; everything else is fixed. */
+  .t-display { font-family: var(--font-display); font-size: clamp(2.5rem, 7.2vw, 5.75rem); font-weight: 600; line-height: 0.98; letter-spacing: -0.045em; text-wrap: balance; }
+  .t-title { font-family: var(--font-display); font-size: clamp(1.75rem, 3.6vw, 2.75rem); font-weight: 600; line-height: 1.04; letter-spacing: -0.035em; text-wrap: balance; }
+  .t-lead { font-size: clamp(1.0625rem, 1.5vw, 1.25rem); line-height: 1.4; letter-spacing: -0.016em; color: var(--label-2); }
+  .t-label { font-size: 11px; font-weight: 500; line-height: 1.3; letter-spacing: 0.07em; text-transform: uppercase; color: var(--label-2); }
+
+  /* Text fields: compact with a pointer, 44px and 16px on touch so iOS never zooms. */
   .input {
-    width: 100%; min-height: 44px; border-radius: var(--radius-control); background: var(--surface);
-    border: 1px solid var(--separator-2); padding: 0 0.875rem; font-size: 16px; color: var(--label);
+    width: 100%; min-height: 36px; border-radius: var(--radius-control); background: var(--surface);
+    border: 1px solid var(--separator-2); padding: 0 0.75rem; font-size: 14px; color: var(--label);
     transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
   }
-  .input:hover { border-color: color-mix(in srgb, var(--label) 30%, transparent); }
-  .input:focus { outline: none; border-color: var(--tint); box-shadow: 0 0 0 4px var(--tint-soft); }
-  .input[aria-invalid='true'] { border-color: var(--red-text); box-shadow: 0 0 0 4px var(--red-soft); }
+  @media (pointer: coarse) { .input { min-height: 44px; font-size: 16px; } }
+  .input:hover { border-color: color-mix(in srgb, var(--label) 34%, transparent); }
+  .input:focus { outline: none; border-color: var(--tint); box-shadow: 0 0 0 3px var(--tint-soft); }
+  .input[aria-invalid='true'] { border-color: var(--red-text); box-shadow: 0 0 0 3px var(--red-soft); }
   .input:disabled { background: var(--fill-2); color: var(--label-2); }
-  textarea.input { padding-top: 0.625rem; padding-bottom: 0.625rem; line-height: 1.4; }
-  select.input { appearance: none; padding-right: 2.25rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.875rem center; }
+  textarea.input { padding-top: 0.5rem; padding-bottom: 0.5rem; line-height: 1.45; }
+  select.input { appearance: none; padding-right: 2.25rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%238f8b84' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; }
 
-  .eyebrow { font-size: 13px; font-weight: 500; color: var(--label-2); }
+  .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--label-2); }
   .num { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
   .link { color: var(--tint-text); text-decoration: none; transition: opacity 150ms ease; }
   .link:hover { text-decoration: underline; }
@@ -181,7 +196,7 @@
 
   /* Press feedback, on pointer-down */
   .press { transition: transform 120ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease; }
-  .press:active { transform: scale(0.98); }
+  .press:active { transform: scale(0.97); }
 
   /* Expand/collapse via grid rows */
   .reveal { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 280ms var(--ease-out), opacity 200ms ease; }
@@ -192,8 +207,19 @@
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-.skeleton { border-radius: 8px; background: linear-gradient(90deg, var(--fill-2) 25%, var(--fill) 50%, var(--fill-2) 75%); background-size: 200% 100%; animation: shimmer 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.45; } }
+.skeleton { border-radius: 4px; background: var(--fill); animation: pulse 1.6s ease-in-out infinite; }
+
+/* A page arrives rather than appearing. Layouts mount per page, so this runs
+   once per navigation and never on a validation round-trip. */
+@keyframes page-in { from { opacity: 0; transform: translateY(calc(6px * var(--rise))); } }
+.page-in { animation: page-in 280ms var(--ease-smooth) both; }
+
+/* Wizard steps push like a navigation stack: forward comes from the right. */
+.step-next-enter-active, .step-back-enter-active { transition: opacity 240ms var(--ease-smooth), transform 340ms var(--ease-smooth); }
+.step-next-leave-active, .step-back-leave-active { transition: opacity 120ms ease, transform 160ms ease; }
+.step-next-enter-from, .step-back-leave-to { opacity: 0; transform: translateX(calc(28px * var(--rise))); }
+.step-next-leave-to, .step-back-enter-from { opacity: 0; transform: translateX(calc(-28px * var(--rise))); }
 
 /* Vue <Transition> classes */
 .pop-enter-active { transition: opacity 180ms var(--ease-out), transform 220ms var(--ease-out), filter 220ms var(--ease-out); }
@@ -226,6 +252,7 @@
   :root { --separator: var(--separator-2); --label-2: var(--label); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
   .sheet-enter-from, .sheet-leave-to, .pop-enter-from, .pop-leave-to, .toast-enter-from { filter: none; }
 }
 

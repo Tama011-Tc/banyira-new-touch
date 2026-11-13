@@ -40,8 +40,8 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
             </button>
             <Transition name="pop">
               <div v-if="dd" class="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-3" style="transform-origin: top center">
-                <div class="rounded-xl border border-separator-2 bg-surface p-2">
-                  <Link v-for="p in products" :key="p.slug" :href="`/products/${p.slug}`" class="block rounded-lg px-3 py-2.5 transition-colors duration-150 hover:bg-mint">
+                <div class="rounded-lg border border-separator-2 bg-surface p-1.5">
+                  <Link v-for="p in products" :key="p.slug" :href="`/products/${p.slug}`" class="block rounded-md px-3 py-2.5 transition-colors duration-150 hover:bg-fill-2">
                     <span class="block font-medium">{{ p.name }}</span>
                     <span class="block text-[13px] text-muted">{{ p.summary }}</span>
                   </Link>
@@ -85,7 +85,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
       </div>
     </header>
 
-    <main id="main" tabindex="-1" class="flex-1 outline-none"><slot /></main>
+    <main id="main" tabindex="-1" class="page-in flex-1 outline-none"><slot /></main>
 
     <footer class="border-t border-line">
       <div class="mx-auto grid max-w-6xl gap-8 px-4 py-14 text-sm sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
@@ -133,8 +133,8 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
 .navlink { position: relative; color: var(--color-muted); transition: color 150ms ease; }
 .navlink:hover, .navlink[data-active='true'] { color: var(--color-ink); }
 .navlink::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1.5px; border-radius: 1px;
-  background: var(--color-forest); transform: scaleX(0); transform-origin: left; transition: transform 260ms var(--ease-out);
+  content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+  background: var(--color-ink); transform: scaleX(0); transform-origin: left; transition: transform 320ms var(--ease-smooth);
 }
 .navlink[data-active='true']::after { transform: scaleX(1); }
 @media (hover: hover) and (pointer: fine) { .navlink:hover::after { transform: scaleX(1); } }

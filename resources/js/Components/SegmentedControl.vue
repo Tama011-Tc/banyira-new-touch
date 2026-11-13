@@ -41,19 +41,19 @@ const onKey = (e: KeyboardEvent) => {
 
 <template>
   <div class="max-w-full relative overflow-x-auto [scrollbar-width:none]" :class="full ? 'w-full' : 'inline-flex'">
-    <div ref="track" role="tablist" :aria-label="label" class="relative inline-flex min-w-full rounded-[11px] bg-fill p-[3px]" @keydown="onKey">
-      <span aria-hidden="true" class="absolute bottom-[3px] left-0 top-[3px] rounded-[8px] bg-[var(--seg-thumb)] shadow-[0_3px_8px_rgb(0_0_0/0.08),0_1px_1px_rgb(0_0_0/0.06)]"
-        :class="[thumb.ready && 'transition-[transform,width] duration-300 ease-[var(--ease-drawer)]', thumb.show ? 'opacity-100' : 'opacity-0']"
+    <div ref="track" role="tablist" :aria-label="label" class="relative inline-flex min-w-full rounded-lg bg-fill p-[3px]" @keydown="onKey">
+      <span aria-hidden="true" class="absolute bottom-[3px] left-0 top-[3px] rounded-[5px] border border-separator bg-[var(--seg-thumb)]"
+        :class="[thumb.ready && 'transition-[transform,width] duration-300 ease-[var(--ease-smooth)]', thumb.show ? 'opacity-100' : 'opacity-0']"
         :style="{ width: thumb.w + 'px', transform: `translateX(${thumb.x}px)` }" />
       <template v-for="o in options" :key="o.key">
         <Link v-if="o.href" :href="o.href" preserve-scroll role="tab" :aria-selected="model === o.key" :tabindex="model === o.key ? 0 : -1"
-          class="relative z-[1] flex h-8 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] px-3.5 text-[14px] transition-colors duration-200"
-          :class="model === o.key ? 'font-semibold text-label' : 'text-label-2 hover:text-label'">
+          class="relative z-[1] flex h-7 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[5px] px-3 text-[13px] transition-colors duration-200"
+          :class="model === o.key ? 'font-medium text-label' : 'text-label-2 hover:text-label'">
           {{ o.label }}<span v-if="o.count" class="num text-[12px] text-label-2">{{ o.count }}</span>
         </Link>
         <button v-else type="button" role="tab" :aria-selected="model === o.key" :tabindex="model === o.key ? 0 : -1" @click="model = o.key"
-          class="relative z-[1] flex h-8 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] px-3.5 text-[14px] transition-colors duration-200"
-          :class="model === o.key ? 'font-semibold text-label' : 'text-label-2 hover:text-label'">
+          class="relative z-[1] flex h-7 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[5px] px-3 text-[13px] transition-colors duration-200"
+          :class="model === o.key ? 'font-medium text-label' : 'text-label-2 hover:text-label'">
           {{ o.label }}<span v-if="o.count" class="num text-[12px] text-label-2">{{ o.count }}</span>
         </button>
       </template>

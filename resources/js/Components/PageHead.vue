@@ -21,13 +21,13 @@ onBeforeUnmount(() => { io?.disconnect(); chrome.collapsed = false })
 <template>
   <Head :title="title" />
   <div class="mb-6 sm:mb-8">
-    <Link v-if="back" :href="back.href" class="press -ml-1.5 mb-2 inline-flex h-9 items-center gap-0.5 rounded-lg pl-0.5 pr-2.5 text-[15px] text-tint-text hover:bg-fill-2">
-      <Icon n="chevleft" :size="20" />{{ back.label }}
+    <Link v-if="back" :href="back.href" class="press -ml-1.5 mb-2 inline-flex h-9 items-center gap-0.5 rounded-md pl-0.5 pr-2.5 text-[13px] text-label-2 hover:bg-fill-2 hover:text-label">
+      <Icon n="chevleft" :size="16" />{{ back.label }}
     </Link>
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="min-w-0">
-        <h1 ref="el" class="text-[28px] leading-[1.1] tracking-[-0.03em] sm:text-[34px]">{{ title }}</h1>
-        <p v-if="sub" class="mt-1.5 max-w-2xl text-[15px] text-label-2">{{ sub }}</p>
+        <h1 ref="el" class="text-[22px] leading-[1.15] tracking-[-0.025em] sm:text-[26px]">{{ title }}</h1>
+        <p v-if="sub" class="mt-1 max-w-2xl text-[14px] text-label-2">{{ sub }}</p>
       </div>
       <div v-if="$slots.default" class="flex flex-wrap gap-2"><slot /></div>
     </div>

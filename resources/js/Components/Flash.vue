@@ -33,10 +33,10 @@ onBeforeUnmount(() => { document.removeEventListener('visibilitychange', onVis);
 <template>
   <div class="pointer-events-none fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[70] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:top-auto" role="status" aria-live="polite">
     <TransitionGroup name="toast" tag="div" class="flex flex-col items-center gap-2 sm:items-end" @mouseenter="pause" @mouseleave="resume">
-      <div v-for="x in items" :key="x.id" class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-separator-2 bg-surface py-3 pl-4 pr-2 text-[15px]">
-        <span :class="x.ok ? 'text-green-text' : 'text-red-text'"><Icon :n="x.ok ? 'ok' : 'error'" :size="20" class="mt-px" /></span>
+      <div v-for="x in items" :key="x.id" class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-separator-2 bg-surface py-2.5 pl-3.5 pr-1.5 text-[14px]">
+        <span :class="x.ok ? 'text-green-text' : 'text-red-text'"><Icon :n="x.ok ? 'ok' : 'error'" :size="18" class="mt-px" /></span>
         <span class="flex-1 text-label">{{ x.msg }}</span>
-        <button type="button" class="press -my-1 flex h-8 w-8 items-center justify-center rounded-full text-label-2 hover:bg-fill-2" aria-label="Dismiss" @click="remove(x.id)"><Icon n="x" :size="16" /></button>
+        <button type="button" class="press -my-1 flex h-8 w-8 items-center justify-center rounded-md text-label-2 hover:bg-fill-2" aria-label="Dismiss" @click="remove(x.id)"><Icon n="x" :size="16" /></button>
       </div>
     </TransitionGroup>
   </div>

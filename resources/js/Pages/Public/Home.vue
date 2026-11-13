@@ -35,20 +35,21 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
   <Head title="Business financing and SME investment in Malawi" />
   <PublicLayout>
     <!-- Hero -->
-    <section class="mx-auto grid max-w-6xl items-end gap-12 px-4 pb-20 pt-14 sm:px-6 md:grid-cols-[1.25fr_1fr] md:pb-28 md:pt-24">
+    <section class="mx-auto max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-32 md:pt-28">
+      <h1 class="t-display">
+        Capital for businesses.<br />
+        <span class="text-label-3">Opportunities for investors.</span>
+      </h1>
+      <div class="mt-12 grid items-end gap-12 md:mt-20 md:grid-cols-[1.25fr_1fr]">
       <div>
-        <h1 class="text-[36px] leading-[1.08] tracking-[-0.03em] sm:text-[44px] md:text-[52px]">
-          Capital for businesses.<br />
-          <span class="text-forest">Opportunities for investors.</span>
-        </h1>
-        <p class="mt-7 max-w-lg text-[17px] text-muted">Banyira connects ambitious businesses seeking financing with investors looking for opportunities to support real businesses and participate in their growth.</p>
+        <p class="t-lead max-w-lg">Banyira connects ambitious businesses seeking financing with investors looking for opportunities to support real businesses and participate in their growth.</p>
         <div class="mt-9 flex flex-wrap gap-3">
           <Btn size="lg" href="/register/business">Find Business Financing</Btn>
           <Btn size="lg" variant="outline" href="/register/investor">Explore Investment Opportunities</Btn>
         </div>
       </div>
 
-      <figure class="rounded-xl border border-separator bg-surface p-6" aria-labelledby="ex-cap">
+      <figure class="rounded-lg border border-separator bg-surface p-5" aria-labelledby="ex-cap">
         <div class="mb-1 flex items-center justify-between">
           <p class="text-sm font-medium">Equipment financing · 18 months</p>
           <RiskBadge r="B" />
@@ -56,6 +57,7 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
         <FundingSplit :total="5_000_000" :parts="example" />
         <figcaption id="ex-cap" class="mt-5 border-t border-line pt-3 text-xs text-muted">Example only, not a real listing. One request, three investors, each with their own rate and repayment schedule.</figcaption>
       </figure>
+      </div>
     </section>
 
     <Section title="A marketplace between businesses that need capital and people who want to invest in them.">
@@ -69,7 +71,7 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
     <Section title="Six steps from application to repayment." tone="white">
       <ol class="grid gap-x-8 gap-y-7 sm:grid-cols-2">
         <li v-for="([t, d], i) in how" :key="t" class="grid grid-cols-[2rem_1fr] border-t border-line pt-4">
-          <span class="num pt-px text-[13px] text-muted">{{ i + 1 }}</span>
+          <span class="num pt-px text-[13px] text-label-3">{{ String(i + 1).padStart(2, '0') }}</span>
           <div><h3 class="text-[17px]">{{ t }}</h3><p class="mt-1 text-sm text-muted">{{ d }}</p></div>
         </li>
       </ol>
@@ -113,7 +115,7 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
     <Section title="Every business is reviewed by a person, against published criteria.">
       <ol class="space-y-3 text-[15px]">
         <li v-for="(t, i) in ['Identity and business registration are verified', 'Bank and mobile-money records are reviewed', 'Repayment capacity is scored against weighted criteria', 'A risk class is assigned and approved by a second person', 'Only then is the business published to investors']" :key="t" class="grid grid-cols-[2rem_1fr]">
-          <span class="num pt-px text-[13px] text-muted">{{ i + 1 }}</span>{{ t }}
+          <span class="num pt-px text-[13px] text-label-3">{{ String(i + 1).padStart(2, '0') }}</span>{{ t }}
         </li>
       </ol>
       <table class="mt-10 w-full text-sm">
@@ -131,7 +133,7 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
     </Section>
 
     <Section id="risk" title="Read this before you invest." tone="white">
-      <div class="max-w-2xl space-y-3 rounded-xl border border-clay/25 bg-clay-soft p-6 text-[15px] text-orange-text">
+      <div class="max-w-2xl space-y-3 border-l-2 border-orange pl-5 text-[17px] text-label">
         <p>Investing through Banyira involves financial risk. Investors may experience delayed repayments or lose some or all of their invested capital.</p>
         <p>Banyira's credit assessments and risk classifications are intended to support informed investment decisions. They do not guarantee repayment or returns.</p>
         <p>Investors are responsible for evaluating opportunities and making their own investment decisions. Investments are not guaranteed, insured or risk-free.</p>
@@ -142,13 +144,13 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
 
     <section class="border-t border-line bg-forest text-white">
       <div class="mx-auto grid max-w-6xl md:grid-cols-2">
-        <div class="px-4 py-16 sm:px-6 md:border-r md:border-white/15 md:py-24">
-          <h2 class="text-[28px]">Ready to finance your business?</h2>
+        <div class="px-5 py-16 sm:px-8 md:border-r md:border-white/15 md:py-24">
+          <h2 class="t-title">Ready to finance your business?</h2>
           <p class="mt-3 max-w-sm text-white/75">Registration takes about ten minutes. You will need your registration certificate and recent statements.</p>
           <div class="mt-7"><Btn href="/register/business" variant="light">Get started with a loan</Btn></div>
         </div>
-        <div class="border-t border-white/15 px-4 py-16 sm:px-6 md:border-t-0 md:py-24 md:pl-12">
-          <h2 class="text-[28px]">Ready to explore opportunities?</h2>
+        <div class="border-t border-white/15 px-5 py-16 sm:px-8 md:border-t-0 md:py-24 md:pl-12">
+          <h2 class="t-title">Ready to explore opportunities?</h2>
           <p class="mt-3 max-w-sm text-white/75">Open an account, verify your identity, then browse assessed businesses.</p>
           <div class="mt-7"><Btn href="/register/investor" variant="ghost-light">Get started with investing</Btn></div>
         </div>
