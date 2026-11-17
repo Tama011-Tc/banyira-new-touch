@@ -1,9 +1,17 @@
 <script lang="ts">
-export type NavItem = { href: string; label: string; badge?: number | string; exact?: boolean }
+export type NavItem = { href: string; label: string; badge?: number | string; exact?: boolean; icon?: string }
 export type NavGroup = { label?: string; items: NavItem[] }
 
 // Survives page changes (each page mounts its own shell), so the highlight
 // can start where it was and slide to the new item.
+// Sidebar icons by the last segment of the route; items may set `icon` to override.
+const NAV_ICONS: Record<string, string> = {
+  business: 'home', investor: 'home', customer: 'home', profile: 'user', applications: 'doc', offers: 'offers', financing: 'bank', repayments: 'calendar',
+  messages: 'message', documents: 'inbox', notifications: 'bell', settings: 'settings', help: 'help', marketplace: 'store', investments: 'briefcase',
+  agreements: 'log', transactions: 'transfer',
+}
+const iconFor = (i: NavItem) => i.icon ?? NAV_ICONS[i.href.split('/').filter(Boolean).pop() ?? '']
+
 let lastPill = null as { y: number; h: number } | null
 </script>
 
@@ -65,6 +73,7 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
           <Link v-for="i in g.items" :key="i.href" :href="i.href" :aria-current="active(i) ? 'page' : undefined"
             class="relative flex h-7 items-center gap-2 rounded-md px-2 text-[13px] transition-colors duration-150"
             :class="active(i) ? 'font-medium text-ink' : 'text-muted hover:bg-fill-2 hover:text-ink'">
+            <Icon v-if="iconFor(i)" :n="iconFor(i)!" :size="16" />
             <span class="flex-1 truncate">{{ i.label }}</span>
             <span v-if="i.badge" class="num text-[12px] font-medium text-tint-text">{{ i.badge }}</span>
           </Link>
@@ -83,7 +92,7 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
     <Teleport to="body">
       <Transition name="backdrop"><div v-if="open" class="fixed inset-0 z-40 bg-scrim lg:hidden" @click="open = false" /></Transition>
       <Transition name="drawer">
-        <aside v-if="open" class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85%] flex-col border-r border-separator bg-surface lg:hidden" aria-label="Menu">
+        <aside v-if="open" class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85%] flex-col border-r border-separator bg-surface shadow-float lg:hidden" aria-label="Menu">
           <div class="flex h-14 items-center justify-between px-5">
             <span class="flex items-center gap-2"><Logo /><span v-if="secure" class="rounded-sm bg-orange-soft px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-orange-text">Internal</span></span>
             <button type="button" aria-label="Close menu" class="press -mr-2 flex h-10 w-10 items-center justify-center" @click="open = false"><Icon n="x" /></button>
@@ -93,6 +102,7 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
               <p v-if="g.label" class="px-2 pb-1 text-[12px] font-medium text-label-3">{{ g.label }}</p>
               <Link v-for="i in g.items" :key="i.href" :href="i.href" :aria-current="active(i) ? 'page' : undefined"
                 class="flex h-10 items-center gap-2 rounded-md px-2 text-[15px]" :class="active(i) ? 'bg-mint font-medium text-ink' : 'text-muted'">
+                <Icon v-if="iconFor(i)" :n="iconFor(i)!" :size="18" />
                 <span class="flex-1 truncate">{{ i.label }}</span>
                 <span v-if="i.badge" class="num text-[13px] font-medium text-tint-text">{{ i.badge }}</span>
               </Link>
@@ -108,7 +118,7 @@ watch(() => [page.url, props.nav], () => nextTick(placePill), { deep: true })
     </Teleport>
 
     <div class="min-w-0 flex-1">
-      <header class="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-line bg-surface px-4 lg:hidden">
+      <header class="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-line bg-surface/70 px-4 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
         <Logo :size="20" />
         <button type="button" aria-label="Open menu" :aria-expanded="open" class="press -mr-2 flex h-10 w-10 items-center justify-center" @click="open = true"><Icon n="menu" /></button>
       </header>

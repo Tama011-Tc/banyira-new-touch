@@ -1,4 +1,5 @@
 import '../css/app.css'
+import '@fontsource-variable/inter'
 import { createApp, h, type DefineComponent } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 

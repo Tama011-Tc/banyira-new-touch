@@ -21,7 +21,7 @@ defineProps<{ rules: { version: string; effective: string; ceiling: string; fees
       <section class="surface-card flex flex-col p-5">
         <h3 class="text-[17px] font-semibold tracking-[-0.02em]">Investor interest ceiling</h3>
         <p class="mt-1 text-[13px] text-label-2">The highest annual rate an investor may offer.</p>
-        <p class="num mt-auto pt-6 text-[48px] font-bold leading-none tracking-[-0.04em]">{{ Number(rules.ceiling) }}%<span class="ml-1.5 text-[17px] font-normal tracking-normal text-label-2">a year</span></p>
+        <p class="num mt-auto pt-6 text-[48px] font-semibold leading-none tracking-[-0.04em]">{{ Number(rules.ceiling) }}%<span class="ml-1.5 text-[17px] font-normal tracking-normal text-label-2">a year</span></p>
       </section>
       <section class="surface-card p-5">
         <h3 class="text-[17px] font-semibold tracking-[-0.02em]">Risk-class limits</h3>

@@ -21,7 +21,7 @@ const MAP: Record<string, Component> = {
   package: Package, chart: ChartColumn, logout: LogOut, sun: Sun, moon: Moon, system: Monitor, gauge: Gauge, cash: Banknote, usercog: UserCog,
 }
 
-const props = withDefaults(defineProps<{ n: string; size?: number; stroke?: number }>(), { size: 18, stroke: 1.75 })
+const props = withDefaults(defineProps<{ n: string; size?: number; stroke?: number }>(), { size: 18, stroke: 1.5 })
 const C = computed(() => MAP[props.n] ?? Info)
 </script>
 

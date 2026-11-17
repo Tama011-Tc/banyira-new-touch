@@ -78,7 +78,7 @@ const up = () => {
     <Transition name="sheet">
       <div v-if="open" class="pointer-events-none fixed inset-0 z-[61] flex items-end justify-center sm:items-center sm:p-6">
         <div ref="panel" role="dialog" aria-modal="true" :aria-label="title"
-          class="pointer-events-auto flex max-h-[92vh] w-full max-w-lg flex-col rounded-t-[var(--radius-sheet)] border border-separator-2 bg-surface sm:rounded-[var(--radius-sheet)]"
+          class="pointer-events-auto flex max-h-[92vh] w-full max-w-lg flex-col rounded-t-[var(--radius-sheet)] border border-separator bg-surface shadow-float sm:rounded-[var(--radius-sheet)]"
           :style="{ transform: dragY ? `translateY(${dragY}px)` : undefined, transition: dragging ? 'none' : 'transform 380ms var(--ease-drawer)' }">
           <div class="flex cursor-grab touch-none justify-center pb-1 pt-2.5 active:cursor-grabbing sm:hidden" @pointerdown="down" @pointermove="move" @pointerup="up" @pointercancel="up" aria-hidden="true">
             <span class="h-[5px] w-9 rounded-full bg-separator-2" />
