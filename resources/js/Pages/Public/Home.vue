@@ -6,6 +6,7 @@ import Btn from '@/Components/Btn.vue'
 import RiskBadge from '@/Components/RiskBadge.vue'
 import FundingSplit from '@/Components/FundingSplit.vue'
 import Faq from '@/Components/Faq.vue'
+import Icon from '@/Components/Icon.vue'
 import { mkShort, months } from '@/lib/format'
 
 type Rules = { ceiling: string; fees: { upTo: string | null; rate: string }[]; bands: { class: string; label: string; maxAmount: string | null; maxMonths: number | null }[] }
@@ -27,7 +28,13 @@ const how: [string, string][] = [
   ['Choose', 'The business compares offers and accepts the ones that suit it.'],
   ['Repay', 'Banyira manages agreements, disbursement and monthly repayments.'],
 ]
-const industries = ['Agriculture', 'Manufacturing', 'Construction', 'Mining', 'Tourism', 'Transportation', 'Retail', 'Other commercial industries']
+const safeguards: [string, string, string][] = [
+  ['bank', 'Client money is kept apart', 'Investor funds and repayments are held in a client account, recorded separately from Banyira\'s own money.'],
+  ['users', 'Two people release every payout', 'A disbursement is prepared by one finance officer and approved by a second. Nobody can release funds alone.'],
+  ['check', 'Repayments are confirmed first', 'A repayment only reaches investors once the payment is confirmed as received. Interest is paid first, then principal.'],
+  ['log', 'Every change leaves a record', 'Money movements are posted to a double-entry ledger that cannot be edited, and sensitive actions are audited.'],
+]
+const industries =['Agriculture', 'Manufacturing', 'Construction', 'Mining', 'Tourism', 'Transportation', 'Retail', 'Other commercial industries']
 const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: 'Investor B', amount: 2_000_000, rate: '24%' }, { who: 'Investor C', amount: 2_000_000, rate: '23%' }]
 </script>
 
@@ -132,7 +139,17 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
       <p class="mt-3 text-xs text-muted">A rating is an assessment, not a guarantee of repayment.</p>
     </Section>
 
-    <Section id="risk" title="Read this before you invest." tone="white">
+    <Section title="How money moves, and how it is protected." sub="The same controls apply to every listing, whatever its size." tone="white">
+      <ul class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        <li v-for="[icon, t, d] in safeguards" :key="t" class="border-t border-line pt-4">
+          <span class="flex h-9 w-9 items-center justify-center rounded-control bg-tint-soft text-tint-text" aria-hidden="true"><Icon :n="icon" :size="18" /></span>
+          <h3 class="mt-4 text-[17px]">{{ t }}</h3>
+          <p class="mt-1 text-sm text-muted">{{ d }}</p>
+        </li>
+      </ul>
+    </Section>
+
+    <Section id="risk" title="Read this before you invest.">
       <div class="max-w-2xl space-y-3 border-l-2 border-orange pl-5 text-[17px] text-label">
         <p>Investing through Banyira involves financial risk. Investors may experience delayed repayments or lose some or all of their invested capital.</p>
         <p>Banyira's credit assessments and risk classifications are intended to support informed investment decisions. They do not guarantee repayment or returns.</p>
@@ -140,7 +157,7 @@ const example = [{ who: 'Investor A', amount: 1_000_000, rate: '21%' }, { who: '
       </div>
     </Section>
 
-    <Section title="Frequently asked questions."><Faq :items="faqs" /></Section>
+    <Section title="Frequently asked questions." tone="white"><Faq :items="faqs" /></Section>
 
     <section class="border-t border-line bg-forest text-white">
       <div class="mx-auto grid max-w-6xl md:grid-cols-2">

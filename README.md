@@ -4,6 +4,125 @@ Banyira is a peer-to-peer financing marketplace for small and medium businesses 
 
 > Investing through Banyira involves risk. Credit assessments and risk classes support decisions; they do not guarantee repayment.
 
+**Contents:** [Run it on your computer](#run-banyira-on-your-computer-step-by-step) · [Screenshots](#screenshots) · [How it works](#who-uses-it) · [For developers](#run-it-locally-windows--laragon)
+
+---
+
+## Run Banyira on your computer (step by step)
+
+No programming experience needed. This takes about 20–30 minutes the first time, mostly waiting for downloads. The steps are for **Windows**.
+
+Everything runs on your own computer. The app uses demo data and a pretend payment system, so **no real money and no real text messages** are involved.
+
+### Step 1 — Install two programs (one time only)
+
+1. **Laragon** — a free bundle that contains everything the app needs to run (PHP, a MySQL database and Composer).
+   Download **Laragon Full** from <https://laragon.org/download/> and install it with the default options.
+2. **Node.js** — used once to prepare the screens.
+   Download the **LTS** version from <https://nodejs.org/> and install it with the default options.
+
+### Step 2 — Download Banyira
+
+1. Download this ZIP file: <https://github.com/Tama011-Tc/banyira-new-touch/archive/refs/heads/feat/theme-toggle-lazy-loading.zip>
+   (you must be signed in to GitHub with an account that has access to this repository).
+2. Right-click the downloaded ZIP → **Extract All…** → extract it to `C:\laragon\www`.
+3. Rename the extracted folder to `banyira`, so you have `C:\laragon\www\banyira`.
+
+### Step 3 — Start Laragon
+
+Open **Laragon** and click **Start All**. Wait until it shows that Apache and MySQL are running. Leave Laragon open.
+
+### Step 4 — Set up the app (one time only)
+
+1. In Laragon, click **Terminal**. A black command window opens.
+2. Copy each line below, paste it into that window (right-click pastes), press **Enter**, and wait for it to finish before the next one. Some lines take a few minutes and print a lot of text; that is normal.
+
+```
+cd C:\laragon\www\banyira
+composer install
+npm install
+copy .env.example .env
+php artisan key:generate
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS banyira4"
+php artisan migrate --seed
+npm run build
+```
+
+### Step 5 — Open Banyira
+
+In the same window, type this and press **Enter**:
+
+```
+php artisan serve
+```
+
+Now open your web browser and go to **<http://localhost:8000>**. Keep the black window open while you use the app; closing it stops Banyira.
+
+### Step 6 — Sign in with a demo account
+
+| You want to see… | Click **Login**, choose | Email | Password |
+|---|---|---|---|
+| A business with offers waiting | Business | `owner@mzuzufresh.example` | `demo1234` |
+| A business that is repaying | Business | `owner@lilongweprint.example` | `demo1234` |
+| An investor's portfolio | Investor | `investor@example.com` | `demo1234` |
+
+Staff accounts (credit, finance, sales, IT, executive) sign in at <http://localhost:8000/internal-access>; they are listed in [AGENTS.md](AGENTS.md) and need an authenticator app the first time.
+
+Light or dark look: use the sun/moon button at the top right, or **Appearance** at the bottom of the page.
+
+### Next time
+
+Open Laragon → **Start All** → **Terminal**, then:
+
+```
+cd C:\laragon\www\banyira
+php artisan serve
+```
+
+and open <http://localhost:8000>.
+
+### If something goes wrong
+
+| What you see | What to do |
+|---|---|
+| `No connection could be made…` or `Connection refused` | Laragon is not started. Click **Start All** and try again. |
+| `'php' / 'composer' / 'mysql' is not recognized` | Use the **Terminal** button inside Laragon, not the normal Windows command prompt. |
+| `'npm' is not recognized` | Node.js is not installed, or Laragon was open while you installed it. Install Node.js, then close and reopen Laragon. |
+| `Failed to listen on 127.0.0.1:8000` | Something else is using that address. Run `php artisan serve --port=8001` and open <http://localhost:8001>. |
+| The page looks unstyled or blank | Run `npm run build` again, then refresh the browser with **Ctrl+F5**. |
+| You want to start over with fresh demo data | Run `php artisan migrate:fresh --seed` (this deletes everything you created in the app). |
+
+---
+
+## Screenshots
+
+All screenshots use the demo data above.
+
+### Public website
+
+| | |
+|---|---|
+| **Home page**<br>![Home page](docs/screenshots/01-home.png) | **Home page in dark mode**<br>![Home page in dark mode](docs/screenshots/07-home-dark.png) |
+| **How money is protected** (home page)<br>![How money is protected](docs/screenshots/06-how-money-is-protected.png) | **Financing products and fees**<br>![Products](docs/screenshots/04-products.png) |
+| **How to get a loan**<br>![How to get a loan](docs/screenshots/02-how-to-get-a-loan.png) | **How to invest**<br>![How to invest](docs/screenshots/03-how-to-invest.png) |
+| **Get started (choose business or investor)**<br>![Get started](docs/screenshots/05-get-started.png) | **Home page on a phone**<br><img src="docs/screenshots/08-home-phone.png" alt="Home page on a phone" width="260"> |
+
+### Investor area
+
+| | |
+|---|---|
+| **Portfolio overview**<br>![Investor overview](docs/screenshots/09-investor-overview.png) | **Marketplace of assessed businesses**<br>![Marketplace](docs/screenshots/10-investor-marketplace.png) |
+| **A business listing, where investors make offers**<br>![Listing](docs/screenshots/11-investor-listing.png) | |
+
+### Business area
+
+| | |
+|---|---|
+| **Business overview**<br>![Business overview](docs/screenshots/12-business-overview.png) | **Offers from investors**<br>![Offers](docs/screenshots/14-business-offers.png) |
+| **Repayment schedule**<br>![Repayments](docs/screenshots/13-business-repayments.png) | |
+
+---
+
 ## Who uses it
 
 | User | What they do | Where |

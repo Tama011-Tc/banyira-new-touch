@@ -45,17 +45,17 @@ Output of this phase: a short `docs/research/SUMMARY.md` listing the patterns to
 
 - [ ] Spacing scale: confirm one vertical rhythm for public sections (e.g. 96/128px desktop, 64px mobile) and apply it in `Home.vue` and other public pages.
 - [ ] Max content widths: one for reading text (~68ch), one for layouts (`max-w-6xl`). Audit pages that drift.
-- [ ] Sticky public header: translucent background with blur when scrolled (respect `prefers-reduced-transparency`).
+- [x] Sticky public header: translucent background with blur when scrolled (respect `prefers-reduced-transparency`).
 - [ ] Money display component: one `<Money>` component for amount + currency, tabular numbers, consistent negative/positive colouring (Stripe/Revolut).
 - [ ] Focus states: audit every interactive element for a visible focus ring (Google).
 - [ ] Toast and Tooltip components (noted as missing in `UI_PLAN.md`).
-- [ ] `public/manifest.webmanifest` colours (`#fafaf8`, `#1d4a37`) predate the current tokens; align with `--bg` and `--tint`.
+- [x] `public/manifest.webmanifest` colours (`#fafaf8`, `#1d4a37`) predate the current tokens; align with `--bg` and `--tint`.
 
 ## 4. Public site and conversion
 
 - [ ] Home hero: tighten copy, one primary call to action per audience, show a real-feeling example listing (exists; refine).
 - [ ] "How it works" as a visual step story with scroll-triggered reveals (Apple/Samsung), reduced-motion safe.
-- [ ] Trust section: how money is protected (client accounts, maker-checker, audit), explained plainly (Stripe).
+- [x] Trust section: how money is protected (client accounts, maker-checker, audit), explained plainly (Stripe). Home page, "How money moves, and how it is protected."
 - [ ] Products and fees: clear comparison table, worked example with fees (Stripe pricing).
 - [ ] Mobile: check every public page at 390px; tap targets 44px.
 

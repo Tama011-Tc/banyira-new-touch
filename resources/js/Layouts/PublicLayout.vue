@@ -30,7 +30,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
 <template>
   <div class="flex min-h-screen flex-col">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-surface focus:p-3">Skip to content</a>
-    <header class="sticky top-0 z-40 border-b bg-paper transition-[border-color] duration-300" :class="scrolled || open ? 'border-line' : 'border-transparent'">
+    <header class="bar sticky top-0 z-40 border-b transition-[border-color,background-color] duration-300" :data-glass="scrolled && !open" :class="scrolled || open ? 'border-line' : 'border-transparent'">
       <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
         <Link href="/" aria-label="Banyira home" class="press"><Logo /></Link>
 
@@ -140,6 +140,17 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
 </template>
 
 <style scoped>
+/* Solid at the top; once content scrolls under it, the bar turns translucent
+   and blurs what passes beneath (Apple). Solid again for reduced transparency. */
+.bar { background: var(--color-paper); }
+.bar[data-glass='true'] {
+  background: color-mix(in srgb, var(--color-paper) 78%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .bar[data-glass='true'] { background: var(--color-paper); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
 .navlink { position: relative; color: var(--color-muted); transition: color 150ms ease; }
 .navlink:hover, .navlink[data-active='true'] { color: var(--color-ink); }
 .navlink::after {
