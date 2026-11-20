@@ -23,8 +23,7 @@ Everything runs on your own computer. The app uses demo data and a pretend payme
 
 ### Step 2 — Download Banyira
 
-1. Download this ZIP file: <https://github.com/Tama011-Tc/banyira-new-touch/archive/refs/heads/feat/theme-toggle-lazy-loading.zip>
-   (you must be signed in to GitHub with an account that has access to this repository).
+1. Download this ZIP file: <https://github.com/Tama011-Tc/banyira-new-touch/archive/refs/heads/main.zip>
 2. Right-click the downloaded ZIP → **Extract All…** → extract it to `C:\laragon\www`.
 3. Rename the extracted folder to `banyira`, so you have `C:\laragon\www\banyira`.
 
