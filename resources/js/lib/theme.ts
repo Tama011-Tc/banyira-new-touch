@@ -14,12 +14,15 @@ const media = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-
 const resolve = (p: ThemePref) => (p === 'system' ? (media?.matches ? 'dark' : 'light') : p)
 
 export const theme = ref<ThemePref>(typeof window !== 'undefined' ? read() : 'system')
+/** The theme actually showing, after 'system' is resolved. */
+export const isDark = ref(typeof window !== 'undefined' && resolve(theme.value) === 'dark')
 
 const apply = () => {
   const root = document.documentElement
   // Ease the switch instead of flashing (removed again right after).
   root.classList.add('theme-switching')
   root.dataset.theme = resolve(theme.value)
+  isDark.value = root.dataset.theme === 'dark'
   window.setTimeout(() => root.classList.remove('theme-switching'), 320)
 }
 
@@ -28,5 +31,8 @@ export function setTheme(p: ThemePref) {
   try { localStorage.setItem(KEY, p) } catch { /* private mode */ }
   apply()
 }
+
+/** Flip to the opposite of what is showing; the result is an explicit choice. */
+export const toggleTheme = () => setTheme(isDark.value ? 'light' : 'dark')
 
 media?.addEventListener('change', () => theme.value === 'system' && apply())

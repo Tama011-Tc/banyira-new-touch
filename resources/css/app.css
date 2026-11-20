@@ -259,6 +259,8 @@
 }
 
 /* Light ↔ dark eases instead of flashing (class is set for ~300ms by lib/theme.ts). */
-.theme-switching, .theme-switching * {
-  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, fill 300ms ease, stroke 300ms ease !important;
+@media (prefers-reduced-motion: no-preference) {
+  .theme-switching, .theme-switching * {
+    transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, fill 300ms ease, stroke 300ms ease !important;
+  }
 }

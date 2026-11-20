@@ -68,7 +68,7 @@ class FinanceTest extends TestCase
         $agreement->refresh();
         $this->assertSame('active', $agreement->status);
         $this->assertSame(2, $agreement->investments()->count());
-        foreach ($agreement->investments as $investment) {
+        foreach ($agreement->investments()->with('schedule')->get() as $investment) {
             $this->assertSame($investment->principal, Money::add(...$investment->schedule->pluck('principal_due')->all()));
         }
 

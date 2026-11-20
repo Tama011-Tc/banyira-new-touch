@@ -5,6 +5,8 @@ import Logo from '@/Components/Logo.vue'
 import Icon from '@/Components/Icon.vue'
 import Btn from '@/Components/Btn.vue'
 import Flash from '@/Components/Flash.vue'
+import ThemeToggle from '@/Components/ThemeToggle.vue'
+import { isDark, toggleTheme } from '@/lib/theme'
 
 const page = usePage<{ navProducts: { slug: string; name: string; summary: string }[] }>()
 const products = computed(() => page.props.navProducts ?? [])
@@ -54,6 +56,9 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
         </nav>
 
         <div class="hidden items-center gap-3 lg:flex">
+          <button type="button" class="press flex h-8 w-8 items-center justify-center rounded-control text-muted hover:bg-fill-2 hover:text-ink" :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'" :title="isDark ? 'Light mode' : 'Dark mode'" @click="toggleTheme">
+            <Icon :n="isDark ? 'sun' : 'moon'" :size="16" />
+          </button>
           <Btn v-if="user && user.type !== 'employee'" :href="dashboard" size="sm">My dashboard</Btn>
           <template v-else>
             <Link href="/login" class="navlink text-sm">Login</Link>
@@ -76,6 +81,10 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
             <p class="pb-1 pt-4 text-[13px] text-muted">Our Products</p>
             <Link v-for="p in products" :key="p.slug" :href="`/products/${p.slug}`" class="flex h-10 items-center pl-3 text-[15px] text-muted">{{ p.name }}</Link>
             <Link v-for="[h, l] in nav" :key="h" :href="h" class="flex h-11 items-center border-b border-line">{{ l }}</Link>
+            <div class="flex h-14 items-center justify-between border-b border-line">
+              <span>Appearance</span>
+              <ThemeToggle />
+            </div>
             <div class="mt-4 grid grid-cols-2 gap-2">
               <Btn v-if="user && user.type !== 'employee'" :href="dashboard" full class="col-span-2">My dashboard</Btn>
               <template v-else><Btn variant="outline" href="/login">Login</Btn><Btn href="/register">Get Started</Btn></template>
@@ -92,6 +101,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
         <div>
           <Logo />
           <p class="mt-3 max-w-xs text-muted">A peer-to-peer marketplace connecting Malawian businesses that need financing with people who want to invest in them.</p>
+          <div class="mt-5"><ThemeToggle /></div>
         </div>
         <div>
           <h2 class="font-sans text-[13px] font-medium tracking-normal">Businesses</h2>

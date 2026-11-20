@@ -90,7 +90,7 @@ class AgreementService
     /** Finance confirms an investor's funds arrived in the client account. */
     public function confirmInvestorFunds(AgreementParty $party, User $finance, string $providerReference): void
     {
-        $agreement = $party->agreement;
+        $agreement = $party->loadMissing('agreement')->agreement;
         if ($agreement->status !== 'awaiting_funding' || $party->role !== 'investor' || $party->funds_confirmed_at) {
             throw ValidationException::withMessages(['funds' => 'These funds cannot be confirmed now.']);
         }
