@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use App\Models\RepaymentSchedule;
 use App\Models\User;
 use App\Notifications\Alert;
@@ -10,6 +9,7 @@ use App\Services\RulesService;
 use App\Support\Money;
 use App\Support\Totp;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::call(fn () => app(RulesService::class)->activateDue())->dailyAt('00:05')->name('activate-rules');
