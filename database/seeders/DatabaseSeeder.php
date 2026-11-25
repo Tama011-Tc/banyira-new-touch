@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(ReferenceDataSeeder::class);
 
-        if (app()->environment('local')) {
+        if (app()->environment('local') || config('banyira.demo.public')) {
             $this->call(DemoSeeder::class);
         }
     }

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use App\Models\RepaymentSchedule;
 use App\Models\User;
 use App\Notifications\Alert;
@@ -38,3 +39,13 @@ Artisan::command('banyira:staff-code {email}', function (string $email) {
     }
     $this->info(Totp::code($u->mfa_secret));
 })->purpose('Show the current authenticator code for a staff account (local only)');
+
+Artisan::command('banyira:seed-if-empty', function () {
+    if (User::query()->exists()) {
+        $this->info('Data already present; nothing to seed.');
+
+        return 0;
+    }
+
+    return DB::transaction(fn () => $this->call('db:seed', ['--force' => true]));
+})->purpose('Seed the database only when it has no users');

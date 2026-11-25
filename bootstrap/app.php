@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Hosting platforms terminate HTTPS at their proxy and forward the original scheme.
+        $middleware->trustProxies(at: '*');
         $middleware->web(append: [HandleInertiaRequests::class, SecurityHeaders::class]);
         $middleware->alias(['customer' => EnsureCustomerType::class, 'staff' => EnsureStaffSession::class]);
         $middleware->validateCsrfTokens(except: ['webhooks/*']);

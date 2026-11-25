@@ -21,6 +21,14 @@ return [
         'staff_idle_minutes' => 15,
     ],
 
+    // A hosted demonstration: fictional data only. Passwords come from the
+    // host's settings, never from the repository.
+    'demo' => [
+        'public' => (bool) env('PUBLIC_DEMO', false),
+        'customer_password' => env('DEMO_CUSTOMER_PASSWORD'),
+        'staff_password' => env('DEMO_STAFF_PASSWORD'),
+    ],
+
     'sms' => [
         'driver' => env('SMS_DRIVER', 'log'),
         'sender_id' => env('SMS_SENDER_ID', 'BANYIRA'),

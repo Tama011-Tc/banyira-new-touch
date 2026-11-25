@@ -1,0 +1,17 @@
+.git
+node_modules
+vendor
+.env
+.env.*
+public/build
+public/hot
+public/storage
+bootstrap/cache/*.php
+storage/app/*
+storage/logs/*
+storage/framework/*
+prototype
+docs
+ui-audit
+new-folder
+tests

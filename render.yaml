@@ -1,0 +1,62 @@
+# Render Blueprint: free web service. The database is TiDB Cloud Starter.
+services:
+  - type: web
+    name: banyira
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    healthCheckPath: /up
+    envVars:
+      - key: APP_KEY
+        generateValue: true
+      - key: PAYMENTS_WEBHOOK_SECRET
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DEMO_CUSTOMER_PASSWORD
+        sync: false
+      - key: DEMO_STAFF_PASSWORD
+        sync: false
+      - key: APP_NAME
+        value: "Banyira"
+      - key: APP_ENV
+        value: "production"
+      - key: APP_DEBUG
+        value: "false"
+      - key: PUBLIC_DEMO
+        value: "true"
+      - key: LOG_CHANNEL
+        value: "stderr"
+      - key: LOG_LEVEL
+        value: "warning"
+      - key: DB_CONNECTION
+        value: "mysql"
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_DATABASE
+        value: "test"
+      - key: MYSQL_ATTR_SSL_CA
+        value: "/etc/ssl/certs/ca-certificates.crt"
+      - key: SESSION_DRIVER
+        value: "database"
+      - key: SESSION_ENCRYPT
+        value: "true"
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: CACHE_STORE
+        value: "database"
+      - key: QUEUE_CONNECTION
+        value: "sync"
+      - key: MAIL_MAILER
+        value: "log"
+      - key: SMS_DRIVER
+        value: "log"
+      - key: PAYMENTS_DRIVER
+        value: "demo"
+      - key: IDENTITY_DRIVER
+        value: "manual"

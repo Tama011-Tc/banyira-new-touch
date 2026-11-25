@@ -8,6 +8,12 @@ Banyira is a peer-to-peer financing marketplace for small and medium businesses 
 
 ---
 
+## Host a public demo (Render + TiDB Cloud)
+
+`render.yaml` creates a free Render web service from this repository. Create a TiDB Cloud Starter database in Frankfurt, then in Render choose **New → Blueprint**, pick this repository and enter `DB_HOST`, `DB_USERNAME`, `DB_PASSWORD` and two new demo passwords (12 characters or more). The first start creates the tables and fictional demo data. The free service sleeps when idle, and uploaded files do not survive restarts.
+
+---
+
 ## Run Banyira on your computer (step by step)
 
 No programming experience needed. This takes about 20–30 minutes the first time, mostly waiting for downloads. The steps are for **Windows**.

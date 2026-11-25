@@ -26,7 +26,8 @@ use Illuminate\Support\Facades\Storage;
 /**
  * DEVELOPMENT FIXTURES. Clearly fictional businesses, people and amounts,
  * created by running the real services so every number on every dashboard
- * comes from the database. Never run in production.
+ * comes from the database. Never run in production, except on a public
+ * demonstration site that supplies its own passwords.
  */
 class DemoSeeder extends Seeder
 {
@@ -34,12 +35,25 @@ class DemoSeeder extends Seeder
 
     public const CUSTOMER_PASSWORD = 'demo1234';
 
+    private const MIN_PUBLIC_PASSWORD = 12;
+
+    private string $staffPassword = self::STAFF_PASSWORD;
+
+    private string $customerPassword = self::CUSTOMER_PASSWORD;
+
     public function run(): void
     {
-        if (app()->isProduction()) {
+        $public = (bool) config('banyira.demo.public');
+
+        if (app()->isProduction() && ! $public) {
             $this->command?->error('DemoSeeder refused to run in production.');
 
             return;
+        }
+
+        if ($public) {
+            $this->staffPassword = $this->publicPassword('staff_password');
+            $this->customerPassword = $this->publicPassword('customer_password');
         }
 
         $s = app()->make(...);
@@ -169,12 +183,26 @@ class DemoSeeder extends Seeder
         $msg->send($c, $inv[1], 'Hello. Could you share how much stock you lose to spoilage each month today?');
         $msg->send($c, $mzuzu, 'Roughly 12% in the hot months. The cold room should bring that under 3%. I have uploaded the supplier quotation.');
 
-        $this->command?->info('Demo data created. Customer password: '.self::CUSTOMER_PASSWORD.' · Staff password: '.self::STAFF_PASSWORD.' (MFA is set up at first sign-in).');
+        // Hosted logs must not contain passwords.
+        $this->command?->info($public
+            ? 'Demo data created with the passwords from the host settings.'
+            : 'Demo data created. Customer password: '.self::CUSTOMER_PASSWORD.' · Staff password: '.self::STAFF_PASSWORD.' (MFA is set up at first sign-in).');
+    }
+
+    private function publicPassword(string $key): string
+    {
+        $password = (string) config("banyira.demo.{$key}");
+
+        if (strlen($password) < self::MIN_PUBLIC_PASSWORD || in_array($password, [self::STAFF_PASSWORD, self::CUSTOMER_PASSWORD], true)) {
+            throw new \RuntimeException('Set DEMO_'.strtoupper($key).' to a new password of at least '.self::MIN_PUBLIC_PASSWORD.' characters.');
+        }
+
+        return $password;
     }
 
     private function staff(string $name, string $email, string $role, string $no, string $dept, string $title): User
     {
-        $u = User::create(['name' => $name, 'email' => $email, 'phone' => null, 'type' => 'employee', 'status' => 'active', 'password' => self::STAFF_PASSWORD, 'email_verified_at' => now(), 'password_changed_at' => now()]);
+        $u = User::create(['name' => $name, 'email' => $email, 'phone' => null, 'type' => 'employee', 'status' => 'active', 'password' => $this->staffPassword, 'email_verified_at' => now(), 'password_changed_at' => now()]);
         $u->roles()->attach(Role::where('slug', $role)->value('id'));
         $u->employeeProfile()->create(['staff_number' => $no, 'department' => $dept, 'job_title' => $title]);
 
@@ -183,7 +211,7 @@ class DemoSeeder extends Seeder
 
     private function investor(string $name, string $email, string $phone): User
     {
-        $u = User::create(['name' => $name, 'email' => $email, 'phone' => $phone, 'type' => 'investor', 'status' => 'active', 'password' => self::CUSTOMER_PASSWORD, 'email_verified_at' => now(), 'phone_verified_at' => now()]);
+        $u = User::create(['name' => $name, 'email' => $email, 'phone' => $phone, 'type' => 'investor', 'status' => 'active', 'password' => $this->customerPassword, 'email_verified_at' => now(), 'phone_verified_at' => now()]);
         $profile = $u->investorProfile()->create(['investor_type' => 'Individual', 'source_of_funds' => 'Salary', 'payout_method' => 'Mobile money', 'risk_acknowledged_at' => now()]);
         $profile->forceFill(['verification_status' => 'verified', 'verified_at' => now()])->save();
         foreach (['email', 'phone', 'identity', 'source_of_funds'] as $k) {
@@ -197,7 +225,7 @@ class DemoSeeder extends Seeder
     {
         static $n = 0;
         $n++;
-        $u = User::create(['name' => $name, 'email' => $email, 'phone' => '08882000'.str_pad((string) $n, 2, '0', STR_PAD_LEFT), 'type' => 'business', 'status' => 'active', 'password' => self::CUSTOMER_PASSWORD, 'email_verified_at' => now(), 'phone_verified_at' => now()]);
+        $u = User::create(['name' => $name, 'email' => $email, 'phone' => '08882000'.str_pad((string) $n, 2, '0', STR_PAD_LEFT), 'type' => 'business', 'status' => 'active', 'password' => $this->customerPassword, 'email_verified_at' => now(), 'phone_verified_at' => now()]);
         $bp = new BusinessProfile(['legal_name' => $name, 'business_type' => 'Private limited company', 'industry' => $industry, 'region' => $region, 'district' => $district, 'address' => $district.', Malawi', 'years_operating' => 3 + $n % 4, 'employees' => 6 + $n * 2, 'monthly_turnover' => (string) (1500000 + $n * 250000), 'description' => $desc, 'registration_number' => 'BRN-'.(10200 + $n)]);
         $bp->user_id = $u->id;
         $bp->forceFill(['verification_status' => 'verified', 'verified_at' => now()])->save();
