@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\DatabaseDumper;
 use App\Contracts\IdentityVerifier;
 use App\Contracts\PaymentGateway;
 use App\Contracts\SmsGateway;
 use App\Models;
 use App\Models\User;
+use App\Services\Backups\MysqlDumper;
+use App\Services\Backups\PostgresDumper;
 use App\Services\Identity\ManualIdentityVerifier;
 use App\Services\Payments\DemoGateway;
 use App\Services\Payments\MobileMoneyGateway;
@@ -16,8 +19,10 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -40,6 +45,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(IdentityVerifier::class, ManualIdentityVerifier::class);
+
+        $this->app->bind(DatabaseDumper::class, function () {
+            $connection = DB::connection()->getConfig();
+            [$class, $binary] = $connection['driver'] === 'pgsql'
+                ? [PostgresDumper::class, config('banyira.backups.pg_dump')]
+                : [MysqlDumper::class, config('banyira.backups.mysqldump')];
+
+            return new $class($connection, $binary, config('banyira.backups.timeout_seconds'));
+        });
     }
 
     public function boot(): void
@@ -64,7 +78,17 @@ class AppServiceProvider extends ServiceProvider
             'role' => Models\Role::class,
             'lead' => Models\Lead::class,
             'approval' => Models\ApprovalRequest::class,
+            'page' => Models\Page::class,
+            'media' => Models\Media::class,
+            'backup' => Models\Backup::class,
         ]);
+
+        // Records are bound by integer id. Postgres raises an error for other text, so such URLs do not match.
+        // {product} is not listed: public product pages are addressed by slug.
+        Route::patterns(array_fill_keys([
+            'agreement', 'application', 'approval', 'assessment', 'attachment', 'backup', 'campaign', 'conversation', 'document', 'entry', 'id',
+            'informationRequest', 'lead', 'listing', 'media', 'offer', 'page', 'party', 'payment', 'record', 'role', 'ruleSet', 'user', 'version',
+        ], '[0-9]+'));
 
         // Employee permissions map straight onto Gate abilities, e.g. can:applications.assess.
         // "a|b" means any of the listed permissions.

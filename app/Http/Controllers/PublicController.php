@@ -4,49 +4,51 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use App\Models\LoanProduct;
+use App\Models\Media;
+use App\Models\Page;
+use App\Services\Content\MediaService;
+use App\Services\Content\PageRenderer;
 use App\Services\RulesService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PublicController extends Controller
 {
-    public function __construct(private RulesService $rules) {}
-
-    public function home(): Response
+    public function show(string $slug, PageRenderer $renderer): Response
     {
-        return Inertia::render('Public/Home', ['products' => LoanProduct::active()->get(['slug', 'code', 'name', 'summary', 'min_amount', 'max_amount', 'min_months', 'max_months']), 'rules' => $this->rulesSummary()]);
+        $page = Page::published()->where('slug', $slug)->firstOrFail();
+
+        return Inertia::render('Public/Page', $renderer->props($page->published));
     }
 
-    public function products(): Response
+    /** Pages created by staff. Built-in pages are only served from their own addresses. */
+    public function custom(string $slug, PageRenderer $renderer): Response
     {
-        return Inertia::render('Public/Products', ['products' => LoanProduct::active()->get(), 'rules' => $this->rulesSummary()]);
+        abort_if(Page::where('slug', $slug)->where('is_system', true)->exists(), 404);
+
+        return $this->show($slug, $renderer);
     }
 
-    public function product(LoanProduct $product): Response
+    public function media(Media $media)
+    {
+        return Storage::disk(MediaService::disk())->response($media->path, $media->original_name, [
+            'Content-Type' => $media->mime,
+            // A replaced picture is uploaded as a new record, so a file never changes under its address.
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    public function product(LoanProduct $product, RulesService $rules): Response
     {
         abort_unless($product->is_active, 404);
 
         return Inertia::render('Public/Product', [
             'product' => $product,
             'others' => LoanProduct::active()->whereKeyNot($product->id)->get(['slug', 'name', 'summary']),
-            'rules' => $this->rulesSummary(),
+            'rules' => $rules->summary(),
         ]);
-    }
-
-    public function loan(): Response
-    {
-        return Inertia::render('Public/HowToGetALoan', ['rules' => $this->rulesSummary()]);
-    }
-
-    public function invest(): Response
-    {
-        return Inertia::render('Public/HowToInvest', ['rules' => $this->rulesSummary(), 'minOffer' => config('banyira.marketplace.min_offer')]);
-    }
-
-    public function page(string $page): Response
-    {
-        return Inertia::render('Public/'.$page);
     }
 
     public function contact(Request $request)
@@ -61,18 +63,5 @@ class PublicController extends Controller
         Lead::create([...$data, 'source' => 'Website contact form', 'stage' => 'new']);
 
         return back()->with('success', 'Thank you. We will reply within two working days.');
-    }
-
-    private function rulesSummary(): array
-    {
-        $r = $this->rules->active();
-
-        return [
-            'version' => $r->version,
-            'effective' => $r->effective_from->toDateString(),
-            'ceiling' => $r->interest_ceiling,
-            'fees' => $r->feeTiers->map(fn ($t) => ['upTo' => $t->upper_bound, 'rate' => $t->rate])->values(),
-            'bands' => $r->riskBands->sortBy('min_score', descending: true)->map(fn ($b) => ['class' => $b->risk_class, 'label' => $b->label, 'maxAmount' => $b->max_amount, 'maxMonths' => $b->max_months])->values(),
-        ];
     }
 }

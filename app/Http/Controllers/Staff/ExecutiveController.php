@@ -13,6 +13,7 @@ use App\Models\RepaymentSchedule;
 use App\Models\User;
 use App\Services\LedgerService;
 use App\Support\Money;
+use App\Support\Sql;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -28,7 +29,7 @@ class ExecutiveController extends Controller
         $expenses = $this->ledger->categoryTotal('operating_expenses');
         $months = collect(range(5, 0))->map(fn ($i) => now()->subMonths($i)->format('Y-m'));
         $apps = LoanApplication::whereNotNull('submitted_at')->where('submitted_at', '>=', now()->subMonths(5)->startOfMonth())
-            ->selectRaw("DATE_FORMAT(submitted_at, '%Y-%m') m, COUNT(*) n")->groupBy('m')->pluck('n', 'm');
+            ->selectRaw(Sql::month('submitted_at').' m, COUNT(*) n')->groupBy('m')->pluck('n', 'm');
 
         return Inertia::render('Staff/Executive/Overview', [
             'stats' => [
@@ -70,7 +71,7 @@ class ExecutiveController extends Controller
                 'confirmedRepayments' => Money::of((string) Payment::where('purpose', 'repayment')->where('status', 'confirmed')->sum('amount')),
             ],
             'byClass' => Investment::join('agreements as a', 'a.id', '=', 'investments.agreement_id')->join('listings as l', 'l.id', '=', 'a.listing_id')
-                ->selectRaw("l.risk_class c, COUNT(*) n, SUM(investments.principal - investments.principal_repaid) outstanding, SUM(investments.status = 'in_arrears') arrears")
+                ->selectRaw("l.risk_class c, COUNT(*) n, SUM(investments.principal - investments.principal_repaid) outstanding, SUM(CASE WHEN investments.status = 'in_arrears' THEN 1 ELSE 0 END) arrears")
                 ->groupBy('l.risk_class')->orderBy('l.risk_class')->get()->map(fn ($r) => ['class' => $r->c, 'count' => $r->n, 'outstanding' => Money::of($r->outstanding), 'arrears' => (int) $r->arrears]),
             'upcoming' => RepaymentSchedule::where('status', '!=', 'paid')->whereBetween('due_date', [now(), now()->addDays(30)])->count(),
         ]);
@@ -79,7 +80,7 @@ class ExecutiveController extends Controller
     public function people()
     {
         $credit = DB::table('assessments')->join('users', 'users.id', '=', 'assessments.assessor_id')->whereNotNull('submitted_at')
-            ->selectRaw('users.name, COUNT(*) n, AVG(TIMESTAMPDIFF(HOUR, assessments.created_at, assessments.submitted_at)) hours')->groupBy('users.name')->get();
+            ->selectRaw('users.name, COUNT(*) n, AVG('.Sql::hoursBetween('assessments.created_at', 'assessments.submitted_at').') hours')->groupBy('users.name')->get();
         $finance = DB::table('payments')->join('users', 'users.id', '=', 'payments.confirmed_by')->where('payments.status', 'confirmed')
             ->selectRaw('users.name, COUNT(*) n')->groupBy('users.name')->get();
         $sales = DB::table('lead_activities')->join('users', 'users.id', '=', 'lead_activities.user_id')

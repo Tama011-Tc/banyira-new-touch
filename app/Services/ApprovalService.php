@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
  */
 class ApprovalService
 {
-    public function __construct(private AgreementService $agreements, private LedgerService $ledger, private AuditLogger $audit) {}
+    public function __construct(private AgreementService $agreements, private LedgerService $ledger, private AuditLogger $audit, private StaffNotifier $staff) {}
 
     public function request(string $type, Model $subject, string $summary, ?string $amount, User $maker, array $payload = []): ApprovalRequest
     {
@@ -29,6 +29,7 @@ class ApprovalService
             'summary' => $summary, 'amount' => $amount, 'payload' => $payload, 'requested_by' => $maker->id, 'status' => 'pending',
         ]);
         $this->audit->log('approvals', "Requested approval: {$summary}", $req, [], $maker);
+        $this->staff->holders('finance.approve', 'Approval needed', $summary, '/internal/finance/approvals', except: $maker);
 
         return $req;
     }

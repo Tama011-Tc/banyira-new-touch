@@ -5,7 +5,7 @@ import {
   Check, ChevronDown, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, CircleHelp, ClipboardCheck, Download, Ellipsis, FilePen, FileSpreadsheet,
   FileText, Gauge, HandCoins, History, House, Inbox, Info, KeyRound, Landmark, LayoutGrid, Lock, LogOut, Megaphone, Menu, MessageCircle, Monitor,
   Moon, Package, Paperclip, PiggyBank, Plus, Receipt, Scale, ScrollText, Search, Server, Settings, Shield, ShieldCheck, SlidersHorizontal, Store,
-  Sun, Target, TrendingUp, TriangleAlert, User, UserCog, Users, Wallet, X,
+  Sun, Target, TrendingUp, TriangleAlert, User, UserCog, Users, Wallet, X, ArrowDown, ArrowUp, Database, Eye, EyeOff, Globe, Image, Trash2,
 } from 'lucide-vue-next'
 
 // One icon set (Lucide), one stroke weight. Names are Banyira's own so pages
@@ -19,6 +19,7 @@ const MAP: Record<string, Component> = {
   verified: BadgeCheck, scale: Scale, book: BookOpen, receipt: Receipt, savings: PiggyBank, sheet: FileSpreadsheet, trend: TrendingUp,
   megaphone: Megaphone, target: Target, activity: Activity, key: KeyRound, log: ScrollText, server: Server, sliders: SlidersHorizontal,
   package: Package, chart: ChartColumn, logout: LogOut, sun: Sun, moon: Moon, system: Monitor, gauge: Gauge, cash: Banknote, usercog: UserCog,
+  up: ArrowUp, arrowdown: ArrowDown, database: Database, eye: Eye, eyeoff: EyeOff, globe: Globe, image: Image, trash: Trash2,
 }
 
 const props = withDefaults(defineProps<{ n: string; size?: number; stroke?: number }>(), { size: 18, stroke: 1.5 })

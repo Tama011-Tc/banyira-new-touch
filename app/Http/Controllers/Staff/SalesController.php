@@ -8,6 +8,7 @@ use App\Models\Lead;
 use App\Models\Listing;
 use App\Models\LoanApplication;
 use App\Models\User;
+use App\Support\Sql;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -18,7 +19,7 @@ class SalesController extends Controller
     {
         $months = collect(range(5, 0))->map(fn ($i) => now()->subMonths($i)->format('Y-m'));
         $reg = User::whereIn('type', ['business', 'investor'])->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') m, type, COUNT(*) n")->groupBy('m', 'type')->get();
+            ->selectRaw(Sql::month('created_at').' m, type, COUNT(*) n')->groupBy('m', 'type')->get();
 
         return Inertia::render('Staff/Sales/Overview', [
             'stats' => [
@@ -52,7 +53,7 @@ class SalesController extends Controller
 
     public function storeLead(Request $request)
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'type' => ['required', 'in:business,investor,other'], 'phone' => ['nullable', 'string', 'max:20'], 'email' => ['nullable', 'email'], 'source' => ['required', 'string', 'max:60'], 'next_follow_up' => ['nullable', 'date'], 'campaign_id' => ['nullable', 'exists:campaigns,id']]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'type' => ['required', 'in:business,investor,other'], 'phone' => ['nullable', 'string', 'max:20'], 'email' => ['nullable', 'email'], 'source' => ['required', 'string', 'max:60'], 'next_follow_up' => ['nullable', 'date'], 'campaign_id' => ['nullable', 'integer', 'exists:campaigns,id']]);
         Lead::create([...$data, 'stage' => 'new', 'owner_id' => $request->user()->id]);
 
         return back()->with('success', 'Lead added.');
@@ -77,7 +78,8 @@ class SalesController extends Controller
     public function campaigns()
     {
         return Inertia::render('Staff/Sales/Campaigns', [
-            'campaigns' => Campaign::latest('starts_on')->get()->map(fn ($c) => [...$c->only(['id', 'name', 'channel', 'audience', 'status', 'starts_on', 'ends_on', 'reach', 'budget']), 'leads' => Lead::where('campaign_id', $c->id)->count(), 'converted' => Lead::where('campaign_id', $c->id)->where('stage', 'converted')->count()]),
+            // Undated campaigns last: MySQL and Postgres place NULLs at opposite ends.
+            'campaigns' => Campaign::orderByRaw('starts_on IS NULL')->latest('starts_on')->get()->map(fn ($c) => [...$c->only(['id', 'name', 'channel', 'audience', 'status', 'starts_on', 'ends_on', 'reach', 'budget']), 'leads' => Lead::where('campaign_id', $c->id)->count(), 'converted' => Lead::where('campaign_id', $c->id)->where('stage', 'converted')->count()]),
         ]);
     }
 

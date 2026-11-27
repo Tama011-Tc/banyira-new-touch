@@ -15,6 +15,9 @@ COPY --from=vendor /app/vendor ./vendor
 RUN npm run build
 
 FROM php:8.4-apache
+# Dump programs used by database backups.
+RUN apt-get update     && apt-get install -y --no-install-recommends default-mysql-client postgresql-client     && rm -rf /var/lib/apt/lists/*
+ENV BACKUP_MYSQLDUMP_PATH=mariadb-dump
 RUN docker-php-ext-install pdo_mysql bcmath opcache \
     && a2enmod rewrite \
     && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \

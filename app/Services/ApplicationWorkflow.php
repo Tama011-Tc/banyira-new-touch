@@ -27,7 +27,7 @@ class ApplicationWorkflow
         'fully_funded' => ['closed'],
     ];
 
-    public function __construct(private AuditLogger $audit) {}
+    public function __construct(private AuditLogger $audit, private StaffNotifier $staff) {}
 
     public function createDraft(User $owner, array $data): LoanApplication
     {
@@ -84,7 +84,10 @@ class ApplicationWorkflow
             throw ValidationException::withMessages(['amount' => 'The amount must be within this product\'s financing limits.']);
         }
 
-        return $this->transition($app, 'submitted', $owner, 'Submitted by business');
+        $this->transition($app, 'submitted', $owner, 'Submitted by business');
+        $this->staff->holders('applications.assess', 'New application', "{$app->reference} is waiting for review.", '/internal/credit/applications/'.$app->id);
+
+        return $app;
     }
 
     public function startReview(LoanApplication $app, User $officer): LoanApplication

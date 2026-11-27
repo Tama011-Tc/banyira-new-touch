@@ -9,7 +9,8 @@ import { usePage } from '@inertiajs/vue3'
  */
 export type Permission =
   | 'applications.approve' | 'applications.assess' | 'applications.view'
-  | 'audit.view' | 'campaigns.manage' | 'customers.verify' | 'executive.dashboard'
+  | 'audit.view' | 'backups.manage' | 'campaigns.manage' | 'content.manage' | 'content.publish'
+  | 'customers.verify' | 'executive.dashboard'
   | 'finance.approve' | 'finance.record' | 'finance.view'
   | 'leads.manage' | 'listings.publish' | 'marketing.reports'
   | 'payments.reconcile' | 'payroll.manage' | 'payroll.view'

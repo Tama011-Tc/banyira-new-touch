@@ -20,14 +20,14 @@ use Illuminate\Support\Facades\Route;
 
 // ---------------------------------------------------------------- Public site
 Route::controller(PublicController::class)->group(function () {
-    Route::get('/', 'home');
-    Route::get('/products', 'products');
+    // Built-in pages. Their wording is edited in the staff portal under Website.
+    Route::get('/', 'show')->defaults('slug', 'home');
+    foreach (['products', 'how-to-get-a-loan', 'how-to-invest', 'about', 'contact', 'legal'] as $slug) {
+        Route::get('/'.$slug, 'show')->defaults('slug', $slug);
+    }
+    Route::get('/pages/{slug}', 'custom')->where('slug', '[a-z0-9-]+');
     Route::get('/products/{product:slug}', 'product');
-    Route::get('/how-to-get-a-loan', 'loan');
-    Route::get('/how-to-invest', 'invest');
-    Route::get('/about', fn () => app(PublicController::class)->page('About'));
-    Route::get('/contact', fn () => app(PublicController::class)->page('Contact'));
-    Route::get('/legal', fn () => app(PublicController::class)->page('Legal'));
+    Route::get('/media/{media}', 'media');
     Route::post('/contact', 'contact')->middleware('throttle:5,10');
 });
 
@@ -214,23 +214,77 @@ Route::middleware(['auth:staff', 'staff'])->prefix('internal')->group(function (
         });
     });
 
-    Route::prefix('it')->controller(Staff\AdminController::class)->group(function () {
-        Route::get('/', 'health')->middleware('can:system.manage');
-        Route::get('/jobs', 'jobs')->middleware('can:system.manage');
-        Route::post('/jobs/retry', 'retryJobs')->middleware('can:system.manage');
-        Route::get('/users', 'users')->middleware('can:users.manage');
-        Route::post('/users', 'storeUser')->middleware('can:users.manage');
-        Route::put('/users/{user}', 'updateUser')->middleware('can:users.manage');
-        Route::get('/roles', 'roles')->middleware('can:roles.manage');
-        Route::put('/roles/{role}', 'updateRole')->middleware('can:roles.manage');
-        Route::get('/security', 'security')->middleware('can:security.view');
+    Route::controller(Staff\ProfileController::class)->group(function () {
+        Route::get('/profile', 'show');
+        Route::put('/profile', 'update');
+        Route::put('/profile/password', 'password')->middleware('throttle:5,10');
+        Route::get('/notifications', 'notifications');
+        Route::post('/notifications/read', 'readNotifications');
+    });
+
+    Route::prefix('content')->group(function () {
+        Route::middleware('can:content.manage|content.publish')->controller(Staff\ContentController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/pages/{page}', 'edit');
+            Route::get('/pages/{page}/preview', 'preview');
+        });
+        Route::middleware('can:content.manage')->group(function () {
+            Route::controller(Staff\ContentController::class)->group(function () {
+                Route::post('/pages', 'store');
+                Route::put('/pages/{page}', 'update');
+                Route::post('/pages/{page}/discard', 'discard');
+                Route::post('/pages/{page}/versions/{version}/restore', 'restore');
+            });
+            Route::controller(Staff\MediaController::class)->group(function () {
+                Route::get('/media', 'index');
+                Route::post('/media', 'store')->middleware('throttle:30,1');
+                Route::delete('/media/{media}', 'destroy');
+            });
+        });
+        Route::middleware('can:content.publish')->controller(Staff\ContentController::class)->group(function () {
+            Route::post('/pages/{page}/publish', 'publish');
+            Route::post('/pages/{page}/unpublish', 'unpublish');
+            Route::delete('/pages/{page}', 'destroy');
+            Route::get('/settings', 'settings');
+            Route::put('/settings', 'updateSettings');
+        });
+    });
+
+    Route::prefix('it')->group(function () {
+        Route::controller(Staff\AdminController::class)->group(function () {
+            Route::get('/', 'health')->middleware('can:system.manage');
+            Route::get('/jobs', 'jobs')->middleware('can:system.manage');
+            Route::post('/jobs/retry', 'retryJobs')->middleware('can:system.manage');
+            Route::get('/security', 'security')->middleware('can:security.view');
+        });
+        Route::middleware('can:users.manage')->controller(Staff\EmployeeController::class)->group(function () {
+            Route::get('/users', 'index');
+            Route::post('/users', 'store');
+            Route::get('/users/{user}', 'show');
+            Route::put('/users/{user}', 'update');
+            Route::put('/users/{user}/details', 'updateDetails');
+        });
+        Route::middleware('can:roles.manage')->controller(Staff\RoleController::class)->group(function () {
+            Route::get('/roles', 'index');
+            Route::post('/roles', 'store');
+            Route::put('/roles/{role}', 'update');
+            Route::delete('/roles/{role}', 'destroy');
+        });
+        Route::middleware('can:backups.manage')->controller(Staff\BackupController::class)->group(function () {
+            Route::get('/backups', 'index');
+            Route::post('/backups', 'store')->middleware('throttle:5,10');
+            Route::put('/backups/settings', 'settings');
+            Route::post('/backups/{backup}/download', 'requestDownload')->middleware('throttle:5,10');
+            Route::get('/backups/{backup}/file', 'download')->middleware('signed')->name('backups.download');
+            Route::delete('/backups/{backup}', 'destroy');
+        });
     });
     Route::get('/audit', [Staff\AdminController::class, 'audit'])->middleware('can:audit.view');
 
     Route::get('/rules', [Staff\ConfigController::class, 'rules'])->middleware('can:rules.propose|rules.approve');
     Route::post('/rules', [Staff\ConfigController::class, 'propose'])->middleware('can:rules.propose');
     Route::get('/products', [Staff\ConfigController::class, 'products'])->middleware('can:products.manage');
-    Route::put('/products/{product}', [Staff\ConfigController::class, 'updateProduct'])->middleware('can:products.manage');
+    Route::put('/products/{product}', [Staff\ConfigController::class, 'updateProduct'])->middleware('can:products.manage')->whereNumber('product');
 
     Route::prefix('executive')->middleware('can:executive.dashboard')->controller(Staff\ExecutiveController::class)->group(function () {
         Route::get('/', 'overview');

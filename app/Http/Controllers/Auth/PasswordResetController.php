@@ -38,7 +38,10 @@ class PasswordResetController extends Controller
     {
         $request->validate(['token' => ['required'], 'email' => ['required', 'email'], 'password' => ['required', 'confirmed', PasswordRule::defaults()]]);
 
-        $status = Password::reset($request->only('email', 'password', 'password_confirmation', 'token'), function (User $user, string $password) {
+        // Emails are stored lowercased, and Postgres compares them case-sensitively.
+        $credentials = ['email' => $request->string('email')->lower()->value()] + $request->only('password', 'password_confirmation', 'token');
+
+        $status = Password::reset($credentials, function (User $user, string $password) {
             abort_if($user->isEmployee(), 403);
             $user->forceFill(['password' => $password, 'password_changed_at' => now(), 'failed_logins' => 0, 'locked_until' => null])->save();
             event(new PasswordReset($user));

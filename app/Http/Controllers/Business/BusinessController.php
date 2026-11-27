@@ -49,7 +49,7 @@ class BusinessController extends Controller
     public static function upcoming(array $agreementIds, int $limit = 12): array
     {
         return RepaymentSchedule::whereIn('agreement_id', $agreementIds)->where('status', '!=', 'paid')
-            ->selectRaw('due_date, SUM(principal_due - principal_paid) principal, SUM(interest_due - interest_paid) interest, MAX(status = "overdue") overdue')
+            ->selectRaw('due_date, SUM(principal_due - principal_paid) principal, SUM(interest_due - interest_paid) interest, MAX(CASE WHEN status = \'overdue\' THEN 1 ELSE 0 END) overdue')
             ->groupBy('due_date')->orderBy('due_date')->limit($limit)->get()
             ->map(fn ($r) => ['due' => $r->due_date->toDateString(), 'principal' => Money::of($r->principal), 'interest' => Money::of($r->interest), 'total' => Money::add($r->principal, $r->interest), 'overdue' => (bool) $r->overdue])
             ->all();

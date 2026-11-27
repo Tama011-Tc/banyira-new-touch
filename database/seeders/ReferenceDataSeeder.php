@@ -32,6 +32,11 @@ class ReferenceDataSeeder extends Seeder
             'security.view' => 'View security and login activity',
             'audit.view' => 'View audit logs',
             'system.manage' => 'Manage system settings and jobs',
+            'backups.manage' => 'Create, download and delete database backups',
+        ],
+        'Website' => [
+            'content.manage' => 'Edit website pages and images',
+            'content.publish' => 'Publish website changes and edit site settings',
         ],
         'Sales and marketing' => [
             'leads.manage' => 'Manage leads and follow-ups',
@@ -54,8 +59,8 @@ class ReferenceDataSeeder extends Seeder
 
     public const ROLES = [
         'credit_officer' => ['Credit Assessment Officer', 'Reviews applications and recommends decisions.', ['applications.view', 'applications.assess', 'customers.verify']],
-        'it_admin' => ['IT Administrator', 'Runs the platform. No financial approval powers.', ['users.manage', 'roles.manage', 'security.view', 'audit.view', 'system.manage', 'products.manage', 'rules.propose']],
-        'sales_marketing' => ['Sales and Marketing Specialist', 'Grows the marketplace.', ['leads.manage', 'campaigns.manage', 'marketing.reports']],
+        'it_admin' => ['IT Administrator', 'Runs the platform. No financial approval powers.', ['users.manage', 'roles.manage', 'security.view', 'audit.view', 'system.manage', 'backups.manage', 'products.manage', 'rules.propose', 'content.manage', 'content.publish']],
+        'sales_marketing' => ['Sales and Marketing Specialist', 'Grows the marketplace.', ['leads.manage', 'campaigns.manage', 'marketing.reports', 'content.manage', 'content.publish']],
         'finance_officer' => ['Finance Officer', 'Banyira accounts, client funds, reconciliation and payroll.', ['finance.view', 'finance.record', 'finance.approve', 'payments.reconcile', 'payroll.view', 'payroll.manage']],
         'executive' => ['Executive Management', 'Oversight and approvals. Does not process transactions.', ['executive.dashboard', 'reports.view', 'applications.view', 'applications.approve', 'listings.publish', 'rules.approve', 'finance.view', 'payroll.view', 'audit.view', 'marketing.reports']],
     ];
@@ -76,6 +81,7 @@ class ReferenceDataSeeder extends Seeder
         $this->products();
         $this->rules();
         $this->criteria();
+        $this->call(ContentSeeder::class);
     }
 
     private function ledger(): void

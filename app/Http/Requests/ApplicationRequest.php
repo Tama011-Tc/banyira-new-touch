@@ -15,7 +15,7 @@ class ApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'loan_product_id' => ['required', 'exists:loan_products,id'],
+            'loan_product_id' => ['required', 'integer', 'exists:loan_products,id'],
             'amount' => ['nullable', 'numeric', 'min:1', 'max:9999999999999'],
             'term_months' => ['nullable', 'integer', 'min:1', 'max:120'],
             'purpose' => ['nullable', 'string', 'max:2000'],

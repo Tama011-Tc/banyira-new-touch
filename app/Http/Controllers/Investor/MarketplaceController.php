@@ -29,7 +29,7 @@ class MarketplaceController extends Controller
 
         $q = Listing::query()
             ->when(($f['status'] ?? 'open') === 'open', fn ($q) => $q->where('status', 'open')->where('closes_at', '>', now()))
-            ->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('public_name', 'like', "%{$v}%")->orWhere('purpose', 'like', "%{$v}%")->orWhere('summary', 'like', "%{$v}%")))
+            ->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->whereLike('public_name', "%{$v}%")->orWhereLike('purpose', "%{$v}%")->orWhereLike('summary', "%{$v}%")))
             ->when($f['industry'] ?? null, fn ($q, $v) => $q->where('industry', $v))
             ->when($f['region'] ?? null, fn ($q, $v) => $q->where('region', $v))
             ->when($f['risk'] ?? null, fn ($q, $v) => $q->where('risk_class', $v))

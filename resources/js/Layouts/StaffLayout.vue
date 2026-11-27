@@ -10,6 +10,7 @@ const page = usePage<{ staffCounts?: Record<string, number> }>()
 const user = computed(() => page.props.auth.user!)
 const can = useCan()
 const n = computed(() => page.props.staffCounts ?? {})
+const unread = computed(() => page.props.counts.notifications)
 
 const nav = computed<NavGroup[]>(() => {
   const g: NavGroup[] = []
@@ -17,6 +18,16 @@ const nav = computed<NavGroup[]>(() => {
     const list = items.filter(Boolean) as NavItem[]
     if (list.length) g.push({ label, items: list })
   }
+  add('Home', [
+    { href: '/internal', label: 'Overview', exact: true, icon: 'home' },
+    { href: '/internal/notifications', label: 'Notifications', badge: unread.value || undefined, icon: 'bell' },
+    { href: '/internal/profile', label: 'My profile', icon: 'user' },
+  ])
+  add('Website', [
+    (can('content.manage') || can('content.publish')) && { href: '/internal/content', label: 'Pages', exact: true, icon: 'globe' },
+    can('content.manage') && { href: '/internal/content/media', label: 'Images', icon: 'image' },
+    can('content.publish') && { href: '/internal/content/settings', label: 'Site settings', icon: 'sliders' },
+  ])
   add('Executive', [
     can('executive.dashboard') && { href: '/internal/executive', label: 'Platform performance', exact: true },
     can('applications.approve') && { href: '/internal/approvals', label: 'Approvals', badge: n.value.approvals || undefined },
@@ -50,6 +61,7 @@ const nav = computed<NavGroup[]>(() => {
     can('security.view') && { href: '/internal/it/security', label: 'Security and sign-ins' },
     can('audit.view') && { href: '/internal/audit', label: 'Audit log' },
     can('system.manage') && { href: '/internal/it/jobs', label: 'Jobs and integrations' },
+    can('backups.manage') && { href: '/internal/it/backups', label: 'Backups', icon: 'database' },
   ])
   add('Configuration', [
     (can('rules.propose') || can('rules.approve')) && { href: '/internal/rules', label: 'Financing rules' },

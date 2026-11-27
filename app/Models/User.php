@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -94,5 +95,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function flushPermissionCache(): void
     {
         $this->permissionCache = null;
+    }
+
+    /** In-app notifications, newest first, as the notification pages show them. */
+    public function notificationFeed(): LengthAwarePaginator
+    {
+        return $this->notifications()->latest()->paginate(20)
+            ->through(fn ($n) => ['id' => $n->id, ...$n->data, 'at' => $n->created_at, 'read' => (bool) $n->read_at]);
+    }
+
+    /** Marks one notification, or all of them, as read. */
+    public function markNotificationsRead(?string $id = null): void
+    {
+        $this->unreadNotifications()->when($id, fn ($q) => $q->whereKey($id))->update(['read_at' => now()]);
     }
 }

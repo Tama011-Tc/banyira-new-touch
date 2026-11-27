@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
  */
 class LoginGuard
 {
-    public function __construct(private AuditLogger $audit) {}
+    public function __construct(private AuditLogger $audit, private StaffNotifier $staff) {}
 
     public function record(Request $request, string $guard, ?User $user, bool $success, ?string $reason = null): void
     {
@@ -40,6 +40,7 @@ class LoginGuard
         if ($user->failed_logins >= $max) {
             $user->forceFill(['locked_until' => now()->addMinutes(config('banyira.security.lockout_minutes')), 'failed_logins' => 0])->save();
             $this->audit->log('security', "Account locked after {$max} failed sign-ins", $user, ['guard' => $guard, 'ip' => $ip]);
+            $this->staff->holders('security.view', 'Account locked', "{$user->email} was locked after {$max} failed sign-ins.", '/internal/it/security');
         }
     }
 }

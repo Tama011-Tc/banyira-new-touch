@@ -25,7 +25,8 @@ class PaymentService
 
     public function outstanding(Agreement $agreement): string
     {
-        $row = $agreement->schedule()->toBase()->selectRaw('COALESCE(SUM(principal_due + interest_due - principal_paid - interest_paid), 0) t')->first();
+        // reorder(): Postgres rejects the relation's ORDER BY on an aggregate.
+        $row = $agreement->schedule()->reorder()->toBase()->selectRaw('COALESCE(SUM(principal_due + interest_due - principal_paid - interest_paid), 0) t')->first();
 
         return Money::of($row->t);
     }

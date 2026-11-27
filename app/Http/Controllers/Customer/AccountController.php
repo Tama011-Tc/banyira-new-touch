@@ -26,7 +26,7 @@ class AccountController extends Controller
         $user = $request->user();
         $list = Conversation::whereHas('participants', fn ($q) => $q->where('user_id', $user->id))
             ->with(['participants.user:id,name,type', 'messages' => fn ($q) => $q->latest('id')->limit(1)])
-            ->orderByDesc('last_message_at')->get();
+            ->orderByRaw('last_message_at IS NULL')->orderByDesc('last_message_at')->get();
 
         if ($conversation) {
             $this->authorize('view', $conversation);
@@ -74,13 +74,14 @@ class AccountController extends Controller
     {
         return Inertia::render('Customer/Notifications', [
             'area' => $request->user()->type,
-            'items' => $request->user()->notifications()->latest()->paginate(20)->through(fn ($n) => ['id' => $n->id, ...$n->data, 'at' => $n->created_at, 'read' => (bool) $n->read_at]),
+            'items' => $request->user()->notificationFeed(),
         ]);
     }
 
     public function readNotifications(Request $request)
     {
-        $request->user()->unreadNotifications()->when($request->input('id'), fn ($q, $id) => $q->whereKey($id))->update(['read_at' => now()]);
+        $data = $request->validate(['id' => ['nullable', 'uuid']]);
+        $request->user()->markNotificationsRead($data['id'] ?? null);
 
         return back();
     }

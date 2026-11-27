@@ -3,11 +3,15 @@ import StaffLayout from '@/Layouts/StaffLayout.vue'
 import PageHead from '@/Components/PageHead.vue'
 import DataTable from '@/Components/DataTable.vue'
 import Pagination from '@/Components/Pagination.vue'
+import TableToolbar from '@/Components/TableToolbar.vue'
 import Status from '@/Components/Status.vue'
 import Notice from '@/Components/Notice.vue'
 import { dateTime, label } from '@/lib/format'
+import { useTableQuery, type TableState } from '@/lib/table'
 
-defineProps<{ attempts: any; locked: any[] }>()
+const props = defineProps<{ attempts: any; query: TableState; locked: any[] }>()
+const { apply, sortBy } = useTableQuery('/internal/it/security', () => props.query)
+const filters = [{ key: 'result', label: 'Result', options: [{ value: 'success', label: 'Success' }, { value: 'failed', label: 'Failed' }, { value: 'flagged', label: 'Flagged' }] }]
 </script>
 
 <template>
@@ -17,8 +21,9 @@ defineProps<{ attempts: any; locked: any[] }>()
       <span v-for="u in locked" :key="u.id" class="mr-4">{{ u.name }} ({{ label(u.type) }}) until {{ dateTime(u.locked_until) }}</span>
     </Notice>
     <div class="mt-5">
-      <DataTable caption="Sign-in attempts" :rows="attempts.data"
-        :columns="[{ key: 'created_at', label: 'When' }, { key: 'guard', label: 'Portal' }, { key: 'email', label: 'Email' }, { key: 'ip', label: 'IP address' }, { key: 'success', label: 'Result' }, { key: 'flagged', label: '' }]">
+      <TableToolbar :query="query" :filters="filters" search-label="Search email or IP address" @change="apply" />
+      <DataTable caption="Sign-in attempts" empty="No sign-ins match" :rows="attempts.data" :order="query" @sort="sortBy"
+        :columns="[{ key: 'created_at', label: 'When', sort: 'when' }, { key: 'guard', label: 'Portal' }, { key: 'email', label: 'Email' }, { key: 'ip', label: 'IP address' }, { key: 'success', label: 'Result' }, { key: 'flagged', label: '' }]">
         <template #cell-created_at="{ row }">{{ dateTime(row.created_at) }}</template>
         <template #cell-guard="{ row }">{{ row.guard === 'staff' ? 'Employee' : 'Customer' }}</template>
         <template #cell-ip="{ row }"><span class="font-mono text-[13px]">{{ row.ip }}</span></template>

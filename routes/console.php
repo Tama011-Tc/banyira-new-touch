@@ -3,6 +3,7 @@
 use App\Models\RepaymentSchedule;
 use App\Models\User;
 use App\Notifications\Alert;
+use App\Services\Backups\BackupService;
 use App\Services\MarketplaceService;
 use App\Services\PaymentService;
 use App\Services\RulesService;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::call(fn () => app(RulesService::class)->activateDue())->dailyAt('00:05')->name('activate-rules');
 Schedule::call(fn () => app(PaymentService::class)->markOverdue())->dailyAt('01:00')->name('mark-overdue');
 Schedule::call(fn () => app(MarketplaceService::class)->expireStale())->hourly()->name('expire-offers');
+Schedule::call(fn () => app(BackupService::class)->runScheduled())->dailyAt('02:00')->name('database-backup')->withoutOverlapping();
 
 // SMS reminder three days before each instalment date, one message per borrower.
 Schedule::call(function () {

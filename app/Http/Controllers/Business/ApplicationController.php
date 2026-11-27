@@ -36,7 +36,7 @@ class ApplicationController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate(['loan_product_id' => ['required', 'exists:loan_products,id']]);
+        $data = $request->validate(['loan_product_id' => ['required', 'integer', 'exists:loan_products,id']]);
         $app = $this->workflow->createDraft($request->user()->load('businessProfile'), $data + [
             'monthly_turnover' => $request->user()->businessProfile->monthly_turnover,
             'employees' => $request->user()->businessProfile->employees,

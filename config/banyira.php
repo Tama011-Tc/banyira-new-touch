@@ -56,4 +56,17 @@ return [
 
     'documents_disk' => env('DOCUMENTS_DISK', 'documents'),
 
+    // Pictures uploaded for the public website.
+    'media_disk' => env('MEDIA_DISK', 'media'),
+    'media_max_kb' => 4096,
+
+    // Database backups. A backup holds everything in the database, so the disk
+    // must be private and, in production, outside the web server.
+    'backups' => [
+        'disk' => env('BACKUP_DISK', 'backups'),
+        'timeout_seconds' => (int) env('BACKUP_TIMEOUT', 600),
+        'mysqldump' => env('BACKUP_MYSQLDUMP_PATH', 'mysqldump'),
+        'pg_dump' => env('BACKUP_PG_DUMP_PATH', 'pg_dump'),
+    ],
+
 ];

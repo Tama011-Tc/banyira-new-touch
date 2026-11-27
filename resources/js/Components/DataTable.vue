@@ -1,13 +1,16 @@
 <script lang="ts">
-export type Column = { key: string; label: string; align?: 'right' }
+export type Column = { key: string; label: string; align?: 'right'; sort?: string }
 </script>
 
 <script setup lang="ts" generic="T extends Record<string, any>">
 import EmptyState from './EmptyState.vue'
+import Icon from './Icon.vue'
 
 // Clean rows with a hover highlight on wide screens; on phones each row
 // becomes a card in a grouped list. Override a cell with #cell-<key>.
-defineProps<{ columns: Column[]; rows: T[]; caption: string; empty?: string; emptyIcon?: string }>()
+// A column with "sort" gets a sortable heading; the server does the sorting.
+defineProps<{ columns: Column[]; rows: T[]; caption: string; empty?: string; emptyIcon?: string; order?: { sort: string; dir: 'asc' | 'desc' } }>()
+defineEmits<{ sort: [key: string] }>()
 </script>
 
 <template>
@@ -21,7 +24,13 @@ defineProps<{ columns: Column[]; rows: T[]; caption: string; empty?: string; emp
           <caption class="sr-only">{{ caption }}</caption>
           <thead>
             <tr class="text-[12px] text-label-2">
-              <th v-for="c in columns" :key="c.key" scope="col" class="px-4 pb-2 pt-3.5 font-medium first:pl-5" :class="c.align === 'right' && 'text-right'">{{ c.label }}</th>
+              <th v-for="c in columns" :key="c.key" scope="col" class="px-4 pb-2 pt-3.5 font-medium first:pl-5" :class="c.align === 'right' && 'text-right'"
+                :aria-sort="c.sort && order?.sort === c.sort ? (order.dir === 'asc' ? 'ascending' : 'descending') : undefined">
+                <button v-if="c.sort" type="button" class="inline-flex items-center gap-1 hover:text-label" :class="order?.sort === c.sort && 'text-label'" @click="$emit('sort', c.sort)">
+                  {{ c.label }}<Icon v-if="order?.sort === c.sort" :n="order.dir === 'asc' ? 'up' : 'arrowdown'" :size="12" />
+                </button>
+                <template v-else>{{ c.label }}</template>
+              </th>
               <th v-if="$slots.actions" scope="col" class="px-4 pb-2 pt-3.5 pr-5"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>

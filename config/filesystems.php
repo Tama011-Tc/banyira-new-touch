@@ -48,6 +48,24 @@ return [
             'report' => false,
         ],
 
+        // Pictures for the public website, served by MediaController so any disk works.
+        'media' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/media'),
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
+        // Database backups. Never publicly served.
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/backups'),
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -5,26 +5,20 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\LoginAttempt;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\RuleSet;
 use App\Models\SmsMessage;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Support\TableQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
-/** IT administration: health, employees, roles, security, audit, jobs and integrations. */
+/** IT administration: health, security, audit, jobs and integrations. */
 class AdminController extends Controller
 {
-    /** Approval powers the IT role may never hold. */
-    private const SEPARATED = ['applications.approve', 'listings.publish', 'rules.approve', 'finance.approve', 'finance.record', 'payments.reconcile', 'payroll.view', 'payroll.manage'];
-
     public function __construct(private AuditLogger $audit) {}
 
     public function health()
@@ -53,88 +47,16 @@ class AdminController extends Controller
         ]);
     }
 
-    public function users()
+    public function security(Request $request)
     {
-        return Inertia::render('Staff/IT/Users', [
-            'users' => User::where('type', 'employee')->with('roles:id,name,slug', 'employeeProfile')->orderBy('name')->get()
-                ->map(fn ($u) => [...$u->only(['id', 'name', 'email', 'status', 'last_login_at']), 'mfa' => (bool) $u->mfa_confirmed_at, 'locked' => $u->isLocked(),
-                    'role' => $u->roles->first()?->name, 'roleId' => $u->roles->first()?->id, 'title' => $u->employeeProfile?->job_title, 'staffNo' => $u->employeeProfile?->staff_number]),
-            'roles' => Role::orderBy('name')->get(['id', 'name']),
-        ]);
-    }
+        $table = TableQuery::for(LoginAttempt::query(), $request)
+            ->search(['email', 'ip'])
+            ->filter('result', fn ($q, $v) => $v === 'flagged' ? $q->where('flagged', true) : $q->where('success', $v === 'success'), ['success', 'failed', 'flagged'])
+            ->sort(['when' => 'id'], 'when');
 
-    public function storeUser(Request $request)
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'unique:users,email', 'ends_with:@banyira.internal'],
-            'role_id' => ['required', 'exists:roles,id'],
-            'job_title' => ['required', 'string', 'max:80'],
-            'department' => ['required', 'string', 'max:60'],
-            'password' => ['required', Password::min(12)->letters()->mixedCase()->numbers()->symbols()],
-        ]);
-        DB::transaction(function () use ($data, $request) {
-            $u = User::create(['name' => $data['name'], 'email' => strtolower($data['email']), 'type' => 'employee', 'status' => 'active', 'password' => $data['password'], 'email_verified_at' => now(), 'password_changed_at' => now()]);
-            $u->roles()->attach($data['role_id']);
-            $u->employeeProfile()->create(['staff_number' => 'BNY-'.str_pad((string) $u->id, 3, '0', STR_PAD_LEFT), 'department' => $data['department'], 'job_title' => $data['job_title']]);
-            $this->audit->log('users', "Created employee account {$u->email}", $u, ['role_id' => $data['role_id']], $request->user());
-        });
-
-        return back()->with('success', 'Employee created. They will set up MFA at first sign-in.');
-    }
-
-    public function updateUser(Request $request, User $user)
-    {
-        abort_unless($user->isEmployee(), 404);
-        $data = $request->validate(['action' => ['required', 'in:suspend,activate,unlock,reset_mfa,role'], 'role_id' => ['required_if:action,role', 'nullable', 'exists:roles,id']]);
-        if ($user->id === $request->user()->id) {
-            throw ValidationException::withMessages(['action' => 'You cannot change your own account access.']);
-        }
-        match ($data['action']) {
-            'suspend' => $user->forceFill(['status' => 'suspended'])->save(),
-            'activate' => $user->forceFill(['status' => 'active'])->save(),
-            'unlock' => $user->forceFill(['locked_until' => null, 'failed_logins' => 0])->save(),
-            'reset_mfa' => $user->forceFill(['mfa_secret' => null, 'mfa_confirmed_at' => null])->save(),
-            'role' => $user->roles()->sync([$data['role_id']]),
-        };
-        if (in_array($data['action'], ['suspend', 'reset_mfa', 'role'], true)) {
-            DB::table('sessions')->where('user_id', $user->id)->delete();
-        }
-        $this->audit->log('users', ucfirst(str_replace('_', ' ', $data['action']))." for {$user->email}", $user, $data, $request->user());
-
-        return back()->with('success', 'Employee access updated.');
-    }
-
-    public function roles()
-    {
-        return Inertia::render('Staff/IT/Roles', [
-            'roles' => Role::with('permissions:id')->withCount('users')->orderBy('name')->get()->map(fn ($r) => [...$r->only(['id', 'slug', 'name', 'description', 'users_count']), 'permissions' => $r->permissions->pluck('id')]),
-            'permissions' => Permission::orderBy('group')->orderBy('slug')->get(['id', 'slug', 'name', 'group']),
-            'separated' => self::SEPARATED,
-        ]);
-    }
-
-    public function updateRole(Request $request, Role $role)
-    {
-        $data = $request->validate(['permissions' => ['array'], 'permissions.*' => ['exists:permissions,id']]);
-        if ($request->user()->roles->contains($role)) {
-            throw ValidationException::withMessages(['permissions' => 'You cannot change the permissions of a role you hold.']);
-        }
-        $slugs = Permission::whereIn('id', $data['permissions'] ?? [])->pluck('slug');
-        if ($role->slug === 'it_admin' && $slugs->intersect(self::SEPARATED)->isNotEmpty()) {
-            throw ValidationException::withMessages(['permissions' => 'IT administrators cannot hold financial or credit approval powers.']);
-        }
-        $before = $role->permissions()->pluck('slug')->all();
-        $role->permissions()->sync($data['permissions'] ?? []);
-        $this->audit->log('roles', "Changed permissions for {$role->name}", $role, ['before' => $before, 'after' => $slugs->all()], $request->user());
-
-        return back()->with('success', 'Role permissions saved.');
-    }
-
-    public function security()
-    {
         return Inertia::render('Staff/IT/Security', [
-            'attempts' => LoginAttempt::latest('id')->paginate(25)->through(fn ($a) => $a->only(['id', 'guard', 'email', 'ip', 'success', 'reason', 'flagged', 'created_at'])),
+            'attempts' => $table->paginate()->through(fn ($a) => $a->only(['id', 'guard', 'email', 'ip', 'success', 'reason', 'flagged', 'created_at'])),
+            'query' => $table->state(),
             'locked' => User::whereNotNull('locked_until')->where('locked_until', '>', now())->get(['id', 'name', 'email', 'type', 'locked_until']),
         ]);
     }
@@ -148,6 +70,7 @@ class AdminController extends Controller
             'schedule' => [
                 ['task' => 'Activate approved financing rules', 'when' => 'Daily 00:05'],
                 ['task' => 'Flag overdue instalments', 'when' => 'Daily 01:00'],
+                ['task' => 'Database backup (when scheduled backups are on)', 'when' => 'Daily 02:00'],
                 ['task' => 'Expire stale investor offers', 'when' => 'Hourly'],
                 ['task' => 'Repayment reminders (SMS)', 'when' => 'Daily 07:00'],
             ],
@@ -171,13 +94,17 @@ class AdminController extends Controller
 
     public function audit(Request $request)
     {
-        $area = $request->query('area');
+        $areas = AuditLog::distinct()->orderBy('area')->pluck('area')->all();
+        $table = TableQuery::for(AuditLog::with('user:id,name'), $request)
+            ->search(['action'])
+            ->filter('area', fn ($q, $area) => $q->where('area', $area), $areas)
+            ->sort(['when' => 'id'], 'when');
 
         return Inertia::render('Staff/Audit', [
-            'logs' => AuditLog::with('user:id,name')->when($area, fn ($q) => $q->where('area', $area))->latest('id')->paginate(30)->withQueryString()
+            'logs' => $table->paginate()
                 ->through(fn ($l) => [...$l->only(['id', 'area', 'action', 'ip', 'created_at', 'meta']), 'user' => $l->user?->name ?? 'System']),
-            'areas' => AuditLog::distinct()->orderBy('area')->pluck('area'),
-            'area' => $area,
+            'query' => $table->state(),
+            'areas' => $areas,
         ]);
     }
 

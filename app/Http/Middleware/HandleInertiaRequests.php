@@ -10,6 +10,7 @@ use App\Models\LoanProduct;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\VerificationRecord;
+use App\Services\Content\ContentService;
 use App\Services\MessagingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -24,6 +25,8 @@ class HandleInertiaRequests extends Middleware
         $staffArea = $request->is('internal', 'internal/*', 'internal-access', 'internal-access/*');
         /** @var User|null $user */
         $user = $staffArea ? $request->user('staff') : $request->user('web');
+        // A draft preview is a public page opened from the staff portal.
+        $publicChrome = ! $staffArea || $request->is('internal/content/pages/*/preview');
 
         return [
             ...parent::share($request),
@@ -39,12 +42,13 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
-            'counts' => fn () => $user && ! $user->isEmployee() ? [
-                'messages' => app(MessagingService::class)->unreadCount($user),
-                'notifications' => $user->unreadNotifications()->count(),
-            ] : ['messages' => 0, 'notifications' => 0],
+            'counts' => fn () => [
+                'messages' => $user && ! $user->isEmployee() ? app(MessagingService::class)->unreadCount($user) : 0,
+                'notifications' => $user ? $user->unreadNotifications()->count() : 0,
+            ],
             'demoPayments' => config('banyira.payments.driver') === 'demo',
-            'navProducts' => fn () => $staffArea ? [] : Cache::remember('nav-products', 300, fn () => LoanProduct::active()->get(['slug', 'name', 'summary'])->toArray()),
+            'navProducts' => fn () => $publicChrome ? Cache::remember('nav-products', 300, fn () => LoanProduct::active()->get(['slug', 'name', 'summary'])->toArray()) : [],
+            'site' => fn () => $publicChrome ? ['settings' => app(ContentService::class)->siteSettings(), 'nav' => app(ContentService::class)->navigation()] : null,
             'staffCounts' => fn () => $user?->isEmployee() ? $this->staffCounts($user) : null,
         ];
     }

@@ -128,6 +128,24 @@ All screenshots use the demo data above.
 
 ---
 
+## Admin side
+
+Sign in at `/internal-access`. After updating an existing copy, run `php artisan migrate` then `npm run build`.
+
+| Area | What staff can do | Who has it by default |
+|---|---|---|
+| **Website → Pages** | Edit public pages, add new ones, hide or reorder sections, preview, publish, restore an earlier version | IT, Sales and marketing |
+| **Website → Images, Site settings** | Upload pictures; change the announcement bar, footer and risk statement | IT, Sales and marketing |
+| **Employees, Roles** | Manage accounts, create and delete roles | IT |
+| **Backups** | Back up now or on a schedule, download (password required), delete | IT |
+
+Scheduled backups need `php artisan schedule:work`. A backup covers the database only, not uploaded documents or images. Restore one with the database's own tool, into an empty database:
+
+```sh
+gzip -dc banyira-....sql.gz | mysql -u root banyira4_restored      # MySQL
+gzip -dc banyira-....sql.gz | psql "postgresql://..."              # Postgres
+```
+
 ## Who uses it
 
 | User | What they do | Where |

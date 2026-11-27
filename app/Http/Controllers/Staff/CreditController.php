@@ -27,7 +27,7 @@ class CreditController extends Controller
             ->when($status === 'mine', fn ($q) => $q->where('assigned_to', $request->user()->id)->whereNotIn('status', ['draft', 'closed']))
             ->when(! in_array($status, ['open', 'mine', 'all'], true), fn ($q) => $q->where('status', $status))
             ->where('status', '!=', 'draft')
-            ->orderByRaw("FIELD(status, 'submitted', 'under_review', 'assessment_in_progress', 'information_required') DESC")->oldest('submitted_at')
+            ->orderByRaw("CASE status WHEN 'information_required' THEN 4 WHEN 'assessment_in_progress' THEN 3 WHEN 'under_review' THEN 2 WHEN 'submitted' THEN 1 ELSE 0 END DESC")->oldest('submitted_at')
             ->paginate(15)->withQueryString();
 
         return Inertia::render('Staff/Credit/Queue', [

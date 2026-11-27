@@ -25,6 +25,7 @@ const go = () => {
   error.value = null
   router.visit(props.href, {
     method: props.method, data: props.data as any, preserveScroll: true,
+    preserveState: 'errors',
     onStart: () => (busy.value = true),
     onSuccess: () => (open.value = false),
     onError: (errs) => (error.value = Object.values(errs)[0] as string),

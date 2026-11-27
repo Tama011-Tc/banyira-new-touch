@@ -8,7 +8,7 @@
     @endif
     <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-    <meta name="description" content="Banyira connects Malawian businesses seeking financing with investors who want to support real businesses.">
+    <meta data-inertia="description" name="description" content="Banyira connects Malawian businesses seeking financing with investors who want to support real businesses.">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <script>

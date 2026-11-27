@@ -67,6 +67,10 @@ class PageSmokeTest extends TestCase
         $this->visit($by('mercy.chirwa@banyira.internal'), ['/internal/sales', '/internal/sales/leads', '/internal/sales/leads?stage=new', '/internal/sales/campaigns']);
         $this->visit($by('kondwani.mwale@banyira.internal'), ['/internal/it', '/internal/it/users', '/internal/it/roles', '/internal/it/security', '/internal/it/jobs', '/internal/audit', '/internal/rules', '/internal/products']);
 
+        $admin = $by('kondwani.mwale@banyira.internal');
+        $page = \App\Models\Page::first();
+        $this->visit($admin, ['/internal', '/internal/profile', '/internal/notifications', '/internal/content', "/internal/content/pages/{$page->id}", "/internal/content/pages/{$page->id}/preview", '/internal/content/media', '/internal/content/settings', "/internal/it/users/{$by('mercy.chirwa@banyira.internal')->id}", '/internal/it/backups', '/internal/it/users?q=chirwa&sort=signin', '/internal/it/security?result=success&q=127', '/internal/audit?area=security&q=signed', '/internal/content?type=builtin&sort=updated']);
+
         foreach (['transactions', 'income', 'client-funds'] as $t) {
             $this->asStaff($by('blessings.nkhoma@banyira.internal'))->get("/internal/finance/exports/{$t}")->assertOk();
         }

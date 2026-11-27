@@ -15,11 +15,25 @@ use Illuminate\Validation\ValidationException;
  */
 class RulesService
 {
-    public function __construct(private AuditLogger $audit) {}
+    public function __construct(private AuditLogger $audit, private StaffNotifier $staff) {}
 
     public function active(): RuleSet
     {
         return RuleSet::with(['feeTiers', 'riskBands'])->where('status', 'active')->firstOrFail();
+    }
+
+    /** The active rules as the public website shows them. */
+    public function summary(): array
+    {
+        $r = $this->active();
+
+        return [
+            'version' => $r->version,
+            'effective' => $r->effective_from->toDateString(),
+            'ceiling' => $r->interest_ceiling,
+            'fees' => $r->feeTiers->map(fn ($t) => ['upTo' => $t->upper_bound, 'rate' => $t->rate])->values(),
+            'bands' => $r->riskBands->sortBy('min_score', descending: true)->map(fn ($b) => ['class' => $b->risk_class, 'label' => $b->label, 'maxAmount' => $b->max_amount, 'maxMonths' => $b->max_months])->values(),
+        ];
     }
 
     /** Fee tier boundary: a tier applies when amount < upper_bound. */
@@ -93,6 +107,7 @@ class RulesService
                 $set->riskBands()->create(['risk_class' => $b['risk_class'], 'label' => $b['label'], 'min_score' => $b['min_score'], 'max_amount' => $b['max_amount'] ?: null, 'max_months' => $b['max_months'] ?: null]);
             }
             $this->audit->log('rules', 'Proposed financing rules '.$set->version, $set, [], $by);
+            $this->staff->holders('rules.approve', 'Rule change proposed', "{$set->version} is waiting for a decision.", '/internal/rules', except: $by);
 
             return $set;
         });

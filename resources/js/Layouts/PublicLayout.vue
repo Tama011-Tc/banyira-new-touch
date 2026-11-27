@@ -5,17 +5,21 @@ import Logo from '@/Components/Logo.vue'
 import Icon from '@/Components/Icon.vue'
 import Btn from '@/Components/Btn.vue'
 import Flash from '@/Components/Flash.vue'
+import ContentLink from '@/Components/ContentLink.vue'
 import ThemeToggle from '@/Components/ThemeToggle.vue'
 import { isDark, toggleTheme } from '@/lib/theme'
 
 const page = usePage<{ navProducts: { slug: string; name: string; summary: string }[] }>()
 const products = computed(() => page.props.navProducts ?? [])
+// Wording and page links come from the staff portal (Website).
+const settings = computed(() => page.props.site?.settings)
+const footer = (column: 'businesses' | 'investors' | 'company') => page.props.site?.nav.footer[column] ?? []
 const user = computed(() => page.props.auth.user)
 const open = ref(false)
 const dd = ref(false)
 const scrolled = ref(false)
 
-const nav = [['/how-to-get-a-loan', 'How to Get a Loan'], ['/how-to-invest', 'How to Invest'], ['/about', 'About Us'], ['/contact', 'Contact']]
+const nav = computed(() => page.props.site?.nav.header ?? [])
 const isActive = (h: string) => (h === '/' ? page.url === '/' : page.url.startsWith(h))
 const dashboard = computed(() => (user.value?.type === 'business' ? '/business' : '/investor'))
 
@@ -30,6 +34,10 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
 <template>
   <div class="flex min-h-screen flex-col">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:bg-surface focus:p-3">Skip to content</a>
+    <p v-if="settings?.announcement.enabled" role="note" class="border-b border-line bg-tint-soft px-4 py-2 text-center text-[13px] text-label">
+      {{ settings.announcement.text }}
+      <ContentLink v-if="settings.announcement.link" :href="settings.announcement.link" class="link ml-1 font-medium">Read more</ContentLink>
+    </p>
     <header class="bar sticky top-0 z-40 border-b transition-[border-color,background-color] duration-300" :data-glass="scrolled && !open" :class="scrolled || open ? 'border-line' : 'border-transparent'">
       <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
         <Link href="/" aria-label="Banyira home" class="press"><Logo /></Link>
@@ -52,7 +60,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
               </div>
             </Transition>
           </div>
-          <Link v-for="[h, l] in nav" :key="h" :href="h" class="navlink" :data-active="isActive(h)">{{ l }}</Link>
+          <Link v-for="item in nav" :key="item.href" :href="item.href" class="navlink" :data-active="isActive(item.href)">{{ item.label }}</Link>
         </nav>
 
         <div class="hidden items-center gap-3 lg:flex">
@@ -80,7 +88,7 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
             <Link href="/" class="flex h-11 items-center border-b border-line">Home</Link>
             <p class="pb-1 pt-4 text-[13px] text-muted">Our Products</p>
             <Link v-for="p in products" :key="p.slug" :href="`/products/${p.slug}`" class="flex h-10 items-center pl-3 text-[15px] text-muted">{{ p.name }}</Link>
-            <Link v-for="[h, l] in nav" :key="h" :href="h" class="flex h-11 items-center border-b border-line">{{ l }}</Link>
+            <Link v-for="item in nav" :key="item.href" :href="item.href" class="flex h-11 items-center border-b border-line">{{ item.label }}</Link>
             <div class="flex h-14 items-center justify-between border-b border-line">
               <span>Appearance</span>
               <ThemeToggle />
@@ -100,21 +108,21 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
       <div class="mx-auto grid max-w-6xl gap-8 px-4 py-14 text-sm sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Logo />
-          <p class="mt-3 max-w-xs text-muted">A peer-to-peer marketplace connecting Malawian businesses that need financing with people who want to invest in them.</p>
+          <p class="mt-3 max-w-xs text-muted">{{ settings?.footer_about }}</p>
           <div class="mt-5"><ThemeToggle /></div>
         </div>
         <div>
           <h2 class="font-sans text-[13px] font-medium tracking-normal">Businesses</h2>
           <ul class="mt-3 space-y-2">
             <li><Link href="/products" class="footlink">Our products</Link></li>
-            <li><Link href="/how-to-get-a-loan" class="footlink">How to get a loan</Link></li>
+            <li v-for="l in footer('businesses')" :key="l.href"><Link :href="l.href" class="footlink">{{ l.label }}</Link></li>
             <li><Link href="/register/business" class="footlink">Apply for financing</Link></li>
           </ul>
         </div>
         <div>
           <h2 class="font-sans text-[13px] font-medium tracking-normal">Investors</h2>
           <ul class="mt-3 space-y-2">
-            <li><Link href="/how-to-invest" class="footlink">How to invest</Link></li>
+            <li v-for="l in footer('investors')" :key="l.href"><Link :href="l.href" class="footlink">{{ l.label }}</Link></li>
             <li><Link href="/legal#risk" class="footlink">Investment risk</Link></li>
             <li><Link href="/register/investor" class="footlink">Open an investor account</Link></li>
           </ul>
@@ -122,16 +130,14 @@ const closeDd = (e: FocusEvent) => { if (!(e.currentTarget as HTMLElement).conta
         <div>
           <h2 class="font-sans text-[13px] font-medium tracking-normal">Company</h2>
           <ul class="mt-3 space-y-2">
-            <li><Link href="/about" class="footlink">About us</Link></li>
-            <li><Link href="/contact" class="footlink">Contact</Link></li>
-            <li><Link href="/legal" class="footlink">Terms, privacy and complaints</Link></li>
+            <li v-for="l in footer('company')" :key="l.href"><Link :href="l.href" class="footlink">{{ l.label }}</Link></li>
           </ul>
         </div>
       </div>
       <div class="border-t border-line">
         <div class="mx-auto max-w-6xl space-y-2 px-4 py-6 text-xs leading-relaxed text-muted sm:px-6">
-          <p><span class="font-medium text-ink">Investing involves risk.</span> Investors may experience delayed repayments or lose some or all of their invested capital. Banyira's credit assessments and risk classifications do not guarantee repayment or returns.</p>
-          <p>Applying for financing does not guarantee approval or funding. © {{ new Date().getFullYear() }} Banyira. Lilongwe, Malawi.</p>
+          <p><span class="font-medium text-ink">Investing involves risk.</span> {{ settings?.risk_statement }}</p>
+          <p>{{ settings?.footer_notice }} © {{ new Date().getFullYear() }} Banyira. {{ settings?.footer_location }}.</p>
         </div>
       </div>
     </footer>

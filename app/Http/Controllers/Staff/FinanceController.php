@@ -16,8 +16,10 @@ use App\Services\ApprovalService;
 use App\Services\LedgerService;
 use App\Services\PaymentService;
 use App\Support\Money;
+use App\Support\Sql;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -39,7 +41,7 @@ class FinanceController extends Controller
             ->join('journal_entries as e', 'e.id', '=', 'journal_lines.journal_entry_id')
             ->whereIn('a.category', ['service_charges', 'banyira_revenue', 'operating_expenses'])->where('a.type', '!=', 'liability')
             ->where('e.entry_date', '>=', now()->subMonths(5)->startOfMonth())
-            ->selectRaw("DATE_FORMAT(e.entry_date, '%Y-%m') m, SUM(CASE WHEN a.type='revenue' THEN credit-debit ELSE 0 END) rev, SUM(CASE WHEN a.type='expense' THEN debit-credit ELSE 0 END) exp")
+            ->selectRaw(Sql::month('e.entry_date')." m, SUM(CASE WHEN a.type='revenue' THEN credit-debit ELSE 0 END) rev, SUM(CASE WHEN a.type='expense' THEN debit-credit ELSE 0 END) exp")
             ->groupBy('m')->orderBy('m')->get();
 
         return Inertia::render('Staff/Finance/Overview', [
@@ -84,8 +86,7 @@ class FinanceController extends Controller
 
     public function confirmFunds(Request $request, AgreementParty $party, AgreementService $service)
     {
-        $data = $request->validate(['provider_reference' => ['required', 'string', 'max:60', 'unique:payments,provider_reference']]);
-        $service->confirmInvestorFunds($party, $request->user(), $data['provider_reference']);
+        $service->confirmInvestorFunds($party, $request->user(), $this->providerReference($request));
 
         return back()->with('success', 'Investor funds confirmed and recorded in the client account.');
     }
@@ -111,10 +112,18 @@ class FinanceController extends Controller
 
     public function confirmPayment(Request $request, Payment $payment, PaymentService $payments)
     {
-        $data = $request->validate(['provider_reference' => ['required', 'string', 'max:60', 'unique:payments,provider_reference,'.$payment->id]]);
-        $payments->confirm($payment, $request->user(), $data['provider_reference']);
+        $payments->confirm($payment, $request->user(), $this->providerReference($request, $payment));
 
         return back()->with('success', "Payment {$payment->reference} confirmed and allocated to the repayment schedule.");
+    }
+
+    /** A provider's receipt number, unused by any other payment. Uppercased first, as it is stored. */
+    private function providerReference(Request $request, ?Payment $payment = null): string
+    {
+        $request->merge(['provider_reference' => $request->string('provider_reference')->upper()->value()]);
+        $unique = 'unique:payments,provider_reference'.($payment ? ','.$payment->id : '');
+
+        return $request->validate(['provider_reference' => ['required', 'string', 'max:60', $unique]])['provider_reference'];
     }
 
     public function failPayment(Request $request, Payment $payment, PaymentService $payments)
@@ -206,7 +215,7 @@ class FinanceController extends Controller
         $data = $request->validate([
             'period' => ['required', 'date_format:Y-m', 'unique:payroll_runs,period'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.user_id' => ['required', 'exists:users,id'],
+            'items.*.user_id' => ['required', 'integer', 'exists:users,id'],
             'items.*.gross' => ['required', 'numeric', 'min:0'],
             'items.*.deductions' => ['required', 'numeric', 'min:0', 'lte:items.*.gross'],
         ]);
@@ -239,6 +248,7 @@ class FinanceController extends Controller
 
     public function export(Request $request, string $type): StreamedResponse
     {
+        $request->validate(['month' => ['nullable', 'date_format:Y-m']]);
         $month = $request->query('month', now()->format('Y-m'));
         $from = $month.'-01';
         $to = date('Y-m-t', strtotime($from));

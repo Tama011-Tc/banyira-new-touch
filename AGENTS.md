@@ -35,6 +35,10 @@ Tests use the `banyira4_test` MySQL database: `php artisan test`. Type-check Vue
   - `LedgerService` — double entry, balanced, immutable; corrections by reversal. Account categories separate Banyira money from client money.
   - `ApprovalService` — maker-checker for disbursements, expenses, payroll.
   - `RulesService` — fee tiers, interest ceiling, risk bands; versioned, approved by someone other than the proposer, effective-dated.
+- `Content/` (in `app/Services`) — public website pages. `BlockCatalogue` is the one definition of every section type (validation and the editor come from it; each type also needs a component in `Components/Blocks` and an entry in `BlockRenderer.vue`). `ContentService` owns draft, publish, restore. Default wording is in `ContentSeeder`, which never overwrites an existing page.
+- `StaffAccessService` — employees and roles. A role that administers the platform never holds approval powers.
+- `Backups/` (in `app/Services`) — database dumps behind the `DatabaseDumper` contract.
+- `app/Support/TableQuery.php` — search, filter and sort for staff tables, allow-listed. Pair with `TableToolbar.vue` and `lib/table.ts`.
 - `app/Support/Money.php` — bcmath money helpers and amortisation. Never use floats for money.
 - `app/Contracts/` + `app/Services/{Sms,Payments,Identity}` — provider abstractions. Defaults: `log` SMS, `demo` payments (no real money), manual identity review.
 - Guards: `web` (customers) and `staff` (employees). Employee permissions are Gate abilities (`can:finance.approve`); see `ReferenceDataSeeder::ROLES`.
@@ -46,6 +50,8 @@ Tests use the `banyira4_test` MySQL database: `php artisan test`. Type-check Vue
 - Money: `decimal(15,2)` columns, string values, `Money::*` for arithmetic.
 - Every status change, approval and sensitive view goes through `AuditLogger`.
 - Investors only ever receive `ListingResource` fields about a business.
+- Page content is plain text: never render it with `v-html`. Links pass `AppRulesSafeLink`.
+- New permissions go to existing installations through a migration; re-running `ReferenceDataSeeder` resets role permissions.
 - Design: system fonts, one green accent (`forest`), thin borders, no gradients or shadows. Status = coloured dot + text. Keep it that way.
   Five references, one job each: Muji for palette and restraint, Linear for product UI density, Pentagram for typography (`.t-display`, `.t-title`, `.t-lead`, `.t-label`), Apple for motion (`--ease-smooth`, `--ease-spring`; always honour reduced motion), Duolingo for sign-up (one question per screen: `WizardLayout` + `useWizard()` + `ChoiceCards`).
 - Tailwind v4 tokens live in `resources/css/app.css` (`@theme`). Global element styles go in `@layer base`.
